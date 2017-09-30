@@ -2702,9 +2702,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			// Check images in the content.
 			$content = $post->post_content;
 			// Since we cannot apply the_content filter, lets give plugin devs or site owners the ability to register their shortcodes that generate images.
-			$shortcodes	= apply_filters( 'aioseop_image_shortcodes', '' );
+			$shortcodes = apply_filters( 'aioseop_image_shortcodes', '' );
 			if ( ! empty( $shortcodes ) ) {
-				$content	.= do_shortcode( $shortcodes );
+				$content    .= do_shortcode( $shortcodes );
 			}
 			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
 			if ( $total > 0 ) {
