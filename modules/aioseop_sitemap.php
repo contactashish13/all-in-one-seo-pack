@@ -2724,13 +2724,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Parse the post for images.
 		 *
 		 * @param string $content the post content.
-		 * @param array $images the array of images.
-		 *
+		 * @param array  $images the array of images.
 		 */
 		function parse_content_for_images( $content, &$images ) {
 			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
 			// no images found.
-			if ( $total === 0 ) {
+			if ( 0 === $total ) {
 				return;
 			}
 
@@ -2748,12 +2747,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$images[] = $match->getAttribute( 'src' );
 				}
 			} else {
-				// fall back to regex, but also report an error
+				// fall back to regex, but also report an error.
 				global $img_err_msg;
 				if ( ! isset( $img_err_msg ) ) {
 					// we will log this error message only once, not per post.
 					$img_err_msg = true;
+					// @codingStandardsIgnoreStart
 					error_log( 'DOMDocument not found; using REGEX' );
+					// @codingStandardsIgnoreEnd
 				}
 				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
 				if ( $matches && isset( $matches[2] ) ) {
