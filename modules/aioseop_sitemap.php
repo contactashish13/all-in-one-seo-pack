@@ -2699,22 +2699,26 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$images[] = $attached_url;
 			}
 
-			// Check images in the content.
-			$content = $post->post_content;
-			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
-			if ( $total > 0 ) {
-				$dom = new domDocument();
-				// Non-compliant HTML might give errors, so ignore them.
-				libxml_use_internal_errors( true );
-				$dom->loadHTML( $content );
-				libxml_clear_errors();
-				// @codingStandardsIgnoreStart
-				$dom->preserveWhiteSpace = false;
-				// @codingStandardsIgnoreEnd
-				$matches = $dom->getElementsByTagName( 'img' );
-				foreach ( $matches as $match ) {
-					$images[] = $match->getAttribute( 'src' );
+			if ( class_exists( 'DOMDocument' ) ) {
+				// Check images in the content.
+				$content = $post->post_content;
+				$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+				if ( $total > 0 ) {
+					$dom = new domDocument();
+					// Non-compliant HTML might give errors, so ignore them.
+					libxml_use_internal_errors( true );
+					$dom->loadHTML( $content );
+					libxml_clear_errors();
+					// @codingStandardsIgnoreStart
+					$dom->preserveWhiteSpace = false;
+					// @codingStandardsIgnoreEnd
+					$matches = $dom->getElementsByTagName( 'img' );
+					foreach ( $matches as $match ) {
+						$images[] = $match->getAttribute( 'src' );
+					}
 				}
+			} else {
+				error_log( 'DOMDocument does not exist! Will not parse images in the body of the post' );
 			}
 
 			if ( $images ) {
