@@ -2734,7 +2734,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return;
 			}
 
-			if ( false && class_exists( 'DOMDocument' ) ) {
+			if ( class_exists( 'DOMDocument' ) ) {
 				$dom = new domDocument();
 				// Non-compliant HTML might give errors, so ignore them.
 				libxml_use_internal_errors( true );
