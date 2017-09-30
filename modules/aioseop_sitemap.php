@@ -28,6 +28,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		var $extra_sitemaps;
 		var $excludes = array();
 
+		static $IMAGE_EXTENSIONS	= array(
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+		);
+
 		/**
 		 * All_in_One_SEO_Pack_Sitemap constructor.
 		 */
@@ -2723,6 +2730,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					// Filter out duplicates.
 					$tmp = array_unique( $images );
 				}
+				// remove any invalid/empty images.
+				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
 					$images[] = array(
@@ -2732,6 +2741,30 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return $images;
+		}
+
+
+		/**
+		 * Validate the image.
+		 *
+		 * @param string $image The image src.
+		 *
+		 * @return bool
+		 */
+		function is_image_valid( $image ) {
+			// bail, if empty image.
+			if ( empty( $image ) ) {
+				return false;
+			}
+
+			$extn       = pathinfo( parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$IMAGE_EXTENSIONS );
+			// bail, if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
+			if ( ! in_array( $extn, $allowed ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		/**
