@@ -2699,27 +2699,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$images[] = $attached_url;
 			}
 
-			if ( class_exists( 'DOMDocument' ) ) {
-				// Check images in the content.
-				$content = $post->post_content;
-				$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
-				if ( $total > 0 ) {
-					$dom = new domDocument();
-					// Non-compliant HTML might give errors, so ignore them.
-					libxml_use_internal_errors( true );
-					$dom->loadHTML( $content );
-					libxml_clear_errors();
-					// @codingStandardsIgnoreStart
-					$dom->preserveWhiteSpace = false;
-					// @codingStandardsIgnoreEnd
-					$matches = $dom->getElementsByTagName( 'img' );
-					foreach ( $matches as $match ) {
-						$images[] = $match->getAttribute( 'src' );
-					}
-				}
-			} else {
-				error_log( 'DOMDocument does not exist! Will not parse images in the body of the post' );
-			}
+			// Check images in the content.
+			$content = $post->post_content;
+			$this->parse_content_for_images( $content, $images );
 
 			if ( $images ) {
 				$tmp = $images;
@@ -2736,6 +2718,48 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return $images;
+		}
+
+		/**
+		 * Parse the post for images.
+		 *
+		 * @param string $content the post content.
+		 * @param array $images the array of images.
+		 *
+		 */
+		function parse_content_for_images( $content, &$images ) {
+			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+			// no images found.
+			if ( $total === 0 ) {
+				return;
+			}
+
+			if ( false && class_exists( 'DOMDocument' ) ) {
+				$dom = new domDocument();
+				// Non-compliant HTML might give errors, so ignore them.
+				libxml_use_internal_errors( true );
+				$dom->loadHTML( $content );
+				libxml_clear_errors();
+				// @codingStandardsIgnoreStart
+				$dom->preserveWhiteSpace = false;
+				// @codingStandardsIgnoreEnd
+				$matches = $dom->getElementsByTagName( 'img' );
+				foreach ( $matches as $match ) {
+					$images[] = $match->getAttribute( 'src' );
+				}
+			} else {
+				// fall back to regex, but also report an error
+				global $img_err_msg;
+				if ( ! isset( $img_err_msg ) ) {
+					// we will log this error message only once, not per post.
+					$img_err_msg = true;
+					error_log( 'DOMDocument not found; using REGEX' );
+				}
+				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
+				if ( $matches && isset( $matches[2] ) ) {
+					$images = array_merge( $images, $matches[2] );
+				}
+			}
 		}
 
 		/**
