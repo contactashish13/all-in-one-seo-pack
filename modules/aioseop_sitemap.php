@@ -2739,22 +2739,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				libxml_use_internal_errors( true );
 				$dom->loadHTML( $content );
 				libxml_clear_errors();
-				// @codingStandardsIgnoreStart
 				$dom->preserveWhiteSpace = false;
-				// @codingStandardsIgnoreEnd
 				$matches = $dom->getElementsByTagName( 'img' );
 				foreach ( $matches as $match ) {
 					$images[] = $match->getAttribute( 'src' );
 				}
 			} else {
-				// fall back to regex, but also report an error.
+				// Fall back to regex, but also report an error.
 				global $img_err_msg;
 				if ( ! isset( $img_err_msg ) ) {
 					// we will log this error message only once, not per post.
 					$img_err_msg = true;
-					// @codingStandardsIgnoreStart
-					error_log( 'DOMDocument not found; using REGEX' );
-					// @codingStandardsIgnoreEnd
+					$this->debug_message( 'DOMDocument not found; using REGEX' );
 				}
 				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
 				if ( $matches && isset( $matches[2] ) ) {
