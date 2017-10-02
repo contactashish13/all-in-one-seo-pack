@@ -2740,7 +2740,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 
-      $this->parse_content_for_images( $content, $images );
+      			$this->parse_content_for_images( $content, $images );
 
 			if ( $images ) {
 				$tmp = $images;
