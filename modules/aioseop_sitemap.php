@@ -2678,25 +2678,26 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$post = get_post( $post );
 			}
 
-			if ( 'attachment' === $post->post_type ) {
-				if ( false === strpos( $post->post_mime_type, 'image/' ) ) {
-					// Ignore all attachments except images.
-					return null;
-				}
-				$attributes = wp_get_attachment_image_src( $post->ID );
-				if ( $attributes ) {
+			// if this post is of type attachment, check if the file it refers to is an image.
+			if ( 'attachment' === $post->post_type && wp_attachment_is_image( $post ) ) {
+				$image      = wp_get_attachment_url( $post->ID );
+				if ( false !== $image ) {
 					$images[] = array(
-						'image:loc' => $attributes[0],
+						'image:loc' => $image,
 					);
 				}
 
 				return $images;
 			}
 
-			// Check featured image.
-			$attached_url = get_the_post_thumbnail_url( $post->ID );
-			if ( false !== $attached_url ) {
-				$images[] = $attached_url;
+			// check featured image, only if this post type supports featured image.
+			if ( post_type_supports( $post->post_type, 'thumbnail' ) && wp_attachment_is_image( $post ) ) {
+				$image      = get_the_post_thumbnail_url( $post );
+				if ( false !== $image ) {
+					$images[] = array(
+						'image:loc' => $image,
+					);
+				}
 			}
 
 			// Check images in the content.
