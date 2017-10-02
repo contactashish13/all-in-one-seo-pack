@@ -29,6 +29,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		var $excludes = array();
 
 		/**
+		 * The allowed image extensions.
+		 *
+		 * @var      array $image_extensions The allowed image extensions.
+		 */
+		private static $image_extensions    = array(
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+		);
+
+		/**
 		 * All_in_One_SEO_Pack_Sitemap constructor.
 		 */
 		function __construct() {
@@ -2728,12 +2740,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 
+      $this->parse_content_for_images( $content, $images );
+
 			if ( $images ) {
 				$tmp = $images;
 				if ( 1 < count( $images ) ) {
 					// Filter out duplicates.
 					$tmp = array_unique( $images );
 				}
+				// remove any invalid/empty images.
+				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
 					$images[] = array(
@@ -2743,6 +2759,71 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return $images;
+		}
+
+
+		/**
+		 * Validate the image.
+		 *
+		 * @param string $image The image src.
+		 *
+		 * @since 2.4.1
+		 *
+		 * @return bool
+		 */
+		function is_image_valid( $image ) {
+			// Bail if empty image.
+			if ( empty( $image ) ) {
+				return false;
+			}
+
+			$extn       = pathinfo( wp_parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
+			// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
+			if ( ! in_array( $extn, $allowed, true ) ) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
+		 * Parse the post for images.
+		 *
+		 * @param string $content the post content.
+		 * @param array  $images the array of images.
+		 */
+		function parse_content_for_images( $content, &$images ) {
+			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+			// no images found.
+			if ( 0 === $total ) {
+				return;
+			}
+
+			if ( class_exists( 'DOMDocument' ) ) {
+				$dom = new domDocument();
+				// Non-compliant HTML might give errors, so ignore them.
+				libxml_use_internal_errors( true );
+				$dom->loadHTML( $content );
+				libxml_clear_errors();
+				$dom->preserveWhiteSpace = false;
+				$matches = $dom->getElementsByTagName( 'img' );
+				foreach ( $matches as $match ) {
+					$images[] = $match->getAttribute( 'src' );
+				}
+			} else {
+				// Fall back to regex, but also report an error.
+				global $img_err_msg;
+				if ( ! isset( $img_err_msg ) ) {
+					// we will log this error message only once, not per post.
+					$img_err_msg = true;
+					$this->debug_message( 'DOMDocument not found; using REGEX' );
+				}
+				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
+				if ( $matches && isset( $matches[2] ) ) {
+					$images = array_merge( $images, $matches[2] );
+				}
+			}
 		}
 
 		/**
