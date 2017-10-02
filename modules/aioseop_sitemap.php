@@ -2699,6 +2699,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$images[] = $attached_url;
 			}
 
+			$content = '';
 			$content = $post->post_content;
 
 			// Check images galleries in the content. DO NOT run the_content filter here as it might cause issues with other shortcodes.
