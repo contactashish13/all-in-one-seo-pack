@@ -2678,7 +2678,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$post = get_post( $post );
 			}
 
-			// if this post is of type attachment, check if the file it refers to is an image.
+			// If this post is of type attachment, check if the file it refers to is an image.
 			if ( 'attachment' === $post->post_type && wp_attachment_is_image( $post ) ) {
 				$image      = wp_get_attachment_url( $post->ID );
 				if ( false !== $image ) {
@@ -2686,11 +2686,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						'image:loc' => $image,
 					);
 				}
-
 				return $images;
 			}
 
-			// check featured image, only if this post type supports featured image.
+			// Check featured image, only if this post type supports featured image.
 			if ( post_type_supports( $post->post_type, 'thumbnail' ) && wp_attachment_is_image( $post ) ) {
 				$image      = get_the_post_thumbnail_url( $post );
 				if ( false !== $image ) {
