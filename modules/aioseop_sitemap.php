@@ -2763,23 +2763,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 
-			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
-			if ( $total > 0 ) {
-				$dom = new domDocument();
-				// Non-compliant HTML might give errors, so ignore them.
-				libxml_use_internal_errors( true );
-				$dom->loadHTML( $content );
-				libxml_clear_errors();
-				// @codingStandardsIgnoreStart
-				$dom->preserveWhiteSpace = false;
-				// @codingStandardsIgnoreEnd
-				$matches = $dom->getElementsByTagName( 'img' );
-				foreach ( $matches as $match ) {
-					$images[] = $match->getAttribute( 'src' );
-				}
-			}
-
-      			$this->parse_content_for_images( $content, $images );
+			$this->parse_content_for_images( $content, $images );
 
 			if ( $images ) {
 				$tmp = $images;
