@@ -2691,7 +2691,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			// check featured image, only if this post type supports featured image.
-			if ( post_type_supports( $post->post_type, 'thumbnail' ) && wp_attachment_is_image( $post ) ) {
+			if ( post_type_supports( $post->post_type, 'thumbnail' ) ) {
 				$image      = get_the_post_thumbnail_url( $post );
 				if ( false !== $image ) {
 					$images[] = array(
