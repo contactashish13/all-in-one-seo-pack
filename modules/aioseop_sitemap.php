@@ -2745,9 +2745,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( post_type_supports( $post->post_type, 'thumbnail' ) ) {
 				$image      = get_the_post_thumbnail_url( $post );
 				if ( false !== $image ) {
-					$images[] = array(
-						'image:loc' => $image,
-					);
+					$images[] = $image;
 				}
 			}
 
