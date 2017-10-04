@@ -2775,7 +2775,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
-					$image = aiosp_common::absolutize_url( $image ); // Make the url absolute, if its relative.				
 					$images[] = array(
 						'image:loc' => $this->clean_url( $image ),
 					);
@@ -2799,6 +2798,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$url    = strtok( $url, '?' );
 			// make the url XML-safe.
 			$url    = htmlspecialchars( $url );
+			// Make the url absolute, if its relative.
+			$url    = aiosp_common::absolutize_url( $url );
 			return apply_filters( 'aioseop_clean_url', $url );
 		}
 
