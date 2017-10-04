@@ -115,7 +115,7 @@ class aiosp_common {
 	 */
 	static function absolutize_url( $url ) {
 		if ( strpos( $url, 'http' ) !== 0 && strpos( $url, '//' ) !== 0 && $url != '/' ) {
-			$url = home_url() . $url;
+			$url = home_url( $url );
 		}
 		return $url;
 	}
