@@ -987,6 +987,15 @@ if ( ! function_exists('aiosp_include_images') ) {
 		}
 
 		global $aioseop_options;
-		return isset( $aioseop_options['modules'] ) && isset( $aioseop_options['modules']['aiosp_sitemap_options'] ) && isset( $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images'] ) && 'on' === $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images'];
+
+		if( 	isset( $aioseop_options['modules'] ) && 
+			isset( $aioseop_options['modules']['aiosp_sitemap_options'] ) && 
+			isset( $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images'] ) && 
+			'on' === $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images']
+		 ){
+			return false; 	
+ 		}
+
+		return true;	
 	}
 }
