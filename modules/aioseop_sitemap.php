@@ -2816,6 +2816,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return false;
 			}
 
+			// make the url absolute, if its relative.
+			$image	    = aiosp_common::absolutize_url( $image );
+
 			$extn       = pathinfo( wp_parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
 			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
 			// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
