@@ -132,7 +132,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				),
 				'archive'    => array( 'name' => __( 'Include Date Archive Pages', 'all-in-one-seo-pack' ) ),
 				'author'     => array( 'name' => __( 'Include Author Pages', 'all-in-one-seo-pack' ) ),
-				'images'     => array( 'name' => __( 'Include Images', 'all-in-one-seo-pack' ) ),
+				'images'     => array( 'name' => __( 'Include Images', 'all-in-one-seo-pack' ),
+					'default' => 'On',		     
+				),
 				'gzipped'    => array(
 					'name'    => __( 'Create Compressed Sitemap', 'all-in-one-seo-pack' ),
 					'default' => 'On',
