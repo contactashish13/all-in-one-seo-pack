@@ -2823,6 +2823,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return false;
 			}
 
+			// Bail if image refers to an external URL.
+			$image_host = wp_parse_url( $image, PHP_URL_HOST );
+			$wp_host    = wp_parse_url( home_url(), PHP_URL_HOST );
+			if ( $image_host !== $wp_host ) {
+				return false;
+			}
+
 			return true;
 		}
 
