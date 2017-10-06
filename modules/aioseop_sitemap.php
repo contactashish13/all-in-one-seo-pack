@@ -2823,6 +2823,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return false;
 			}
 
+			$image_host = wp_parse_url( $image, PHP_URL_HOST );
+			$host       = wp_parse_url( home_url(), PHP_URL_HOST );
+
+			// allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
+			// and we will convert that into a regular expression for matching.
+			$allowed    = apply_filters( 'aioseop_images_allowed_from_hosts', array() );
+			if ( $image_host !== $host ) {
+				if ( $allowed ) {
+					foreach ( $allowed as $pattern ) {
+						if ( preg_match( '/' . str_replace( '*', '.*', $pattern ) . '/', $image_host ) === 1 ) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
 			return true;
 		}
 
