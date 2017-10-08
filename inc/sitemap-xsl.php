@@ -143,7 +143,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 			<thead>
 			<tr>
 				<th width="50%">URL</th>
+				<?php
+					if ( aiosp_include_images() ) {
+				?>
 				<th>Images</th>
+				<?php
+					}
+				?>
 				<th>Priority</th>
 				<th>Change Frequency</th>
 				<th>Last Change</th>
@@ -176,9 +182,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
                             </xsl:if>
                         </xsl:for-each>
 					</td>
+					<?php
+						if ( aiosp_include_images() ) {
+					?>
 					<td>
 						<xsl:value-of select="count(image:image)"/>
 					</td>
+					<?php
+						}
+					?>
 					<td>
 						<xsl:if test="string(number(sitemap:priority))!='NaN'">
 							<xsl:value-of select="concat(sitemap:priority*100,'%')"/>
