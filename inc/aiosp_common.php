@@ -114,8 +114,8 @@ class aiosp_common {
 	 * @return string
 	 */
 	static function absolutize_url( $url ) {
-		if ( strpos( $url, 'http' ) !== 0 && $url != '/' ) {
-			if ( strpos( $url, '//' ) === 0 ) {
+		if ( 0 !== strpos( $url, 'http' ) && '/' !== $url ) {
+			if ( 0 === strpos( $url, '//' ) ) {
 				// for //<host>/resource type urls.
 				$scheme = wp_parse_url( home_url(), PHP_URL_SCHEME );
 				$url    = $scheme . ':' . $url;
