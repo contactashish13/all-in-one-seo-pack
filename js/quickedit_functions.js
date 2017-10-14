@@ -90,3 +90,13 @@ function handle_post_meta( p, t, m, n ) {
 
 	})
 }
+
+
+jQuery(document).ready(function(){
+	jQuery( 'span.proupgrade a' )
+		.click(function (e) {
+        e.preventDefault();
+        // temporarily hard coded
+            window.location.href='/wp-admin/admin-post.php?action=aioseop_upgrade';
+    });
+});
