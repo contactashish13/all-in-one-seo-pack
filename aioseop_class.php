@@ -1712,7 +1712,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title = apply_filters( 'aioseop_title_page', $title );
 
 			return $title;
-		} else if ( is_single() || $this->check_singular() ) {
+		} elseif ( is_single() || $this->check_singular() ) {
 			// We're not in the loop :(.
 			if ( null === $post ) {
 				return false;
@@ -2459,7 +2459,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			}
 		} else if ( is_front_page() ) {
 			$description = $this->get_aioseop_description( $post );
-		} else if ( is_single() || is_page() || is_attachment() || is_home() || $this->is_static_posts_page() || $this->check_singular() ) {
+		} elseif ( is_single() || is_page() || is_attachment() || is_home() || $this->is_static_posts_page() || $this->check_singular() ) {
 			$description = $this->get_aioseop_description( $post );
 		} else if ( ( is_category() || is_tag() || is_tax() ) && $this->show_page_description() ) {
 			if ( ! empty( $opts ) && AIOSEOPPRO ) {
@@ -4122,9 +4122,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	}
 
 	/**
-     * Determine if the post is 'like' singular. In some specific instances, such as when the Reply post type of bbpress is loaded in its own page, 
+	 * Determine if the post is 'like' singular. In some specific instances, such as when the Reply post type of bbpress is loaded in its own page,
 	 * it reflects as singular intead of single
-     * @since 2.4.2
+	 *
+	 * @since 2.4.2
+	 *
 	 * @return bool
 	 */
 	private function check_singular() {
