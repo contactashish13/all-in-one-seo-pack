@@ -1712,7 +1712,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title = apply_filters( 'aioseop_title_page', $title );
 
 			return $title;
-		} else if ( is_single() ) {
+		} else if ( is_single() || $this->check_singular() ) {
 			// We're not in the loop :(.
 			if ( null === $post ) {
 				return false;
@@ -2459,7 +2459,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			}
 		} else if ( is_front_page() ) {
 			$description = $this->get_aioseop_description( $post );
-		} else if ( is_single() || is_page() || is_attachment() || is_home() || $this->is_static_posts_page() ) {
+		} else if ( is_single() || is_page() || is_attachment() || is_home() || $this->is_static_posts_page() || $this->check_singular() ) {
 			$description = $this->get_aioseop_description( $post );
 		} else if ( ( is_category() || is_tag() || is_tax() ) && $this->show_page_description() ) {
 			if ( ! empty( $opts ) && AIOSEOPPRO ) {
@@ -4088,7 +4088,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		     || ( is_tax() && in_array( get_query_var( 'taxonomy' ), $tax_noindex ) )
 		) {
 			$noindex = 'noindex';
-		} elseif ( is_single() || is_page() || $this->is_static_posts_page() || is_attachment() || is_category() || is_tag() || is_tax() || ( $page > 1 ) ) {
+		} elseif ( is_single() || is_page() || $this->is_static_posts_page() || is_attachment() || is_category() || is_tag() || is_tax() || ( $page > 1 ) || $this->check_singular() ) {
 			$post_type = get_post_type();
 			if ( ! empty( $opts ) ) {
 				$aiosp_noindex  = htmlspecialchars( stripslashes( $opts['aiosp_noindex'] ) );
@@ -4119,6 +4119,24 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		return $robots_meta;
+	}
+
+	/**
+     * Determine if the post is 'like' singular. In some specific instances, such as when the Reply post type of bbpress is loaded in its own page, 
+	 * it reflects as singular intead of single
+     * @since 2.4.2
+	 * @return bool
+	 */
+	private function check_singular() {
+		global $wp_query, $post;
+		$is_singular    = false;
+		if ( is_singular() ) {
+			// #1297 - support for bbpress 'reply' post type.
+			if ( $post && 'reply' === $post->post_type ) {
+				$is_singular    = true;
+			}
+		}
+		return $is_singular;
 	}
 
 	/**
