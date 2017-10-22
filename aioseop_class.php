@@ -2471,10 +2471,15 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$description = $this->internationalize( $description );
 		}
 
+		// #1308 - we want to make sure we are ignoring php version only in the admin area while editing the post, so that it does not impact #932.
+		$screen = get_current_screen();
+		$ignore_php_version = is_admin() && isset( $screen->id ) && 'post' == $screen->id;
+
 		return apply_filters(
 			'aioseop_description',
 			$description,
-			empty( $aioseop_options['aiosp_dont_truncate_descriptions'] )
+			empty( $aioseop_options['aiosp_dont_truncate_descriptions'] ),
+			$ignore_php_version
 		);
 	}
 
@@ -3629,7 +3634,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'amp_post_template_head', array( $this, 'amp_head' ), 11 );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
 		}
-		add_filter( 'aioseop_description', array( &$this, 'filter_description' ), 10, 2 );
+		add_filter( 'aioseop_description', array( &$this, 'filter_description' ), 10, 3 );
 		add_filter( 'aioseop_title', array( &$this, 'filter_title' ) );
 	}
 
@@ -4909,12 +4914,15 @@ EOF;
 	 *
 	 * @param string $value    Value to filter.
 	 * @param bool   $truncate Flag that indicates if value should be truncated/cropped.
+	 * @param bool   $ignore_php_version Flag that indicates if the php version check should be ignored.
 	 *
 	 * @return string
 	 */
-	public function filter_description( $value, $truncate = false ) {
-		if ( preg_match( '/5.2[\s\S]+/', PHP_VERSION ) )
+	public function filter_description( $value, $truncate = false, $ignore_php_version = false ) {
+		// TODO: change preg_match to version_compare someday when the reason for this condition is understood better.
+		if ( $ignore_php_version || preg_match( '/5.2[\s\S]+/', PHP_VERSION ) ) {
 			$value = htmlspecialchars( wp_strip_all_tags( htmlspecialchars_decode( $value ) ) );
+		}
 		// Decode entities
 		$value = $this->html_entity_decode( $value );
 		$value = preg_replace(
