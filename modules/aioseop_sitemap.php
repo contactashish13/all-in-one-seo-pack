@@ -2734,7 +2734,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					// Ignore all attachments except images.
 					return null;
 				}
-				$attributes = wp_get_attachment_image_src( $post->ID );
+				$attributes = wp_get_attachment_image_src( $post->ID, 'full' );
 				if ( $attributes ) {
 					$images[] = array(
 						'image:loc' => $this->clean_url( $attributes[0] ),
@@ -2745,7 +2745,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			// Check featured image.
-			$attached_url = get_the_post_thumbnail_url( $post->ID );
+			$attached_url = get_the_post_thumbnail_url( $post->ID, 'full' );
 			if ( false !== $attached_url ) {
 				$images[] = $attached_url;
 			}
@@ -2794,7 +2794,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
 				// Get the jetpack gallery images.
 				if ( class_exists( 'Jetpack_PostImages' ) ) {
-					$jetpack    = Jetpack_PostImages::get_images( $post->ID );
+					// the method specifies default width and height so we need to provide these values to override the defaults.
+					// since there is no way to determine the original image's dimensions, we will fetch the 'large' size image here.
+					$jetpack    = Jetpack_PostImages::get_images( $post->ID, $this->get_dimensions_for_image_size( 'large' ) );
 					if ( $jetpack ) {
 						foreach ( $jetpack as $jetpack_image ) {
 							$images[]   = $jetpack_image['src'];
@@ -2811,6 +2813,29 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 			$images = array_unique( $images );
+		}
+
+		/**
+		 * Fetch the width and height for the specified image size.
+		 *
+		 * @param string $size The image size e.g. 'large', 'medium' etc.
+		 *
+		 * @since 2.4.3
+		 */
+		private function get_dimensions_for_image_size( $size ) {
+			$sizes  = get_intermediate_image_sizes();
+			if ( ! in_array( $size, $sizes ) ) {
+				// our specified size does not exist in the registered sizes, so let's use the largest one available.
+				$size   = end( $sizes );
+			}
+
+			if ( $size ) {
+				return array(
+					'width'     => get_option( "{$size}_size_w" ),
+					'height'    => get_option( "{$size}_size_h" ),
+				);
+			}
+			return null;
 		}
 
 		/**
