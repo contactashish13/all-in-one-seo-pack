@@ -2824,7 +2824,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		private function get_dimensions_for_image_size( $size ) {
 			$sizes  = get_intermediate_image_sizes();
-			if ( ! in_array( $size, $sizes ) ) {
+			if ( ! in_array( $size, $sizes, true ) ) {
 				// our specified size does not exist in the registered sizes, so let's use the largest one available.
 				$size   = end( $sizes );
 			}
