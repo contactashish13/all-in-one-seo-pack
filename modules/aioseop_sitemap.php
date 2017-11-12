@@ -3125,7 +3125,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						continue;
 					}
 					if ( 'attachment' === $post_type ) {
-						$args['post_status']	= 'inherit';
+						$args['post_status'] = 'inherit';
 					}
 
 					$post_counts[ $post_type ] = $this->get_post_count( $args );
@@ -3147,7 +3147,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['suppress_filters'] = false;
 			}
 
-			$args	= apply_filters( $this->prefix . 'modify_post_params', $args );
+			$args = apply_filters( $this->prefix . 'modify_post_params', $args );
 		}
 
 		/**
@@ -3162,11 +3162,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			// we will use WP_Query instead of get_posts here as that is more efficient.
 			// BEWARE: since we are using WP_Query, suppress_filters is false.
-			$args['posts_per_page']			= -1;
-			$args['fields']					= 'ids';
-			$args['update_post_meta_cache']	= false;
-			$args['update_post_term_cache']	= false;
-			$query							= new WP_Query( $args );
+			$args['posts_per_page']         = -1;
+			$args['fields']                 = 'ids';
+			$args['update_post_meta_cache'] = false;
+			$args['update_post_term_cache'] = false;
+			$query                          = new WP_Query( $args );
 			if ( $query->have_posts() ) {
 				return $query->post_count;
 			}
