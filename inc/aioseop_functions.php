@@ -410,6 +410,10 @@ if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 		$options = Array();
 		parse_str( $_POST['options'], $options );
 		foreach ( $options as $k => $v ) {
+			// all values are mandatory
+			if ( empty( $v ) ) {
+				die( sprintf( AIOSEOP_AJAX_MSG_TMPL, __( 'All values are mandatory.', 'all-in-one-seo-pack' ) ) );
+			}
 			$_POST[ $k ] = $v;
 		}
 		$_POST['action'] = 'aiosp_update_module';
