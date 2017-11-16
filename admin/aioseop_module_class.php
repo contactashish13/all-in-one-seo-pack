@@ -2215,7 +2215,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				$attr .= " id=\"{$opts['id']}\" ";
 			}
 			if ( isset( $options['required'] ) && true === $options['required'] ) {
-				$attr .= " required";
+				$attr .= ' required';
 			}
 			switch ( $options['type'] ) {
 				case 'multiselect':
