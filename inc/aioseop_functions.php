@@ -410,8 +410,9 @@ if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 		$options = Array();
 		parse_str( $_POST['options'], $options );
 		foreach ( $options as $k => $v ) {
-			// all values are mandatory
-			if ( empty( $v ) ) {
+			// all values are mandatory while adding to the sitemap.
+			// this should work in the same way for news and video sitemaps too, but tackling only regular sitemaps for now.
+			if ( 'sitemap_addl_pages' === $_POST['settings'] && empty( $v ) ) {
 				die( sprintf( AIOSEOP_AJAX_MSG_TMPL, __( 'All values are mandatory.', 'all-in-one-seo-pack' ) ) );
 			}
 			$_POST[ $k ] = $v;
