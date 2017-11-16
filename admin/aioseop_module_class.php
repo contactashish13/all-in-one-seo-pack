@@ -2190,16 +2190,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				return apply_filters( "{$prefix}output_option", '', $args );
 			}
 			if ( in_array( $options['type'], array(
-					'multiselect',
-					'select',
-					'multicheckbox',
-					'radio',
-					'checkbox',
-					'textarea',
-					'text',
-					'submit',
-					'hidden',
-					'date',
+				'multiselect',
+				'select',
+				'multicheckbox',
+				'radio',
+				'checkbox',
+				'textarea',
+				'text',
+				'submit',
+				'hidden',
+				'date',
 				) ) && is_string( $value )
 			) {
 				$value = esc_attr( $value );
