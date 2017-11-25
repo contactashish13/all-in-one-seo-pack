@@ -3758,7 +3758,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 		$opts = $this->meta_opts;
 		global $aioseop_update_checker, $wp_query, $aioseop_options, $posts;
-		$include_meta = 'on' === $aioseop_options['aiosp_enablecpost'] && in_array( get_post_type(), $aioseop_options['aiosp_cpostactive'] );
+		$include_meta = 'on' === $aioseop_options['aiosp_enablecpost'] && in_array( get_post_type(), $aioseop_options['aiosp_cpostactive'], true );
 		static $aioseop_dup_counter = 0;
 		$aioseop_dup_counter ++;
 		if ( $aioseop_dup_counter > 1 ) {
@@ -3859,7 +3859,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 					'pinterest' => 'p:domain_verify',
 				) as $k => $v
 			) {
-				if ( ! empty( $aioseop_options["aiosp_{$k}_verify"] ) && $include_meta ) {
+				if ( ! empty( $aioseop_options[ "aiosp_{$k}_verify" ] ) && $include_meta ) {
 					$meta_string .= '<meta name="' . $v . '" content="' . trim( strip_tags( $aioseop_options["aiosp_{$k}_verify"] ) ) . '" />' . "\n";
 				}
 			}
