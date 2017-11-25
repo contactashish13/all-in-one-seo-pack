@@ -994,7 +994,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 						'condshow' => array( 'aiosp_disable' => 'on' ),
 					),
 				),
-				'display'         => null,
+				// #1067: if SEO is disabled and an empty array is passed below, it will be overriden. So let's pass a post type that cannot possibly exist.
+				'display'         => 'on' === $aioseop_options['aiosp_enablecpost'] ? $aioseop_options['aiosp_cpostactive'] : array( '___null___' ),
 			),
 		);
 
@@ -4766,7 +4767,9 @@ EOF;
 					$this->locations['aiosp']['display'] = array();
 				}
 			}
-		} else {
+		// #1067: if SEO was disabled, it was always displaying for post and page. Because we are now sending an invalid post type '___null___' when SEO is disabled,
+		// this else will be unreachable. Still keeping it in case there is an undiscovered path that needs this condition.
+		} else if ( empty( $this->locations['aiosp']['display'] ) ) {
 			$this->locations['aiosp']['display'] = array( 'post', 'page' );
 		}
 
