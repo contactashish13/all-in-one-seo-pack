@@ -49,35 +49,34 @@ function toggleVisibility( id ) {
  * @summary Counts characters.
  *
  * @since 1.0.0
- * @param String $field.
- * @param Int $cntfield.
+ * @param Object $field.
+ * @param Object $cntfield.
  * @return Mixed.
  */
 function countChars( field, cntfield ) {
 	var extra = 0;
 	var field_size;
-	if ( ( field.name == 'aiosp_title' )
+	if ( ( field.attr('name') == 'aiosp_title' )
 		&& ( typeof aiosp_title_extra !== 'undefined' ) ) {
 		extra = aiosp_title_extra;
 	}
-	cntfield.value = field.value.length + extra;
-	if ( typeof field.size != 'undefined' ) {
-		field_size = field.size;
+	cntfield.val(field.val().length + extra);
+	if ( typeof field.attr('size') != 'undefined' ) {
+		field_size = field.attr('size');
 	} else {
-		field_size = field.rows * field.cols;
+		field_size = field.attr('rows') * field.attr('cols');
 	}
-	if ( field_size < 10 )
+    field_size = parseInt(field_size);
+	if ( field_size < 10 ) {
 		return;
-	if ( cntfield.value > field_size ) {
-		cntfield.style.color = "#fff";
-		cntfield.style.backgroundColor = "#f00";
+    }
+	if ( cntfield.val() > field_size ) {
+        cntfield.removeClass().addClass('aioseop_count_ugly');
 	} else {
-		if ( cntfield.value > ( field_size - 6 ) ) {
-			cntfield.style.color = "#515151";
-			cntfield.style.backgroundColor = "#ff0";
+		if ( cntfield.val() > ( field_size - 6 ) ) {
+            cntfield.removeClass().addClass('aioseop_count_bad');
 		} else {
-			cntfield.style.color = "#515151";
-			cntfield.style.backgroundColor = "#eee";
+            cntfield.removeClass().addClass('aioseop_count_good');
 		}
 	}
 }
@@ -707,4 +706,13 @@ jQuery( document ).ready(function() {
             jQuery( '.aioseop_header_tab[href="#' + stringref +'"]' ).addClass( 'active' );
             return false;
     });
+
+    /* count them characters */
+    jQuery( '.aioseop_count_chars' ).on('keyup keydown', function(){
+        countChars( jQuery(this).eq(0), jQuery(this).parent().find('[name="' + jQuery(this).attr('data-length-field') + '"]').eq(0));
+    });
+    jQuery( '.aioseop_count_chars' ).each(function(){
+        countChars( jQuery(this).eq(0), jQuery(this).parent().find('[name="' + jQuery(this).attr('data-length-field') + '"]').eq(0));
+    });
+
 });
