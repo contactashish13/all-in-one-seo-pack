@@ -66,7 +66,7 @@ function countChars( field, cntfield ) {
 	} else {
 		field_size = field.attr('rows') * field.attr('cols');
 	}
-    field_size = parseInt(field_size);
+    field_size = parseInt(field_size, 10);
 	if ( field_size < 10 ) {
 		return;
     }

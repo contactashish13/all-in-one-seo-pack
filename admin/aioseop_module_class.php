@@ -2207,9 +2207,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			$onload = '';
 			if ( ! empty( $options['count'] ) ) {
 				$n ++;
-				$classes	= isset( $options['class'] ) ? $options['class'] : '';
-				$classes	.= ' aioseop_count_chars';
-				$attr		.= " class='{$classes}' data-length-field='{$prefix}length$n'";
+				$classes = isset( $options['class'] ) ? $options['class'] : '';
+				$classes .= ' aioseop_count_chars';
+				$attr .= " class='{$classes}' data-length-field='{$prefix}length$n'";
 			}
 			if ( isset( $opts['id'] ) ) {
 				$attr .= " id=\"{$opts['id']}\" ";
