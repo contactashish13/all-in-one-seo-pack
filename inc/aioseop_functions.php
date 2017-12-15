@@ -1006,10 +1006,10 @@ if ( ! function_exists( 'aioseop_formatted_date' ) ) {
 	 * Get formatted date. For custom formatting, the user has 2 options:
 	 * 1. provide the native date_i18n filter.
 	 * 2. provide a custom aioseop_format_date filter.
- 	 *
-	 * @param int $date Date in UNIX timestamp format.
+	 *
+	 * @param int    $date Date in UNIX timestamp format.
 	 * @param string $format Require date format.
-	*/
+	 */
 	function aioseop_formatted_date( $date = null, $format = null ) {
 		if ( ! $format ) {
 			$format = get_option( 'date_format' );
