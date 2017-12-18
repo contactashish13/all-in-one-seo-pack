@@ -353,8 +353,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$response = array();
 			switch ( $_POST['_action'] ) {
 				case 'fetch_terms':
-					$terms		= get_terms( $_POST['taxonomy'], array( 'fields' => 'id=>name' ) );
-					$response	= array( 'terms' => $terms );
+					$terms = get_terms( $_POST['taxonomy'], array( 'fields' => 'id=>name' ) );
+					$response = array(
+						'terms' => $terms
+					);
 					break;
 			}
 
@@ -364,7 +366,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Fire stuff after upgrading plugin.
 		 */
-		function after_upgrade_plugin(){
+		function after_upgrade_plugin() {
 			// Update static sitemap when AIOSEOP is upgrade to new version.
 			$this->do_sitemaps();
 		}
@@ -376,9 +378,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$current_screen = get_current_screen();
 			$deps = array();
 			$options = array(
-				'ajax'		=> array(
-					'action'	=> $this->prefix,
-					'nonce'		=> wp_create_nonce( $this->prefix ),
+				'ajax' => array(
+					'action' => $this->prefix,
+					'nonce' => wp_create_nonce( $this->prefix ),
 				),
 			);
 			
@@ -610,7 +612,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$taxonomies = array();
 				foreach ( $current_options['aiosp_sitemap_excl_taxonomies'] as $taxonomy ) {
 					$tax = get_taxonomy( $taxonomy );
-					$taxonomies[ $tax->label ] = get_terms( $taxonomy, array( 'fields' => 'id=>name') );
+					$taxonomies[ $tax->label ] = get_terms( $taxonomy, array(
+						'fields' => 'id=>name'
+					) );
 				}
 				$this->default_options['excl_categories']['initial_options'] = $taxonomies;
 			}
@@ -3012,11 +3016,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				// let's remove those taxonomies that have specific terms excluded.
 				$taxonomies = array_diff( $taxonomies, $taxonomy_specific );
 				if ( $taxonomies ) {
-					foreach( $taxonomies as $taxonomy ) {
+					foreach ( $taxonomies as $taxonomy ) {
 						if ( ! array_key_exists( $taxonomy, $map ) ) {
 							$map[ $taxonomy ] = array();
 						}
-						$map[ $taxonomy ] = array_merge( $map[ $taxonomy ], get_terms( $taxonomy, array( 'fields' => 'ids' ) ) );
+						$map[ $taxonomy ] = array_merge( $map[ $taxonomy ], get_terms( $taxonomy, array( 
+							'fields' => 'ids' 
+						) ) );
 					}
 				}
 			}
