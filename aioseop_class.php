@@ -1575,7 +1575,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	/**
 	 * Gets the title that will be used by AIOSEOP for title rewrites or returns false.
 	 *
-	 * @param $post
+	 * @param WP_Post $post the post object
+	 * @param bool $use_original_title_format should the original title format be used viz. post_title | blog_title. This parameter was introduced 
+	 * to resolve issue#986
 	 *
 	 * @return bool|string
 	 */
