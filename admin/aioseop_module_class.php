@@ -2218,12 +2218,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					$attr .= ' MULTIPLE';
 					$args['attr'] = $attr;
 					$args['name'] = $name = "{$name}[]";
+					// fall-through.
 				case 'select':
 					$buf .= $this->do_multi_input( $args );
 					break;
 				case 'multicheckbox':
 					$args['name']            = $name = "{$name}[]";
 					$args['options']['type'] = $options['type'] = 'checkbox';
+					// fall-through.
 				case 'radio':
 					$buf .= $this->do_multi_input( $args );
 					break;
@@ -2378,6 +2380,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			} else {
 				$args = $settings;
 			}
+
 			foreach ( $args as $name => $opts ) {
 				$attr_list = array( 'class', 'style', 'readonly', 'disabled', 'size', 'placeholder' );
 				if ( $opts['type'] == 'textarea' ) {
