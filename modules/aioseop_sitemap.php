@@ -2624,7 +2624,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						$is_single = false;
 					}
 
-					if( strpos( $url, '__trashed' ) !== false){
+					if ( strpos( $url, '__trashed' ) !== false ) {
 						// excluded trashed urls.
 						continue;
 					}
