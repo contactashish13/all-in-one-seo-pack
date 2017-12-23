@@ -2623,6 +2623,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						$url = call_user_func( $linkfunc, $post );
 						$is_single = false;
 					}
+
+					if( strpos( $url, '__trashed' ) !== false){
+						// excluded trashed urls.
+						continue;
+					}
+
 					$date = $post->post_modified;
 					if ( '0000-00-00 00:00:00' === $date ) {
 						$date = $post->post_date;
