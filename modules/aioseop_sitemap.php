@@ -2403,7 +2403,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Scores posts based on date and relative comment count, if any.
 		 *
 		 * @param     $date
-		 * @param int $stats
+		 * @param array|int $stats
 		 *
 		 * @return array
 		 */
@@ -2599,7 +2599,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_prio_from_posts( $posts, $prio_override = false, $freq_override = false, $linkfunc = 'get_permalink' ) {
+		private function get_prio_from_posts( $posts, $prio_override = false, $freq_override = false, $linkfunc = 'get_permalink' ) {
 			$prio = array();
 			$args = array(
 				'prio_override' => $prio_override,
@@ -2615,7 +2615,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $posts as $post ) {
 					// Determine if we check the post for images.
 					$is_single = true;
-					$url          = '';
 					$post->filter = 'sample';
 					if ( 'get_permalink' === $linkfunc ) {
 						$url = $this->get_permalink( $post );
