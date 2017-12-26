@@ -2403,11 +2403,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Scores posts based on date and relative comment count, if any.
 		 *
 		 * @param     $date
-		 * @param array|int $stats
+		 * @param mixed $stats
 		 *
 		 * @return array
 		 */
-		function get_prio_calc( $date, mixed $stats = 0 ) {
+		function get_prio_calc( $date, $stats = 0 ) {
 			static $cur_time = null;
 			if ( null === $cur_time ) {
 				$cur_time = time();
