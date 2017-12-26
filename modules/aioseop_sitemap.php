@@ -1248,6 +1248,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				// Always follow and noindex the sitemap.
 				header( 'X-Robots-Tag: noindex, follow', true );
 
+				do_action( $this->prefix . 'add_headers', $query, $this->options );
+
 				if ( $gzipped ) {
 					ob_start();
 				}
