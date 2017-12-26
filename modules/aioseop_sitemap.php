@@ -2407,7 +2407,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_prio_calc( $date, $stats = 0 ) {
+		function get_prio_calc( $date, $stats ) {
 			static $cur_time = null;
 			if ( null === $cur_time ) {
 				$cur_time = time();
