@@ -1989,8 +1989,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param        $urls
 		 * @param string $sitemap_type The type of RSS sitemap viz. rss or rss_latest.
 		 * @param string $comment
-		 *
-		 * @return string
 		 */
 		private function output_rss( $urls, $sitemap_type, $comment ) {
 			echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n\r\n";
@@ -1998,13 +1996,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			echo '<rss version="2.0"><channel>';
 			if ( is_multisite() ) {
-				echo '<title>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
-				<link>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
-				<description>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
+				echo '<title>' . esc_html( get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
+				<link>' . esc_html( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
+				<description>' . esc_html( get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
 			} else {
-				echo '<title>' . htmlspecialchars( get_option( 'blogname' ) ) . '</title>
-				<link>' . htmlspecialchars( get_option( 'siteurl' ) ) . '</link>
-				<description>' . htmlspecialchars( get_option( 'blogdescription' ) ) . '</description>';
+				echo '<title>' . esc_html( get_option( 'blogname' ) ) . '</title>
+				<link>' . esc_html( get_option( 'siteurl' ) ) . '</link>
+				<description>' . esc_html( get_option( 'blogdescription' ) ) . '</description>';
 			}
 
 			// remove urls that do not have the rss element.
@@ -2019,11 +2017,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			foreach ( $urls as $url ) {
 				echo
 				'<item>
-					<guid>' . htmlspecialchars( $url['loc'] ) . '</guid>
-					<title>' . htmlspecialchars( $url['rss']['title'] ) . '</title>
-					<link>' . htmlspecialchars( $url['loc'] ) . '</link>
-					<description>' . htmlspecialchars( $url['rss']['description'] ) . '</description>
-					<pubDate>' . htmlspecialchars( $url['rss']['pubDate'] ) . '</pubDate>
+					<guid>' . esc_html( $url['loc'] ) . '</guid>
+					<title>' . esc_html( $url['rss']['title'] ) . '</title>
+					<link>' . esc_html( $url['loc'] ) . '</link>
+					<description>' . esc_html( $url['rss']['description'] ) . '</description>
+					<pubDate>' . esc_html( $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
 			}
 			echo '</channel></rss>';
@@ -2613,7 +2611,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$this,
 					'get_archive_link_from_post',
 				),
-					'archive'
+						'archive'
 				);
 			}
 
@@ -2664,7 +2662,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this,
 				'get_author_link_from_post',
 			),
-					'author'
+						'author'
 			);
 		}
 
