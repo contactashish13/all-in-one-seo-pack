@@ -2607,10 +2607,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 			if ( ! empty( $archives ) ) {
-				return $this->get_prio_from_posts( $archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
-					$this,
-					'get_archive_link_from_post',
-				),
+				return $this->get_prio_from_posts( $archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), 
+					array(
+						$this,
+						'get_archive_link_from_post',
+					),
 					'archive'
 				);
 			}
@@ -2658,10 +2659,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 
-			return $this->get_prio_from_posts( $authors, $this->get_default_priority( 'author', true ), $this->get_default_frequency( 'author', true ), array(
-				$this,
-				'get_author_link_from_post',
-			),
+			return $this->get_prio_from_posts( $authors, $this->get_default_priority( 'author', true ), $this->get_default_frequency( 'author', true ),
+				array(
+					$this,
+					'get_author_link_from_post',
+				),
 				'author'
 			);
 		}
