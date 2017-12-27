@@ -682,7 +682,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$options[ $this->prefix . 'link' ] = sprintf( __( 'Click here to %s.', 'all-in-one-seo-pack' ), '<a href="' . esc_url( $url ) . '" target="_blank">' . __( 'view your XML sitemap', 'all-in-one-seo-pack' ) . '</a>' );
 			$options[ $this->prefix . 'link' ] .= __( ' Your sitemap has been created with content and images.', 'all-in-one-seo-pack' );
-			$options[ $this->prefix . 'link' ] .= '<p>' . sprintf( __( 'Click here to %sview your RSS sitemap%s.', 'all-in-one-seo-pack' ), '<a href="' . esc_url( $url_rss ) . '" target="_blank">', '</a>' ) . '</p>';
+			$options[ $this->prefix . 'link' ] .= '<p>' . sprintf( __( 'Click here to %1$sview your RSS sitemap%2$s.', 'all-in-one-seo-pack' ), '<a href="' . esc_url( $url_rss ) . '" target="_blank">', '</a>' ) . '</p>';
 			if ( '0' !== get_option( 'blog_public' ) ){
 				$options[ $this->prefix . 'link' ] .= ' ' . __( 'Changes are automatically submitted to search engines.', 'all-in-one-seo-pack' );
 			}
@@ -1122,17 +1122,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		function get_rewrite_rules() {
 			$sitemap_rules_normal = $sitemap_rules_gzipped = array();
 			$sitemap_rules_normal = array(
-				$this->options["{$this->prefix}filename"] . '.xml'            => "index.php?{$this->prefix}path=root",
-				$this->options["{$this->prefix}filename"] . '_(.+)_(\d+).xml' => 'index.php?' . $this->prefix . 'path=$matches[1]&' . $this->prefix . 'page=$matches[2]',
-				$this->options["{$this->prefix}filename"] . '_(.+).xml'       => 'index.php?' . $this->prefix . 'path=$matches[1]',
-				$this->options["{$this->prefix}filename"] . '.rss'            => 'index.php?' . $this->prefix . 'path=rss',
-				$this->options["{$this->prefix}filename"] . 'latest.rss'      => 'index.php?' . $this->prefix . 'path=rss_latest',
+				$this->options[ "{$this->prefix}filename" ] . '.xml'            => "index.php?{$this->prefix}path=root",
+				$this->options[ "{$this->prefix}filename" ] . '_(.+)_(\d+).xml' => 'index.php?' . $this->prefix . 'path=$matches[1]&' . $this->prefix . 'page=$matches[2]',
+				$this->options[ "{$this->prefix}filename" ] . '_(.+).xml'       => 'index.php?' . $this->prefix . 'path=$matches[1]',
+				$this->options[ "{$this->prefix}filename" ] . '.rss'            => 'index.php?' . $this->prefix . 'path=rss',
+				$this->options[ "{$this->prefix}filename" ] . 'latest.rss'      => 'index.php?' . $this->prefix . 'path=rss_latest',
 			);
 			if ( $this->options["{$this->prefix}gzipped"] ) {
 				$sitemap_rules_gzipped = array(
-					$this->options["{$this->prefix}filename"] . '.xml.gz'            => "index.php?{$this->prefix}gzipped=1&{$this->prefix}path=root.gz",
-					$this->options["{$this->prefix}filename"] . '_(.+)_(\d+).xml.gz' => 'index.php?' . $this->prefix . 'path=$matches[1].gz&' . $this->prefix . 'page=$matches[2]',
-					$this->options["{$this->prefix}filename"] . '_(.+).xml.gz'       => 'index.php?' . $this->prefix . 'path=$matches[1].gz',
+					$this->options[ "{$this->prefix}filename" ] . '.xml.gz'            => "index.php?{$this->prefix}gzipped=1&{$this->prefix}path=root.gz",
+					$this->options[ "{$this->prefix}filename" ] . '_(.+)_(\d+).xml.gz' => 'index.php?' . $this->prefix . 'path=$matches[1].gz&' . $this->prefix . 'page=$matches[2]',
+					$this->options[ "{$this->prefix}filename" ] . '_(.+).xml.gz'       => 'index.php?' . $this->prefix . 'path=$matches[1].gz',
 				);
 			}
 			$sitemap_rules = $sitemap_rules_gzipped + $sitemap_rules_normal;
@@ -1291,7 +1291,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$sitemap_data = array();
 			if ( 0 === strpos( $sitemap_type, 'rss' ) ) {
 				$sitemap_data = $this->get_simple_sitemap();
-			} elseif ( $this->options["{$this->prefix}indexes"] ) {
+			} elseif ( $this->options[ "{$this->prefix}indexes" ] ) {
 				$posttypes = $this->options["{$this->prefix}posttypes"];
 				if ( empty( $posttypes ) ) {
 					$posttypes = array();
@@ -1990,7 +1990,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param string $sitemap_type The type of RSS sitemap viz. rss or rss_latest.
 		 * @param string $comment
 		 *
-		 * @return null
+		 * @return string
 		 */
 		private function output_rss( $urls, $sitemap_type, $comment ) {
 			echo '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n\r\n";
@@ -1998,13 +1998,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			echo '<rss version="2.0"><channel>';
 			if ( is_multisite() ) {
-				echo '<title>' . get_blog_option( get_current_blog_id(), 'blogname' ). '</title>
-				<link>' . get_blog_option( get_current_blog_id(), 'siteurl' ) . '</link>
-				<description>' . get_blog_option( get_current_blog_id(), 'blogdescription' ) . '</description>';
+				echo '<title>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
+				<link>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
+				<description>' . htmlspecialchars( get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
 			} else {
-				echo '<title>' . get_option( 'blogname' ). '</title>
-				<link>' . get_option( 'siteurl' ) . '</link>
-				<description>' . get_option( 'blogdescription' ) . '</description>';
+				echo '<title>' . htmlspecialchars( get_option( 'blogname' ) ) . '</title>
+				<link>' . htmlspecialchars( get_option( 'siteurl' ) ) . '</link>
+				<description>' . htmlspecialchars( get_option( 'blogdescription' ) ) . '</description>';
 			}
 
 			// remove urls that do not have the rss element.
@@ -2017,13 +2017,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			foreach ( $urls as $url ) {
-				echo 
+				echo
 				'<item>
-					<guid>' . $url['loc'] . '</guid>
-					<title>' . $url['rss']['title'] . '</title>
-					<link>' . $url['loc'] . '</link>
-					<description>' . $url['rss']['description'] . '</description>
-					<pubDate>' . $url['rss']['pubDate'] . '</pubDate>
+					<guid>' . htmlspecialchars( $url['loc'] ) . '</guid>
+					<title>' . htmlspecialchars( $url['rss']['title'] ) . '</title>
+					<link>' . htmlspecialchars( $url['loc'] ) . '</link>
+					<description>' . htmlspecialchars( $url['rss']['description'] ) . '</description>
+					<pubDate>' . htmlspecialchars( $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
 			}
 			echo '</channel></rss>';
@@ -2282,8 +2282,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'tax_query' => array(
 					array(
 						'taxonomy' => $term->taxonomy,
-						'terms' => $term->term_id
-					)
+						'terms' => $term->term_id,
+					),
 				),
 			) );
 
@@ -2612,7 +2612,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $this->get_prio_from_posts( $archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
 					$this,
 					'get_archive_link_from_post',
-				), 'archive'
+				),
+					'archive'
 				);
 			}
 
@@ -2662,7 +2663,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			return $this->get_prio_from_posts( $authors, $this->get_default_priority( 'author', true ), $this->get_default_frequency( 'author', true ), array(
 				$this,
 				'get_author_link_from_post',
-			), 'author'
+			),
+					'author'
 			);
 		}
 
@@ -2846,9 +2848,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 				$text = strip_shortcodes( $post->post_content );
 				$text = apply_filters( 'the_content', $text );
-				$text = str_replace(']]>', ']]&gt;', $text);
+				$text = str_replace( ']]>', ']]&gt;', $text );
 				$excerpt_length = apply_filters( 'excerpt_length', 55 );
-				$excerpt_more = apply_filters( 'excerpt_more', ' ' . '[&hellip;]' );
+				$excerpt_more = apply_filters( 'excerpt_more', '[&hellip;]' );
 				return wp_trim_words( $text, $excerpt_length, $excerpt_more );
 			}
 			return '';
