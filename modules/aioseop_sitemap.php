@@ -1997,11 +1997,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			echo '<rss version="2.0"><channel>';
 			if ( is_multisite() ) {
 				echo '<title>' . esc_html( get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
-				<link>' . esc_html( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
+				<link>' . esc_url( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
 				<description>' . esc_html( get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
 			} else {
 				echo '<title>' . esc_html( get_option( 'blogname' ) ) . '</title>
-				<link>' . esc_html( get_option( 'siteurl' ) ) . '</link>
+				<link>' . esc_url( get_option( 'siteurl' ) ) . '</link>
 				<description>' . esc_html( get_option( 'blogdescription' ) ) . '</description>';
 			}
 
@@ -2017,9 +2017,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			foreach ( $urls as $url ) {
 				echo
 				'<item>
-					<guid>' . esc_html( $url['loc'] ) . '</guid>
+					<guid>' . esc_url( $url['loc'] ) . '</guid>
 					<title>' . esc_html( $url['rss']['title'] ) . '</title>
-					<link>' . esc_html( $url['loc'] ) . '</link>
+					<link>' . esc_url( $url['loc'] ) . '</link>
 					<description>' . esc_html( $url['rss']['description'] ) . '</description>
 					<pubDate>' . esc_html( $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
