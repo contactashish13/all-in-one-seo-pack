@@ -2611,7 +2611,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$this,
 					'get_archive_link_from_post',
 				),
-						'archive'
+					'archive'
 				);
 			}
 
@@ -2662,7 +2662,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this,
 				'get_author_link_from_post',
 			),
-						'author'
+				'author'
 			);
 		}
 
