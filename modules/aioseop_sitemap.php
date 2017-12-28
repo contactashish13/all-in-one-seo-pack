@@ -316,7 +316,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_filter( $this->prefix . 'update_options', array( $this, 'filter_options' ) );
 			add_filter( $this->prefix . 'output_option', array( $this, 'display_custom_options' ), 10, 2 );
 			add_action( $this->prefix . 'daily_update_cron', array( $this, 'daily_update' ) );
-			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
 			add_action( 'transition_post_status', array( $this, 'update_sitemap_from_posts' ), 10, 3 );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
 			add_action( 'all_admin_notices', array( $this, 'sitemap_notices' ) );
@@ -1123,6 +1122,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this->options["{$this->prefix}filename"] . '.xml'            => "index.php?{$this->prefix}path=root",
 				$this->options["{$this->prefix}filename"] . '_(.+)_(\d+).xml' => 'index.php?' . $this->prefix . 'path=$matches[1]&' . $this->prefix . 'page=$matches[2]',
 				$this->options["{$this->prefix}filename"] . '_(.+).xml'       => 'index.php?' . $this->prefix . 'path=$matches[1]',
+				'sitemap.xsl'			                                      => 'index.php?' . $this->prefix . 'path=xsl',
 			);
 			if ( $this->options["{$this->prefix}gzipped"] ) {
 				$sitemap_rules_gzipped = array(
@@ -1225,6 +1225,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$page = 0;
 			if ( $this->options["{$this->prefix}rewrite"] && ! empty( $query->query_vars["{$this->prefix}path"] ) ) {
 
+				switch ( $query->query_vars["{$this->prefix}path"] ) {
+					case 'xsl':
+						$this->make_dynamic_xsl();
+						exit();
+					default:
+						// empty, fall-through.
+				}
+
 				// Make dynamic sitemap.
 
 				if ( ! empty( $query->query_vars["{$this->prefix}page"] ) ) {
@@ -1266,13 +1274,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Make dynamic xsl.
 		 */
 		function make_dynamic_xsl() {
-			// Make dynamic xsl file.
-			if ( preg_match( '#(/sitemap\.xsl)$#i', $_SERVER['REQUEST_URI'] ) ) {
-				$blog_charset = get_option( 'blog_charset' );
-				header( "Content-Type: text/xml; charset=$blog_charset", true );
-				include_once( AIOSEOP_PLUGIN_DIR . '/inc/sitemap-xsl.php' );
-				exit();
-			}
+			ob_get_clean();
+			$blog_charset = get_option( 'blog_charset' );
+			header( "Content-Type: text/xml; charset=$blog_charset", true );
+			ob_start();
+			include_once( AIOSEOP_PLUGIN_DIR . '/inc/sitemap-xsl.php' );
+			echo  "\n";
+			ob_end_flush();
+			exit();
 		}
 
 		/**
