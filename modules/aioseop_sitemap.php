@@ -1122,7 +1122,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this->options["{$this->prefix}filename"] . '.xml'            => "index.php?{$this->prefix}path=root",
 				$this->options["{$this->prefix}filename"] . '_(.+)_(\d+).xml' => 'index.php?' . $this->prefix . 'path=$matches[1]&' . $this->prefix . 'page=$matches[2]',
 				$this->options["{$this->prefix}filename"] . '_(.+).xml'       => 'index.php?' . $this->prefix . 'path=$matches[1]',
-				'sitemap.xsl'			                                      => 'index.php?' . $this->prefix . 'path=xsl',
+				'sitemap.xsl'                                                 => 'index.php?' . $this->prefix . 'path=xsl',
 			);
 			if ( $this->options["{$this->prefix}gzipped"] ) {
 				$sitemap_rules_gzipped = array(
@@ -1225,7 +1225,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$page = 0;
 			if ( $this->options["{$this->prefix}rewrite"] && ! empty( $query->query_vars["{$this->prefix}path"] ) ) {
 
-				switch ( $query->query_vars["{$this->prefix}path"] ) {
+				switch ( $query->query_vars[ "{$this->prefix}path" ] ) {
 					case 'xsl':
 						$this->make_dynamic_xsl();
 						exit();
