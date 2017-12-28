@@ -200,9 +200,7 @@ $aioseop_module_list = array(
 	'performance',
 ); // list all available modules here
 
-if ( AIOSEOPPRO ) {
-	$aioseop_module_list[] = 'video_sitemap';
-}
+$aioseop_module_list = apply_filters( 'aioseop_modules', $aioseop_module_list );
 
 if ( class_exists( 'All_in_One_SEO_Pack' ) ) {
 	add_action( 'admin_notices', create_function( '', 'echo "<div class=\'error\'>The All In One SEO Pack class is already defined";'

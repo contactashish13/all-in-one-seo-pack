@@ -56,27 +56,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Feature_Manager' ) ) {
 				),
 			);
 
-			if ( AIOSEOPPRO ) {
-
-				$this->module_info['coming_soon']   = array(
-					'name'        => __( 'Coming Soon...', 'all-in-one-seo-pack' ),
-					'description' => __( 'Image SEO', 'all-in-one-seo-pack' ),
-					'save'        => false,
-				);
-				$this->module_info['video_sitemap'] = array(
-					'name'        => __( 'Video Sitemap', 'all-in-one-seo-pack' ),
-					'description' => __( 'Create and manage your Video Sitemap using this feature and submit your Video Sitemap to Google, Bing/Yahoo and Ask.com.', 'all-in-one-seo-pack' ),
-				);
-
-			} else {
-
-				$this->module_info['coming_soon'] = array(
-					'name'        => __( 'Video Sitemap', 'all-in-one-seo-pack' ),
-					'description' => __( 'Pro Version Only', 'all-in-one-seo-pack' ),
-					'save'        => false,
-				);
-
-			}
+			$this->module_info['coming_soon'] = array(
+				'name'        => __( 'Video Sitemap', 'all-in-one-seo-pack' ),
+				'description' => __( 'Pro Version Only', 'all-in-one-seo-pack' ),
+				'save'        => false,
+			);
 
 			// Set up default settings fields.
 			// Name			- Human-readable name of the setting.
