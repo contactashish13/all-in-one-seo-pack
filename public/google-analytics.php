@@ -170,7 +170,7 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 
 				ga('send', 'pageview');
 			</script>
-			<script async src="<?php echo $this->get_ga_url(); ?>"></script>
+			<script async src="<?php echo esc_url( $this->get_ga_url() ); ?>"></script>
 			<?php
 			return ob_get_clean();
 		}
@@ -232,6 +232,8 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 
 		/**
 		 * Set the download status in a transient.
+		 *
+		 * @param string $status The status to set.
 		 */
 		private function set_download_status( $status ) {
 			set_transient( 'aioseop_ga_local_status', $status, DAY_IN_SECONDS );
@@ -248,9 +250,9 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 		 * Actually download the file.
 		 */
 		private function start_download() {
-			$content =  wp_remote_retrieve_body( wp_remote_get( self::GA_URL ) );
+			$content = wp_remote_retrieve_body( wp_remote_get( self::GA_URL ) );
 			if ( empty( $content ) ) {
-				error_log( 'Unable to download ' . self::GA_URL );
+				self::log( 'Unable to download ' . self::GA_URL );
 				$this->set_download_status( 'no' );
 				return;
 			}
@@ -260,7 +262,7 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 			$dir = wp_upload_dir();
 
 			if ( ! $wp_filesystem->is_dir( $dir['basedir'] ) || ! $wp_filesystem->is_writable( $dir['basedir'] ) ) {
-				error_log( 'Unable to write to ' . $dir['basedir'] );
+				self::log( 'Unable to write to ' . $dir['basedir'] );
 				$this->set_download_status( 'no' );
 				return;
 			}
@@ -270,17 +272,17 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 			$wp_filesystem->mkdir( $aioseop_dir );
 
 			if ( ! $wp_filesystem->is_dir( $aioseop_dir ) || ! $wp_filesystem->is_writable( $aioseop_dir ) ) {
-				error_log( 'Unable to write to ' . $aioseop_dir );
+				self::log( 'Unable to write to ' . $aioseop_dir );
 				$this->set_download_status( 'no' );
 				return;
 			}
 
 			$wp_filesystem->put_contents( $aioseop_dir . '/ga.js', $content, 0644 );
 
-			// let's verify if what we got is what we put
+			// let's verify if what we got is what we put.
 			$verify = $wp_filesystem->get_contents( $aioseop_dir . '/ga.js' );
 			if ( $verify !== $content ) {
-				error_log( 'Unable to verify if ' . self::GA_URL . ' has been written correctly to ' . $aioseop_dir . '/ga.js' );
+				self::log( 'Unable to verify if ' . self::GA_URL . ' has been written correctly to ' . $aioseop_dir . '/ga.js' );
 				$this->set_download_status( 'no' );
 				return;
 			}
@@ -297,8 +299,15 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 			}
 
 			$dir = wp_upload_dir();
-			$url = $dir[ 'baseurl' ] . '/' . sanitize_title( AIOSEOP_PLUGIN_NAME ) . '/ga.js';
+			$url = $dir['baseurl' ] . '/' . sanitize_title( AIOSEOP_PLUGIN_NAME ) . '/ga.js';
 			return apply_filters( 'aioseop_ga_local_url', $url );
+		}
+
+		/**
+		 * Log the message.
+		 */
+		private static function log( $msg ) {
+			error_log( $msg );
 		}
 
 	}
