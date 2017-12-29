@@ -299,12 +299,14 @@ if ( ! class_exists( 'aioseop_google_analytics' ) ) {
 			}
 
 			$dir = wp_upload_dir();
-			$url = $dir['baseurl' ] . '/' . sanitize_title( AIOSEOP_PLUGIN_NAME ) . '/ga.js';
+			$url = $dir['baseurl'] . '/' . sanitize_title( AIOSEOP_PLUGIN_NAME ) . '/ga.js';
 			return apply_filters( 'aioseop_ga_local_url', $url );
 		}
 
 		/**
 		 * Log the message.
+		 *
+		 * @param string $msg The message to log.
 		 */
 		private static function log( $msg ) {
 			error_log( $msg );
