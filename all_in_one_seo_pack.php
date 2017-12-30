@@ -260,6 +260,9 @@ if ( ! function_exists( 'aioseop_activate' ) ) {
 		if ( AIOSEOPPRO ) {
 			$aioseop_update_checker->checkForUpdates();
 		}
+
+		// add an activation date that can be useful.
+		update_option( 'aioseop_activation_date', time() );
 	}
 }
 
@@ -399,6 +402,7 @@ if ( ! function_exists( 'aioseop_init_class' ) ) {
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/welcome.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/dashboard_widget.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/menu.php' );
+		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/notifications.php' );
 
 		$aioseop_welcome = new aioseop_welcome(); // TODO move this to updates file.
 
