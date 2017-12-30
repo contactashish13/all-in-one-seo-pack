@@ -1,4 +1,9 @@
 <?php
+/**
+ * The class responsible for showing notification.
+ *
+ * @package All-in-One-SEO-Pack
+ */
 
 if ( ! class_exists( 'AIOSEOP_Notification' ) ) {
 
