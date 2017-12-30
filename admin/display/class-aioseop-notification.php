@@ -126,7 +126,7 @@ if ( ! class_exists( 'AIOSEOP_Notification' ) ) {
 				</script>
 				<div class="notice notice-success is-dismissible" id="aioseop-feedback-review" >
 					<div class="aioseop-review-box">
-						<?php echo esc_html( $this->get_html() ); ?>
+						<?php echo $this->get_html(); ?>
 					</div>
 				</div>
 			<?php
@@ -153,4 +153,4 @@ if ( ! class_exists( 'AIOSEOP_Notification' ) ) {
 	}
 }
 
-new AIOSEOP_Notifications();
+new AIOSEOP_Notification();
