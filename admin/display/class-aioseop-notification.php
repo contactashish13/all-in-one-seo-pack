@@ -15,21 +15,29 @@ if ( ! class_exists( 'AIOSEOP_Notification' ) ) {
 	class AIOSEOP_Notification {
 
 		/**
+		 * The heading of the notification.
+		 *
 		 * @var string $heading The heading of the notification.
 		 */
 		private static $heading = 'Hey, it\'s great to see you have {name} active for a few days now. How is everything going? If you can spare a few moments to rate it on WordPress.org it would help me lot (and boost my motivation). Cheers! <br/> <br/>~ {developer}, developer of {name}';
 
 		/**
+		 * Yes button.
+		 *
 		 * @var string $button_do Yes button.
 		 */
 		private static $button_do = 'Ok, I will gladly help.';
 
 		/**
+		 * No button.
+		 *
 		 * @var string $button_do No button.
 		 */
 		private static $button_no = 'No, thanks.';
 
 		/**
+		 * Already done button.
+		 *
 		 * @var string $button_done Already done button.
 		 */
 		private static $button_done = 'Already done!';
