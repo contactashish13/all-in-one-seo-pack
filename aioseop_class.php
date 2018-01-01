@@ -4080,6 +4080,12 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$aiosp_noindex = $aiosp_nofollow = '';
 		$noindex       = 'index';
 		$nofollow      = 'follow';
+
+		if ( ! empty( $opts ) ) {
+			$aiosp_noindex  = htmlspecialchars( stripslashes( $opts['aiosp_noindex'] ) );
+			$aiosp_nofollow = htmlspecialchars( stripslashes( $opts['aiosp_nofollow'] ) );
+		}
+
 		if ( ( is_category() && ! empty( $aioseop_options['aiosp_category_noindex'] ) ) || ( ! is_category() && is_archive() && ! is_tag() && ! is_tax()
 		                                                                                     && ( ( is_date() && ! empty( $aioseop_options['aiosp_archive_date_noindex'] ) ) || ( is_author() && ! empty( $aioseop_options['aiosp_archive_author_noindex'] ) ) ) )
 		     || ( is_tag() && ! empty( $aioseop_options['aiosp_tags_noindex'] ) )
@@ -4088,12 +4094,17 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		     || ( is_tax() && in_array( get_query_var( 'taxonomy' ), $tax_noindex ) )
 		) {
 			$noindex = 'noindex';
+
+			// #322: duplicating this code so that we don't step on some other entities' toes.
+			if ( ( $aiosp_nofollow == 'on' ) || ( ( ! empty( $aioseop_options['aiosp_paginated_nofollow'] ) ) && $page > 1 ) ||
+				 ( ( $aiosp_nofollow == '' ) && ( ! empty( $aioseop_options['aiosp_cpostnofollow'] ) ) && in_array( $post_type, $aioseop_options['aiosp_cpostnofollow'] ) )
+			) {
+				$nofollow = 'nofollow';
+			}
+			// #322: duplicating this code so that we don't step on some other entities' toes.
+
 		} elseif ( is_single() || is_page() || $this->is_static_posts_page() || is_attachment() || is_category() || is_tag() || is_tax() || ( $page > 1 ) ) {
 			$post_type = get_post_type();
-			if ( ! empty( $opts ) ) {
-				$aiosp_noindex  = htmlspecialchars( stripslashes( $opts['aiosp_noindex'] ) );
-				$aiosp_nofollow = htmlspecialchars( stripslashes( $opts['aiosp_nofollow'] ) );
-			}
 			if ( $aiosp_noindex || $aiosp_nofollow || ! empty( $aioseop_options['aiosp_cpostnoindex'] )
 			     || ! empty( $aioseop_options['aiosp_cpostnofollow'] ) || ! empty( $aioseop_options['aiosp_paginated_noindex'] ) || ! empty( $aioseop_options['aiosp_paginated_nofollow'] )
 			) {
