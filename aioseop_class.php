@@ -4102,7 +4102,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				$nofollow = 'nofollow';
 			}
 			// #322: duplicating this code so that we don't step on some other entities' toes.
-
 		} elseif ( is_single() || is_page() || $this->is_static_posts_page() || is_attachment() || is_category() || is_tag() || is_tax() || ( $page > 1 ) ) {
 			$post_type = get_post_type();
 			if ( $aiosp_noindex || $aiosp_nofollow || ! empty( $aioseop_options['aiosp_cpostnoindex'] )
