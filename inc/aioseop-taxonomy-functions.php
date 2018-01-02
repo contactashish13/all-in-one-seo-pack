@@ -8,6 +8,8 @@
 if ( ! function_exists( 'aioseop_taxonomy_columns' ) ) {
 	/**
 	 * Shows the columns in the supported taxonomies.
+	 *
+	 * @param array $columns The array of columns.
 	 */
 	function aioseop_taxonomy_columns( $columns ) {
 		global $aioseop_options;
@@ -24,6 +26,10 @@ if ( ! function_exists( 'aioseop_taxonomy_columns' ) ) {
 if ( ! function_exists( 'aioseop_taxonomy_manage_columns' ) ) {
 	/**
 	 * Shows the column values in the supported taxonomies.
+	 *
+	 * @param string $out The output to display.
+	 * @param string $column_name The name of the column.
+	 * @param int $id The column id.
 	 */
 	function aioseop_taxonomy_manage_columns( $out, $column_name, $id ) {
 		switch ( $column_name ) {
