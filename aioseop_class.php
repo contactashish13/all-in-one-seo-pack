@@ -4757,6 +4757,8 @@ EOF;
 						$this->locations['aiosp']['display'][] = 'edit-' . $tax;
 						add_action( "{$tax}_edit_form", array( $this, 'display_category_metaboxes' ) );
 						add_action( "edited_{$tax}", array( $this, 'save_category_metaboxes' ) );
+						add_filter( "manage_edit-{$tax}_columns", 'aioseop_taxonomy_columns' );
+						add_filter( "manage_{$tax}_custom_column", 'aioseop_taxonomy_manage_columns', 10, 3 );
 					}
 				}
 			} else {

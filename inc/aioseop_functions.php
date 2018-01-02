@@ -8,6 +8,8 @@
  * @version 2.3.13
  */
 
+require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop_taxonomy_functions.php' );
+
 if ( ! function_exists( 'aioseop_load_modules' ) ) {
 	/**
 	 * Load the module manager.
