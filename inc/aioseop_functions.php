@@ -8,7 +8,7 @@
  * @version 2.3.13
  */
 
-require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop_taxonomy_functions.php' );
+require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop-taxonomy-functions.php' );
 
 if ( ! function_exists( 'aioseop_load_modules' ) ) {
 	/**
