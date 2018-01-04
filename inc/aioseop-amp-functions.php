@@ -80,7 +80,7 @@ if ( ! function_exists( 'aiosp_sitemap_amp_sitemap' ) ) {
 	/**
 	 * Add the AMP plugin generated URLs to the sitemap.
 	 *
-	 * @param array                       $sitemap_data	The array of sitemap data (empty).
+	 * @param array                       $sitemap_data The array of sitemap data (empty).
 	 * @param int                         $page         Page number.
 	 * @param array                       $options      The array of options.
 	 * @param All_in_One_SEO_Pack_Sitemap $module       The sitemap module.
@@ -163,7 +163,7 @@ if ( ! function_exists( 'aioseop_sitemap_amp_index' ) ) {
 
 		if ( ! is_array( $post_counts ) && 1 === count( $supported ) ) {
 			$post_counts = array(
-				$supported[0] => $post_counts
+				$supported[0] => $post_counts,
 			);
 		}
 
