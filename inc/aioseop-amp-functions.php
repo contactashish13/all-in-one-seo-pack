@@ -81,9 +81,9 @@ if ( ! function_exists( 'aiosp_sitemap_amp_sitemap' ) ) {
 	 * Add the AMP plugin generated URLs to the sitemap.
 	 *
 	 * @param array                       $sitemap_data	The array of sitemap data (empty).
-	 * @param int                         $page			Page number.
-	 * @param array                       $options		The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param int                         $page         Page number.
+	 * @param array                       $options      The array of options.
+	 * @param All_in_One_SEO_Pack_Sitemap $module       The sitemap module.
 	 */
 	function aiosp_sitemap_amp_sitemap( $sitemap_data, $page, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) ) {
@@ -106,9 +106,9 @@ if ( ! function_exists( 'aiosp_sitemap_amp_post_sitemap' ) ) {
 	 * Add the AMP plugin generated URLs specific to post type 'post' to the sitemap.
 	 *
 	 * @param array                       $sitemap_data The array of sitemap data (empty).
-	 * @param int                         $page Page number.
-	 * @param array                       $options The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param int                         $page         Page number.
+	 * @param array                       $options      The array of options.
+	 * @param All_in_One_SEO_Pack_Sitemap $module       The sitemap module.
 	 */
 	function aiosp_sitemap_amp_post_sitemap( $sitemap_data, $page, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) || ! in_array( 'post', $options['aiosp_sitemap_posttypes'], true ) || empty( $options['aiosp_sitemap_indexes'] ) ) {
@@ -144,11 +144,11 @@ if ( ! function_exists( 'aioseop_sitemap_amp_index' ) ) {
 	/**
 	 * Add the index file for the AMP URLs.
 	 *
-	 * @param array                       $files The array of index files.
-	 * @param string                      $prefix The prefix of the filename.
-	 * @param string                      $suffix The suffix of the filename.
+	 * @param array                       $files   The array of index files.
+	 * @param string                      $prefix  The prefix of the filename.
+	 * @param string                      $suffix  The suffix of the filename.
 	 * @param array                       $options The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param All_in_One_SEO_Pack_Sitemap $module  The sitemap module.
 	 */
 	function aioseop_sitemap_amp_index( $files, $prefix, $suffix, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) ) {
