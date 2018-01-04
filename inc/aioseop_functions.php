@@ -8,7 +8,7 @@
  * @version 2.3.13
  */
 
-require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop_amp_functions.php' );
+require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop-amp-functions.php' );
 
 if ( ! function_exists( 'aioseop_load_modules' ) ) {
 	/**

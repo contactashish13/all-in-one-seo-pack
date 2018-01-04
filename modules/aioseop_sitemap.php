@@ -1283,7 +1283,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return mixed|void
 		 */
 		function get_sitemap_data( $sitemap_type, $page = 0 ) {
-error_log("sitemap_type $sitemap_type, " . print_r($this->extra_sitemaps,true));
 			$sitemap_data = array();
 			if ( $this->options["{$this->prefix}indexes"] ) {
 				$posttypes = $this->options["{$this->prefix}posttypes"];

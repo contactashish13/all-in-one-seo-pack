@@ -57,7 +57,7 @@ if ( ! function_exists( 'aiosp_sitemap_amp_rewrite_rules' ) ) {
 	/**
 	 * Add the AMP sitemap rewrite rules.
 	 *
-	 * @param array $extra The array of rules.
+	 * @param array $rules The array of rules.
 	 * @param array $options The array of options.
 	 */
 	function aiosp_sitemap_amp_rewrite_rules( $rules, $options ) {
@@ -72,8 +72,6 @@ if ( ! function_exists( 'aiosp_sitemap_amp_rewrite_rules' ) ) {
 				$rules[ $options['aiosp_sitemap_filename'] . '_(.+).xml.gz' ]       = 'index.php?aiosp_sitemap_path=$matches[1].gz';
 			}
 		}
-
-
 		return $rules;
 	}
 }
@@ -82,10 +80,10 @@ if ( ! function_exists( 'aiosp_sitemap_amp_sitemap' ) ) {
 	/**
 	 * Add the AMP plugin generated URLs to the sitemap.
 	 *
-	 * @param array $sitemap_data The array of sitemap data (empty).
-	 * @param int $page Page number.
-	 * @param array $options The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param array							$sitemap_data	The array of sitemap data (empty).
+	 * @param int							$page			Page number.
+	 * @param array							$options		The array of options.
+	 * @param All_in_One_SEO_Pack_Sitemap	$module The sitemap module.
 	 */
 	function aiosp_sitemap_amp_sitemap( $sitemap_data, $page, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) ) {
@@ -107,10 +105,10 @@ if ( ! function_exists( 'aiosp_sitemap_amp_post_sitemap' ) ) {
 	/**
 	 * Add the AMP plugin generated URLs specific to post type 'post' to the sitemap.
 	 *
-	 * @param array $sitemap_data The array of sitemap data (empty).
-	 * @param int $page Page number.
-	 * @param array $options The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param array							$sitemap_data The array of sitemap data (empty).
+	 * @param int							$page Page number.
+	 * @param array							$options The array of options.
+	 * @param All_in_One_SEO_Pack_Sitemap	$module The sitemap module.
 	 */
 	function aiosp_sitemap_amp_post_sitemap( $sitemap_data, $page, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) || ! in_array( 'post', $options['aiosp_sitemap_posttypes'], true ) || empty( $options['aiosp_sitemap_indexes'] ) ) {
@@ -146,11 +144,11 @@ if ( ! function_exists( 'aioseop_sitemap_amp_index' ) ) {
 	/**
 	 * Add the index file for the AMP URLs.
 	 *
-	 * @param array $files The array of index files.
-	 * @param string $prefix The prefix of the filename.
-	 * @param string $suffix The suffix of the filename.
-	 * @param array $options The array of options.
-	 * @param All_in_One_SEO_Pack_Sitemap $module The sitemap module.
+	 * @param array							$files The array of index files.
+	 * @param string						$prefix The prefix of the filename.
+	 * @param string						$suffix The suffix of the filename.
+	 * @param array							$options The array of options.
+	 * @param All_in_One_SEO_Pack_Sitemap	$module The sitemap module.
 	 */
 	function aioseop_sitemap_amp_index( $files, $prefix, $suffix, $options, $module ) {
 		if ( ! aiosp_sitemap_amp_supported( $options ) ) {
@@ -163,13 +161,15 @@ if ( ! function_exists( 'aioseop_sitemap_amp_index' ) ) {
 			'post_status' => 'publish',
 		) );
 
-		if ( ! is_array( $post_counts ) && count( $supported ) == 1 ) {
-			$post_counts = array( $supported[0] => $post_counts );
+		if ( ! is_array( $post_counts ) && 1 === count( $supported ) ) {
+			$post_counts = array(
+				$supported[0] => $post_counts
+			);
 		}
 
 		$max_posts = $module->get_max_posts();
 		foreach ( $supported as $sm ) {
-			if ( 0 == $post_counts[ $sm ] ) {
+			if ( 0 === $post_counts[ $sm ] ) {
 				continue;
 			}
 
@@ -177,25 +177,25 @@ if ( ! function_exists( 'aioseop_sitemap_amp_index' ) ) {
 			$freq        = $module->get_default_frequency( $sm );
 
 			if ( ! empty( $options['aiosp_sitemap_indexes'] ) ) {
-				if ( $post_counts[ 'post' ] > $max_posts ) {
+				if ( $post_counts[ $sm ] > $max_posts ) {
 					$count = 1;
 					for ( $post_count = 0; $post_count < $post_counts[ $sm ]; $post_count += $max_posts ) {
 						$files[] = array(
-							'loc'        => aioseop_home_url ( '/' . $prefix . '_amp' . $sm . '_' . ( $count ++ ) . $suffix ),
+							'loc'        => aioseop_home_url( '/' . $prefix . '_amp' . $sm . '_' . ( $count ++ ) . $suffix ),
 							'priority'   => $prio,
 							'changefreq' => $freq,
 						);
 					}
 				} else {
 					$files[] = array(
-						'loc'        => aioseop_home_url ( '/' . $prefix . '_amp' . $sm . $suffix ),
+						'loc'        => aioseop_home_url( '/' . $prefix . '_amp' . $sm . $suffix ),
 						'priority'   => $prio,
 						'changefreq' => $freq,
 					);
 				}
 			} else {
 				$files[] = array(
-					'loc'        => aioseop_home_url ( '/' . $prefix . '_amp' . $sm . $suffix ),
+					'loc'        => aioseop_home_url( '/' . $prefix . '_amp' . $sm . $suffix ),
 					'priority'   => $prio,
 					'changefreq' => $freq,
 				);
