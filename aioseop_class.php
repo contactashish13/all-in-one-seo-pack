@@ -3931,6 +3931,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$url = '';
 			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
 				$url = $opts['aiosp_custom_link'];
+				if ( apply_filters( 'aioseop_canonical_url_pagination', $show_page ) ) {
+					$url = $this->get_paged( $url );
+				}
 			}
 			if ( empty( $url ) ) {
 				$url = $this->aiosp_mrt_get_url( $wp_query, $show_page );
