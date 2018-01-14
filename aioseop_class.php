@@ -3597,7 +3597,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		//	$role->add_cap( 'aiosp_manage_seo' );
 		//}
 
-		aioseop_update_settings_check();
+		if ( is_admin() ){
+			// this checks if the settiongs options exist and if they dont, it sets the defaults.
+			// let's do this only in backend.
+			aioseop_update_settings_check();
+		}
 		add_filter( 'user_contactmethods', 'aioseop_add_contactmethods' );
 		if ( is_user_logged_in() && is_admin_bar_showing() && current_user_can( 'aiosp_manage_seo' ) ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 1000 );
