@@ -2526,7 +2526,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					return false;
 				}
 			
-				$extra = array( 'post_type' => $post->post_type );
+				$extra = array(
+					'post_type' => $post->post_type,
+				);
 			}
 			$date = mysql2date( 'U', $post->post_date );
 
@@ -2959,7 +2961,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$posttypes = array( 'post' );
 			}
 
-			$args  = array( 'numberposts' => 50000, 'post_type' => $posttypes );
+			$args  = array(
+				'numberposts' => 50000,
+				'post_type' => $posttypes,
+			);
 			$args  = $this->set_post_args( $args );
 			$posts = $this->get_all_post_type_data( $args );
 
