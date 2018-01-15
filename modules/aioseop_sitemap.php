@@ -2472,10 +2472,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$archives = array();
 			if ( is_array( $posts ) ) {
 				foreach ( $posts as $p ) {
-					if ( 'post' !== $p->post_type ) {
+					if ( 'post' !== $p->post_type && ! $this->include_archive_page_for_post_type( $p->post_type ) ) {
 						continue;
 					}
-					$date = date( 'Y-m', mysql2date( 'U', $p->post_date ) );
+					// add the post type to the date so as to support posts of different post types created on the same date.
+					$date = date( 'Y-m', mysql2date( 'U', $p->post_date ) ) . $p->post_type;
 					if ( empty( $archives[ $date ] ) ) {
 						$archives[ $date ] = $p;
 					} else {
@@ -2496,6 +2497,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Check if the date archives of the post_type need to be included in the sitemap.
+		 *
+		 * @param string $post_type The post type.
+		 *
+		 * @return bool
+		 */
+		private function include_archive_page_for_post_type( $post_type ) {
+			$posttypes = array();
+			if ( ! empty( $this->options["{$this->prefix}posttypes"] ) ) {
+				$posttypes = $this->options["{$this->prefix}posttypes"];
+			}
+
+			return in_array( $post_type, apply_filters( $this->prefix . 'include_archives', $posttypes ), true );
+		}
+
+		/**
 		 * Return an archive link from a post.
 		 *
 		 * @param $post
@@ -2503,12 +2520,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return bool|string
 		 */
 		function get_archive_link_from_post( $post ) {
+			$extra = array();
 			if ( 'post' !== $post->post_type ) {
-				return false;
+				if ( ! $this->include_archive_page_for_post_type( $post->post_type ) ) {
+					return false;
+				}
+			
+				$extra = array( 'post_type' => $post->post_type );
 			}
 			$date = mysql2date( 'U', $post->post_date );
 
-			return get_month_link( date( 'Y', $date ), date( 'm', $date ) );
+			return add_query_arg( $extra, get_month_link( date( 'Y', $date ), date( 'm', $date ) ) );
 		}
 
 		/**
@@ -2928,7 +2950,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		function get_archive_prio_data() {
-			$args  = array( 'numberposts' => 50000, 'post_type' => 'post' );
+			$posttypes = array();
+			if ( ! empty( $this->options["{$this->prefix}posttypes"] ) ) {
+				$posttypes = $this->options["{$this->prefix}posttypes"];
+			}
+			// backward compatibility so that if users have selected no post type, the "post" archive pages are still shown in the sitemap.
+			if ( empty( $posttypes ) ) {
+				$posttypes = array( 'post' );
+			}
+
+			$args  = array( 'numberposts' => 50000, 'post_type' => $posttypes );
 			$args  = $this->set_post_args( $args );
 			$posts = $this->get_all_post_type_data( $args );
 
