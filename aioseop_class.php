@@ -2497,6 +2497,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 * @return mixed
 	 */
 	function get_page_number() {
+		global $post;
+		if ( false === strpos( $post->post_content, '<!--nextpage-->' ) ) {
+			return null;
+		}
 		$page = get_query_var( 'page' );
 		if ( empty( $page ) ) {
 			$page = get_query_var( 'paged' );
@@ -4300,6 +4304,8 @@ EOF;
 				if ( $numpages > 1 ) {
 					$multipage = 1;
 				}
+			} else {
+				$page = null;
 			}
 			if ( ! empty( $page ) ) {
 				if ( $page > 1 ) {
