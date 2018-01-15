@@ -2525,7 +2525,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( ! $this->include_archive_page_for_post_type( $post->post_type ) ) {
 					return false;
 				}
-			
+
 				$extra = array(
 					'post_type' => $post->post_type,
 				);
