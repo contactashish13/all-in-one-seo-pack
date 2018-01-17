@@ -999,3 +999,42 @@ if ( ! function_exists('aiosp_include_images') ) {
 		return true;	
 	}
 }
+
+
+if ( ! function_exists( 'aioseop_canonical_urls_behavior' ) ) {
+	/**
+	 * Get the behavior expected for canonical URLs if they are enabled.
+	 *
+	 * @param string $prefix The prefix of the module.
+	 *
+	 * @return bool|array If canonical URLs are disabled, return false else return the behavioral array.
+	 */
+	function aioseop_canonical_urls_behavior( $prefix ) {
+		global $aioseop_options;
+
+		$default = array(
+			'no_paged_canonical_links' => false,
+			'customize_canonical_links' => true,
+		);
+
+		$behavior = $default;
+
+		// check if the user had specified a particular behavior before we removed the options.
+		if ( array_key_exists( 'aiosp_can', $aioseop_options ) ) {
+			if ( empty( $aioseop_options['aiosp_can'] ) ) {
+				// user has switched off this option.
+				$behavior = false;
+			} else {
+				// user has switched on the canonical url option, but what about the other two?
+				$user_behavior = array(
+					'no_paged_canonical_links' => ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ),
+					'customize_canonical_links' => ! empty( $aioseop_options['aiosp_customize_canonical_links'] ),
+				);
+
+				$behavior = array_merge( $behavior, $user_behavior );
+			}
+		}
+
+		return apply_filters( $prefix . 'canonical_urls', $behavior, $default );
+	}
+}

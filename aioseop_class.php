@@ -80,9 +80,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 		$this->help_text = array(
 			'license_key'                 => __( 'This will be the license key received when the product was purchased. This is used for automatic upgrades.', 'all-in-one-seo-pack' ),
-			'can'                         => __( "This option will automatically generate Canonical URLs for your entire WordPress installation.  This will help to prevent duplicate content penalties by Google", 'all-in-one-seo-pack' ),
-			'no_paged_canonical_links'    => __( 'Checking this option will set the Canonical URL for all paginated content to the first page.', 'all-in-one-seo-pack' ),
-			'customize_canonical_links'   => __( 'Checking this option will allow you to customize Canonical URLs for specific posts.', 'all-in-one-seo-pack' ),
 			'use_original_title'          => __( 'Use wp_title to get the title used by the theme; this is disabled by default. If you use this option, set your title formats appropriately, as your theme might try to do its own title SEO as well.', 'all-in-one-seo-pack' ),
 			'do_log'                      => __( 'Check this and All in One SEO Pack will create a log of important events (all-in-one-seo-pack.log) in its plugin directory which might help debugging. Make sure this directory is writable.', 'all-in-one-seo-pack' ),
 			'home_title'                  => __( 'As the name implies, this will be the Meta Title of your homepage. This is independent of any other option. If not set, the default Site Title (found in WordPress under Settings, General, Site Title) will be used.', 'all-in-one-seo-pack' ),
@@ -243,9 +240,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 		$this->help_anchors = array(
 			'license_key'                 => '#license-key',
-			'can'                         => '#canonical-urls',
-			'no_paged_canonical_links'    => '#no-pagination-for-canonical-urls',
-			'customize_canonical_links'   => '#enable-custom-canonical-urls',
 			'use_original_title'          => '#use-original-title',
 			'schema_markup'               => '#use-schema-markup',
 			'do_log'                      => '#log-important-events',
@@ -394,20 +388,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 					1 => __( 'Enabled', 'all-in-one-seo-pack' ),
 					0 => __( 'Disabled', 'all-in-one-seo-pack' ),
 				),
-			),
-			'can'                         => array(
-				'name'    => __( 'Canonical URLs:', 'all-in-one-seo-pack' ),
-				'default' => 1,
-			),
-			'no_paged_canonical_links'    => array(
-				'name'     => __( 'No Pagination for Canonical URLs:', 'all-in-one-seo-pack' ),
-				'default'  => 0,
-				'condshow' => array( 'aiosp_can' => 'on' ),
-			),
-			'customize_canonical_links'   => array(
-				'name'     => __( 'Enable Custom Canonical URLs:', 'all-in-one-seo-pack' ),
-				'default'  => 0,
-				'condshow' => array( 'aiosp_can' => 'on' ),
 			),
 			'rewrite_titles'              => array(
 				'name'            => __( 'Rewrite Titles:', 'all-in-one-seo-pack' ),
@@ -1392,11 +1372,15 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title_format = ''; // Not sure why this needs to be this way, but we should extract all this out to figure out what's going on.
 		}
 		$show_page = true;
-		if ( ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ) ) {
-			$show_page = false;
-		}
-		if ( $aioseop_options['aiosp_can'] ) {
-			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) ) {
+
+		$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+		if ( $canonical_behavior ) {
+			if ( ! empty( $canonical_behavior['no_paged_canonical_links'] ) ) {
+				$show_page = false;
+			}
+
+			if ( ! empty( $canonical_behavior['customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) ) {
 				$url = $opts['aiosp_custom_link'];
 			}
 			if ( empty( $url ) ) {
@@ -1483,7 +1467,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				'noindex',
 				'nofollow',
 			);
-			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
+
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -3368,7 +3355,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			} elseif ( ! empty( $current["{$prefix}togglekeywords"] ) ) {
 				unset( $settings["{$prefix}keywords"] );
 			}
-			if ( empty( $this->options['aiosp_can'] ) || empty( $this->options['aiosp_customize_canonical_links'] ) ) {
+
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( empty( $canonical_behavior ) || empty( $canonical_behavior['customize_canonical_links'] ) ) {
 				unset( $settings["{$prefix}custom_link"] );
 			}
 		}
@@ -3621,7 +3611,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				) );
 			}
 		} else {
-			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( ! $canonical_behavior ) {
 				remove_action( 'wp_head', 'rel_canonical' );
 			}
 			// Analytics.
@@ -3925,14 +3917,17 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		// Handle canonical links.
-		$show_page = true;
-		if ( ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ) ) {
-			$show_page = false;
-		}
+		$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
 
-		if ( $aioseop_options['aiosp_can'] ) {
+		$show_page = true;
+
+		if ( $canonical_behavior ) {
+			if ( ! empty( $canonical_behavior['no_paged_canonical_links'] ) ) {
+				$show_page = false;
+			}
+
 			$url = '';
-			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
+			if ( ! empty( $canonical_behavior['customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
 				$url = $opts['aiosp_custom_link'];
 			}
 			if ( empty( $url ) ) {
@@ -4403,7 +4398,10 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
+		
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -4421,7 +4419,10 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
+
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -4656,7 +4657,10 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
+
+			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
+
+			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
