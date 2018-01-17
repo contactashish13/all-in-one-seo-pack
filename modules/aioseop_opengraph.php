@@ -741,11 +741,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					if ( isset( $this->options["aiosp_opengraph_defcard"] ) ) {
 						$settings[ $prefix . 'setcard' ]['default'] = $this->options["aiosp_opengraph_defcard"];
 					}
+
 					$info = $aiosp->get_page_snippet_info();
-					extract( $info );
+					$title = $info['title'];
+					$description = $info['description'];
 
 					// Description options
-					if ( is_object( $post ) )
+					if ( is_object( $post ) ) {
 						// Always show excerpt
 						$description = empty( $this->options['aiosp_opengraph_generate_descriptions'] )
 							? $aiosp->trim_excerpt_without_filters(
@@ -756,6 +758,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 								$aiosp->internationalize( preg_replace( '/\s+/', ' ', $post->post_content ) ),
 								1000
 							);
+					}
 
 					// Add filters
 					$description = apply_filters( 'aioseop_description', $description );

@@ -1172,15 +1172,22 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 * @return string
 	 */
 	function custom_output_option( $buf, $args ) {
-		if ( 'aiosp_snippet' === $args['name'] ) {
-			$args['options']['type']   = 'html';
-			$args['options']['nowrap'] = false;
-			$args['options']['save']   = false;
-			$info                      = $this->get_page_snippet_info();
-			extract( $info );
-		} else {
+		if ( 'aiosp_snippet' !== $args['name'] ) {
 			return '';
 		}
+
+		$args['options']['type']   = 'html';
+		$args['options']['nowrap'] = false;
+		$args['options']['save']   = false;
+		$info                      = $this->get_page_snippet_info();
+		$title = $info['title'];
+		$description = $info['description'];
+		$keywords = $info['keywords'];
+		$url = $info['url'];
+		$title_format = $info['title_format'];
+		$category = $info['category'];
+		$w = $info['w'];
+		$p = $info['p'];
 
 		if ( $this->strlen( $title ) > 70 ) {
 			$title = $this->trim_excerpt_without_filters(
@@ -3346,7 +3353,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 				global $post;
 				$info = $this->get_page_snippet_info();
-				extract( $info );
+
+				$title = $info['title'];
+				$description = $info['description'];
+				$keywords = $info['keywords'];
+
 				$settings["{$prefix}title"]['placeholder']       = $this->html_entity_decode( $title );
 				$settings["{$prefix}description"]['placeholder'] = $this->html_entity_decode( $description );
 				$settings["{$prefix}keywords"]['placeholder']    = $keywords;
