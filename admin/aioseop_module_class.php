@@ -442,9 +442,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 							$result = get_post_meta( $post->ID, $matches[1], true );
 						}
 					}
-					if ( empty( $result ) ) {
-						$result = $matches[0];
-					}
 				} else {
 					$result = $matches[0];
 				}
