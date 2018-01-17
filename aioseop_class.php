@@ -4398,7 +4398,7 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-		
+
 			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
 
 			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
