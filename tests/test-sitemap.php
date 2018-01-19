@@ -116,7 +116,8 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 
 		// allow only www.x.com.
 		add_filter( 'aioseop_images_allowed_from_hosts', function( $hosts ) {
-			return array( 'www.x.com' );
+			$hosts[] = 'www.x.com';
+			return $hosts;
 		} );
 
 		$custom_options = array();
