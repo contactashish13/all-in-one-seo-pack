@@ -15,6 +15,7 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}
+		return $attachment_id;
 	}
 
 	protected final function init() {
