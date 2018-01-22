@@ -1429,12 +1429,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$this->do_indexed_sitemaps();
 				} else {
 					$this->log_start();
-					$comment = sprintf( "file '%s' statically", $this->options["{$this->prefix}filename"] );
+					$comment = sprintf( "file '%s' statically", $this->options[ "{$this->prefix}filename" ] );
 					$sitemap = $this->do_simple_sitemap( $comment );
-					$this->write_sitemaps( $this->options["{$this->prefix}filename"], $sitemap );
+					$this->write_sitemaps( $this->options[ "{$this->prefix}filename" ], $sitemap );
 					$rss = $this->do_simple_sitemap_rss( $comment );
-					$this->write_sitemaps( $this->options["{$this->prefix}filename"], $rss, '.rss' );
-					$this->log_stats( 'root', $this->options["{$this->prefix}gzipped"], false );
+					$this->write_sitemaps( $this->options[ "{$this->prefix}filename" ], $rss, '.rss' );
+					$this->log_stats( 'root', $this->options[ "{$this->prefix}gzipped" ], false );
 				}
 			} else {
 				delete_transient( "{$this->prefix}rules_flushed" );
@@ -2628,7 +2628,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			}
 			if ( ! empty( $archives ) ) {
-				return $this->get_prio_from_posts( $archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), 
+				return $this->get_prio_from_posts( $archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ),
 					array(
 						$this,
 						'get_archive_link_from_post',
