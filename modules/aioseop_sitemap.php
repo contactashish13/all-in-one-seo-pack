@@ -1432,6 +1432,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$comment = sprintf( "file '%s' statically", $this->options["{$this->prefix}filename"] );
 					$sitemap = $this->do_simple_sitemap( $comment );
 					$this->write_sitemaps( $this->options["{$this->prefix}filename"], $sitemap );
+					$rss = $this->do_simple_sitemap_rss( $comment );
+					$this->write_sitemaps( $this->options["{$this->prefix}filename"], $rss, '.rss' );
 					$this->log_stats( 'root', $this->options["{$this->prefix}gzipped"], false );
 				}
 			} else {
@@ -1466,10 +1468,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param $filename
 		 * @param $contents
 		 */
-		function write_sitemaps( $filename, $contents ) {
-			$this->write_sitemap( $filename . '.xml', $contents );
+		function write_sitemaps( $filename, $contents, $extn = '.xml' ) {
+			$this->write_sitemap( $filename . $extn, $contents );
 			if ( $this->options["{$this->prefix}gzipped"] ) {
-				$this->write_sitemap( $filename . '.xml.gz', $contents, true );
+				$this->write_sitemap( $filename . $extn . '.gz', $contents, true );
 			}
 		}
 
@@ -1970,6 +1972,20 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$sitemap_data = apply_filters( $this->prefix . 'data', $sitemap_data, 'root', 0, $this->options );
 
 			return $this->build_sitemap( $sitemap_data, '', $comment );
+		}
+
+		/**
+		 * Build a single stand-alone RSS sitemap without indexes.
+		 *
+		 * @param string $comment
+		 *
+		 * @return string
+		 */
+		function do_simple_sitemap_rss( $comment = '' ) {
+			$sitemap_data = $this->get_simple_sitemap();
+			$sitemap_data = apply_filters( $this->prefix . 'data', $sitemap_data, 'rss', 0, $this->options );
+
+			return $this->build_sitemap( $sitemap_data, 'rss', $comment );
 		}
 
 		/**
