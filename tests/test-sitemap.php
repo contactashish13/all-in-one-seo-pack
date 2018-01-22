@@ -106,6 +106,31 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 			)
 		);
 	}
+
+	public function test_exclude_trashed_pages() {
+		$posts = $this->factory->post->create_many( 2 );
+		wp_trash_post( $posts[0] );
+	
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$urls = array();
+		foreach( $posts as $id ) {
+			$urls[] = get_permalink( $id );
+		}
+		$this->validate_sitemap(
+			array(
+					$urls[0] => false,
+					$urls[1] => true,
+			)
+		);
+	}
+
 }
 
 

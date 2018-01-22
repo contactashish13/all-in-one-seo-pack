@@ -45,9 +45,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		set_current_screen( 'edit-post' );
 		wp_set_current_user( 1 );
 
-		// init the general options.
-		do_action( 'init' );
-
 		global $aioseop_options;
 
 		// activate the sitemap module.
@@ -59,7 +56,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		update_option( 'aioseop_options', $aioseop_options );
 
 		set_current_screen( 'edit-post' );
-		do_action( 'init' );
 
 		$nonce		= wp_create_nonce( 'aioseop-nonce' );
 		$class		= 'All_in_One_SEO_Pack_' . ucwords( $module );
@@ -229,6 +225,11 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 				$this->assertEquals( $value, $sitemap[ $url ][ $name ] );
 			}
 		}
+
+		$contents = file_get_contents($file);
+
+		// also check that no url with __trashed appears in the sitemap.
+		$this->assertNotContains( '__trashed', $contents );
 
 		@unlink( $file );
 	}
