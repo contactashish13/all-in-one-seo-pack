@@ -15,6 +15,7 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}
+		return $attachment_id;
 	}
 
 	protected final function init() {
@@ -45,9 +46,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		set_current_screen( 'edit-post' );
 		wp_set_current_user( 1 );
 
-		// init the general options.
-		do_action( 'init' );
-
 		global $aioseop_options;
 
 		// activate the sitemap module.
@@ -59,8 +57,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		update_option( 'aioseop_options', $aioseop_options );
 
 		set_current_screen( 'edit-post' );
-		do_action( 'init' );
-
 		$nonce		= wp_create_nonce( 'aioseop-nonce' );
 		$class		= 'All_in_One_SEO_Pack_' . ucwords( $module );
 		$_POST		= array(
@@ -176,6 +172,10 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		if ( $debug ) {
 			echo file_get_contents($file);
 		}
+
+		// validate file according to schema.
+		$this->validate_sitemap_schema( $file, 'combined' );
+
 		$xml = simplexml_load_file( $file );
 		$ns = $xml->getNamespaces(true);
 
@@ -231,6 +231,50 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		}
 
 		@unlink( $file );
+	}
+
+	/**
+	 * Check whether the sitemap index is valid.
+	 *
+	 * @param array $types All the types of sitemaps that should exist besides the regular one.
+	*/
+	protected final function validate_sitemap_index( $types = array(), $debug = false ) {
+		add_filter( 'aioseo_sitemap_ping', '__return_false' );
+		update_option( 'blog_public', 0 );
+
+		// sitemap will be created in the root of the folder.
+		do_action( 'aiosp_sitemap_settings_update' );
+
+		$types[] = '';
+		foreach ( $types as $type ) {
+			$schema = 'index';
+			if ( ! empty( $type ) ) {
+				$type = "_{$type}";
+				$schema = 'combined';
+			}
+			$file = ABSPATH . "/sitemap{$type}.xml";
+
+			$this->assertFileIsReadable( $file );
+			if ( $debug ) {
+				echo file_get_contents($file);
+			}
+			$this->validate_sitemap_schema( $file, $schema );
+		}
+	}
+
+	/**
+	 * Check whether the sitemap is valid according to its schema.
+	 *
+	 * @param string $file The path of the file.
+	 * @param string $schema The schema type.
+	*/
+	protected final function validate_sitemap_schema( $file, $schema ) {
+		// validate file according to schema.
+		libxml_use_internal_errors(true);
+		$dom = new DOMDocument(); 
+		$dom->load( $file ); 
+
+		$this->assertTrue( $dom->schemaValidate( dirname(__FILE__) . "/resources/xsd/{$schema}.xsd" ) );
 	}
 
 	public function test_nothing(){

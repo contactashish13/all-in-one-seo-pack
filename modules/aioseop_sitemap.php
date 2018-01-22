@@ -1796,6 +1796,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'post_type'   => $options["{$this->prefix}posttypes"],
 					'post_status' => 'publish',
 				) );
+				if ( ! is_array( $post_counts ) && is_array( $options["{$this->prefix}posttypes"] ) && count( $options["{$this->prefix}posttypes"] ) == 1 ) {
+					$post_counts = array( $options["{$this->prefix}posttypes"][0] => $post_counts );
+				}
 				foreach ( $options["{$this->prefix}posttypes"] as $posttype ) {
 					if ( 0 === $post_counts[ $posttype ] ) {
 						continue;

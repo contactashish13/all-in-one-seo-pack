@@ -106,6 +106,21 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 			)
 		);
 	}
+
+	public function test_index() {
+		$posts = $this->setup_posts( 2, 2 );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap_index( array( 'post' ) );
+	}
+
 }
 
 
