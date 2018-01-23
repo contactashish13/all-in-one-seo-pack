@@ -106,6 +106,45 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 			)
 		);
 	}
+
+	public function test_amp() {
+		$amp = 'amp/amp.php';
+		$file = dirname(dirname( dirname( __FILE__ ) )) . '/';
+		
+		if ( ! file_exists( $file . $amp ) ) {
+			$this->markTestSkipped( 'AMP not installed. Skipping.' );
+		}
+
+		tests_add_filter( 'muplugins_loaded', function(){
+			require $file . $amp;
+		} );
+
+		activate_plugin( $amp );
+
+		if ( ! is_plugin_active( $amp ) ) {
+			$this->markTestSkipped( 'AMP not activated. Skipping.' );
+		}
+
+		$posts = $this->factory->post->create_many( 2 );
+	
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$tests = array();
+		foreach( $posts as $id ) {
+			$url = get_permalink( $id );
+			$tests[ $url ] = true;
+			$url = add_query_arg( 'amp', 1, $url );
+			$tests[ $url ] = true;
+		}
+
+		$this->validate_sitemap( $tests );
+	}
 }
 
 

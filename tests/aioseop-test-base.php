@@ -15,6 +15,7 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}
+		return $attachment_id;
 	}
 
 	protected final function init() {
@@ -45,9 +46,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		set_current_screen( 'edit-post' );
 		wp_set_current_user( 1 );
 
-		// init the general options.
-		do_action( 'init' );
-
 		global $aioseop_options;
 
 		// activate the sitemap module.
@@ -59,7 +57,6 @@ class AIOSEOP_Unit_Test_Base extends WP_UnitTestCase {
 		update_option( 'aioseop_options', $aioseop_options );
 
 		set_current_screen( 'edit-post' );
-		do_action( 'init' );
 
 		$nonce		= wp_create_nonce( 'aioseop-nonce' );
 		$class		= 'All_in_One_SEO_Pack_' . ucwords( $module );
