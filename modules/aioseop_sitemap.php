@@ -607,7 +607,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		function populate_exclude_options( $current_options ) {
 			if ( isset( $current_options['aiosp_sitemap_excl_categories'] ) && ! empty( $current_options['aiosp_sitemap_excl_categories'] ) && empty( $current_options['aiosp_sitemap_excl_taxonomies'] ) ) {
-				$current_options['aiosp_sitemap_excl_taxonomies']	= array( 'category' );
+				$current_options['aiosp_sitemap_excl_taxonomies'] = array( 'category' );
 			}
 
 			if ( ! empty( $current_options['aiosp_sitemap_excl_taxonomies'] ) ) {
@@ -3029,7 +3029,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						if ( ! array_key_exists( $taxonomy, $map ) ) {
 							$map[ $taxonomy ] = array();
 						}
-						$map[ $taxonomy ] = array_merge( $map[ $taxonomy ], get_terms( $taxonomy, array( 
+						$map[ $taxonomy ] = array_merge( $map[ $taxonomy ], get_terms( $taxonomy, array(
 							'fields' => 'ids',
 						) ) );
 					}
