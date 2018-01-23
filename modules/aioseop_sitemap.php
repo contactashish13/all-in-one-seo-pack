@@ -353,9 +353,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$response = array();
 			switch ( $_POST['_action'] ) {
 				case 'fetch_terms':
-					$terms = get_terms( $_POST['taxonomy'], array( 'fields' => 'id=>name' ) );
+					$terms = get_terms( $_POST['taxonomy'], array(
+						'fields' => 'id=>name',
+					) );
 					$response = array(
-						'terms' => $terms
+						'terms' => $terms,
 					);
 					break;
 			}
@@ -383,7 +385,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'nonce' => wp_create_nonce( $this->prefix ),
 				),
 			);
-			
+
 			wp_register_script( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'js/lib/chosen.jquery.min.js', array( 'jquery' ), AIOSEOP_VERSION );
 			wp_register_style( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'css/lib/chosen.min.css', array(), AIOSEOP_VERSION );
 
@@ -613,7 +615,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $current_options['aiosp_sitemap_excl_taxonomies'] as $taxonomy ) {
 					$tax = get_taxonomy( $taxonomy );
 					$taxonomies[ $tax->label ] = get_terms( $taxonomy, array(
-						'fields' => 'id=>name'
+						'fields' => 'id=>name',
 					) );
 				}
 				$this->default_options['excl_categories']['initial_options'] = $taxonomies;
@@ -3000,7 +3002,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			// let's first fetch the taxonomies that have specific terms excluded.
 			if ( $this->option_isset( 'excl_categories' ) && ! empty( $this->options[ $this->prefix . 'excl_categories' ] ) ) {
 				$exclude = $this->options[ $this->prefix . 'excl_categories' ];
-				$terms = get_terms( array( 'include' => $exclude ) );
+				$terms = get_terms( array(
+					'include' => $exclude,
+				) );
 				if ( $terms ) {
 					foreach ( $terms as $term ) {
 						$taxonomy = $term->taxonomy;
@@ -3026,7 +3030,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 							$map[ $taxonomy ] = array();
 						}
 						$map[ $taxonomy ] = array_merge( $map[ $taxonomy ], get_terms( $taxonomy, array( 
-							'fields' => 'ids' 
+							'fields' => 'ids',
 						) ) );
 					}
 				}
