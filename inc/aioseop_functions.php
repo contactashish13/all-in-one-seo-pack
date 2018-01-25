@@ -604,6 +604,10 @@ if ( ! function_exists( 'aioseop_ajax_save_settings' ) ) {
 			$output = '<div id="aioseop_settings_header"><div id="message" class="updated fade"><p>' . $output . '</p></div></div><style>body.all-in-one-seo_page_all-in-one-seo-pack-aioseop_feature_manager .aioseop_settings_left { margin-top: 45px !important; }</style>';
 		}
 
+		if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+			return;
+		}
+
 		die( sprintf( AIOSEOP_AJAX_MSG_TMPL, $output ) );
 	}
 }

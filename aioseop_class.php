@@ -2423,6 +2423,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	/**
 	 * @since 2.3.14 #932 Adds filter "aioseop_description", removes extra filtering.
 	 * @since 2.4 #951 Trim/truncates occurs inside filter "aioseop_description".
+	 * @since 2.4.4.1 #1395 Longer Meta Descriptions & don't trim manual Descriptions.
 	 *
 	 * @param null $post
 	 *
@@ -2459,6 +2460,22 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$description = $this->internationalize( $description );
 		}
 
+		$truncate     = false;
+		$aioseop_desc = '';
+		if ( ! empty( $post->ID ) ) {
+			$aioseop_desc = get_post_meta( $post->ID, '_aioseop_description', true );
+		}
+
+		if ( empty ( $aioseop_desc ) && 'on' === $aioseop_options['aiosp_generate_descriptions'] && empty( $aioseop_options['aiosp_dont_truncate_descriptions'] ) ) {
+			$truncate = true;
+		}
+
+		$description = apply_filters(
+			'aioseop_description',
+			$description,
+			$truncate
+		);
+
 		return $description;
 	}
 
@@ -2490,6 +2507,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	}
 
 	/**
+	 * @since ?
+	 * @since 2.4 #1395 Longer Meta Descriptions & don't trim manual Descriptions.
+	 *
 	 * @param null $post
 	 *
 	 * @return mixed|string
@@ -2548,11 +2568,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				}
 				$description = $this->trim_text_without_filters_full_length( $this->internationalize( $content ) );
 			}
-			$description = apply_filters(
-				'aioseop_description',
-				$description,
-				empty( $aioseop_options['aiosp_dont_truncate_descriptions'] )
-			);
 		}
 
 		return $description;
@@ -4942,7 +4957,7 @@ EOF;
 		// Internal whitespace trim.
 		$value = preg_replace( '/\s\s+/u', ' ', $value );
 		// Truncate / crop
-		if ( ! empty( $truncate ) )
+		if ( ! empty( $truncate ) && $truncate )
 			$value = $this->trim_excerpt_without_filters( $value );
 		// Encode to valid SEO html entities
 		return $this->seo_entity_encode( $value );
