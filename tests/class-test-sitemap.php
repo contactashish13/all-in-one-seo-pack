@@ -9,9 +9,9 @@
  * Sitemap test case.
  */
 
-require_once dirname( __FILE__ ) . '/aioseop-test-base.php';
+require_once dirname( __FILE__ ) . '/base/class-sitemap-test-base.php';
 
-class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
+class Test_Sitemap extends Sitemap_Test_Base {
 
 	public function setUp(){
 		parent::init();
@@ -221,7 +221,7 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 					$without[0] => array(
 						'image'	=> false,
 					),
-			),true
+			)
 		);
 	}
 
