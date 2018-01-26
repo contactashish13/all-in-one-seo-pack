@@ -120,6 +120,8 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 	/**
 	 * Enables indexes and tests that the index and individual sitemaps are all valid according to the schema.
+	 *
+	 * @ticket 1371 Correct tags order according to Sitemap protocol
 	 */
 	public function test_index() {
 		$posts = $this->setup_posts( 2, 2 );
