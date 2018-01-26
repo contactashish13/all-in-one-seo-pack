@@ -121,6 +121,8 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	/**
 	 * Testing post type archive pages.
 	 *
+	 * @ticket 155 XML Sitemap - Add support for post type archive pages and support to exclude them as well.
+	 *
 	 * @access public
 	 * @dataProvider post_type_archive_pages_provider
 	 */
