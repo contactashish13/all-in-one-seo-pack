@@ -1,0 +1,31 @@
+<?php
+/**
+ * Class Test_Canonical_Urls
+ *
+ * @package 
+ */
+
+/**
+ * Canonnical URLs test cases.
+ */
+
+require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
+
+class Test_Canonical_Urls extends AIOSEOP_Test_Base {
+
+	public function test_post_type_archive_pages() {
+		global $aioseop_options;
+		$aioseop_options['aiosp_can'] = 1;
+		update_option( 'aioseop_options', $aioseop_options );
+
+		$id = $this->factory->post->create( array( 'post_type' => 'page' ) );
+		$link = get_month_link( get_the_time( 'Y', $id ), get_the_time( 'm', $id ) );
+		$link_page = add_query_arg( 'post_type', 'page', $link );
+		$links = $this->parse_html( $link_page, array( 'link' ) );
+		foreach ( $links as $link ) {
+			if ( 'canonical' === $link['rel'] ) {
+				$this->assertEquals( $link['href'], $link_page );
+			}
+		}
+	}
+}

@@ -2677,6 +2677,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				default:
 					return false;
 			}
+			$add_query_params = true;
 		} elseif ( $query->is_home && ( get_option( 'show_on_front' ) == 'page' ) && ( $pageid = get_option( 'page_for_posts' ) ) ) {
 			$link = get_permalink( $pageid );
 		} elseif ( is_front_page() || ( $query->is_home && ( get_option( 'show_on_front' ) != 'page' || ! get_option( 'page_for_posts' ) ) ) ) {
