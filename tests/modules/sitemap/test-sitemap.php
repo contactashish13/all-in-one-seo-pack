@@ -118,6 +118,11 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Don't include content from trashed pages.
+	 *
+	 * @ticket 1423 XML Sitemap - Don't include content from trashed pages.
+	 */
 	public function test_exclude_trashed_pages() {
 		$posts = $this->factory->post->create_many( 2 );
 		wp_trash_post( $posts[0] );
@@ -134,12 +139,15 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		foreach( $posts as $id ) {
 			$urls[] = get_permalink( $id );
 		}
-		$this->validate_sitemap(
+		$xml = $this->validate_sitemap(
 			array(
 					$urls[0] => false,
 					$urls[1] => true,
 			)
 		);
+
+		// check that the file does not contain the string __trashed because that's how trashed pages are included.
+		$this->assertNotContains( $xml, '__trashed' );
 	}
 
 }
