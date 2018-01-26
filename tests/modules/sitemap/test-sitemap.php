@@ -118,6 +118,11 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Exclude custom taxonomy or a particular taxonomy term.
+	 *
+	 * @ticket 240 Exclude custom taxonomy.
+	 */
 	public function test_exclude_taxonomy() {
 		$posts = $this->factory->post->create_many( 5 );
 
