@@ -9,11 +9,11 @@
  * Sitemap test case.
  */
 
-require_once dirname( __FILE__ ) . '/class-aioseop-test-base.php';
+require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
 class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
- /**
+	/**
 	 * Check whether the sitemap is valid on the basis of given conditions.
 	 *
 	 * @param array $elements this is the array that is used to compare with the sitemap. It can have a variety of structures but the key is always the URL:
