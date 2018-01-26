@@ -141,6 +141,6 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$dom = new DOMDocument(); 
 		$dom->load( $file ); 
 
-		$this->assertTrue( $dom->schemaValidate( dirname( dirname(__FILE__) ) . "/resources/xsd/{$schema}.xsd" ) );
+		$this->assertTrue( $dom->schemaValidate( AIOSEOP_UNIT_TESTING_DIR . "/resources/xsd/{$schema}.xsd" ) );
 	}
 }
