@@ -118,6 +118,11 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Test the generated RSS file for the sitemap.
+	 *
+	 * @ticket 561 XML Sitemap module - Add support for RSS/Atom updates.
+	 */
 	public function test_rss() {
 		$posts = $this->setup_posts( 2 );
 	
@@ -144,7 +149,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$dom->load( $rss ); 
 		$content = file_get_contents( $rss );
 
-		$this->assertTrue( $dom->schemaValidate( dirname(__FILE__) . '/resources/xsd/rss.xsd' ) );
+		$this->assertTrue( $dom->schemaValidate( AIOSEOP_UNIT_TESTING_DIR . '/resources/xsd/rss.xsd' ) );
 		$this->assertContains( $posts['without'][0], $content );
 		$this->assertContains( $posts['without'][1], $content );
 	}
