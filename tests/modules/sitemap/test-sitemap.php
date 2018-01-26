@@ -127,7 +127,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$this->markTestSkipped( 'Skipping this till actual use case is determined.' );
 		
 		$jetpack = 'jetpack/jetpack.php';
-		$file = AIOSEOP_UNIT_TESTING_DIR . '/';
+		$file = dirname( dirname( AIOSEOP_UNIT_TESTING_DIR ) ) . '/';
 		
 		if ( ! file_exists( $file . $jetpack ) ) {
 			$this->markTestSkipped( 'JetPack not installed. Skipping.' );
@@ -186,7 +186,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 */
 	public function test_nextgen_gallery() {
 		$nextgen = 'nextgen-gallery/nggallery.php';
-		$file = AIOSEOP_UNIT_TESTING_DIR . '/';
+		$file = dirname( dirname( AIOSEOP_UNIT_TESTING_DIR ) ) . '/';
 		
 		if ( ! file_exists( $file . $nextgen ) ) {
 			$this->markTestSkipped( 'NextGen Gallery not installed. Skipping.' );
