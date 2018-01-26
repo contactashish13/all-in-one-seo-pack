@@ -9,7 +9,7 @@
  * Sitemap test case.
  */
 
-require_once dirname( __FILE__ ) . '/class-aioseop-test-base.php';
+require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
 class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
