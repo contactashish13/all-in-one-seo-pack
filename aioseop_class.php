@@ -1124,6 +1124,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$this->layout['default']['options'] = array_diff( array_keys( $this->default_options ), $other_options );
 
 		if ( is_admin() ) {
+			aioseop_set_canonical_urls_behavior( $this->prefix );
+
 			$this->add_help_text_links();
 			add_action( 'aioseop_global_settings_header', array( $this, 'display_right_sidebar' ) );
 			add_action( 'aioseop_global_settings_footer', array( $this, 'display_settings_footer' ) );
@@ -1372,15 +1374,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title_format = ''; // Not sure why this needs to be this way, but we should extract all this out to figure out what's going on.
 		}
 		$show_page = true;
-
-		$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-		if ( $canonical_behavior ) {
-			if ( ! empty( $canonical_behavior['no_paged_canonical_links'] ) ) {
-				$show_page = false;
-			}
-
-			if ( ! empty( $canonical_behavior['customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) ) {
+		if ( ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ) ) {
+			$show_page = false;
+		}
+		if ( $aioseop_options['aiosp_can'] ) {
+			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) ) {
 				$url = $opts['aiosp_custom_link'];
 			}
 			if ( empty( $url ) ) {
@@ -1467,10 +1465,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				'noindex',
 				'nofollow',
 			);
-
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
+			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -3370,10 +3365,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			} elseif ( ! empty( $current["{$prefix}togglekeywords"] ) ) {
 				unset( $settings["{$prefix}keywords"] );
 			}
-
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( empty( $canonical_behavior ) || empty( $canonical_behavior['customize_canonical_links'] ) ) {
+			if ( empty( $this->options['aiosp_can'] ) || empty( $this->options['aiosp_customize_canonical_links'] ) ) {
 				unset( $settings["{$prefix}custom_link"] );
 			}
 		}
@@ -3626,9 +3618,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				) );
 			}
 		} else {
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( ! $canonical_behavior ) {
+			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
 				remove_action( 'wp_head', 'rel_canonical' );
 			}
 			// Analytics.
@@ -3932,17 +3922,14 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		// Handle canonical links.
-		$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
 		$show_page = true;
+		if ( ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ) ) {
+			$show_page = false;
+		}
 
-		if ( $canonical_behavior ) {
-			if ( ! empty( $canonical_behavior['no_paged_canonical_links'] ) ) {
-				$show_page = false;
-			}
-
+		if ( $aioseop_options['aiosp_can'] ) {
 			$url = '';
-			if ( ! empty( $canonical_behavior['customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
+			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
 				$url = $opts['aiosp_custom_link'];
 			}
 			if ( empty( $url ) ) {
@@ -4413,10 +4400,7 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
+			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -4434,10 +4418,7 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
+			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {
@@ -4672,10 +4653,7 @@ EOF;
 				'noindex',
 				'nofollow',
 			);
-
-			$canonical_behavior = aioseop_canonical_urls_behavior( $this->prefix );
-
-			if ( ! ( ! empty( $canonical_behavior ) ) && ( ! empty( $canonical_behavior['customize_canonical_links'] ) ) ) {
+			if ( ! ( ! empty( $this->options['aiosp_can'] ) ) && ( ! empty( $this->options['aiosp_customize_canonical_links'] ) ) ) {
 				unset( $optlist['custom_link'] );
 			}
 			foreach ( $optlist as $f ) {

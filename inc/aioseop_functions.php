@@ -1005,40 +1005,39 @@ if ( ! function_exists('aiosp_include_images') ) {
 }
 
 
-if ( ! function_exists( 'aioseop_canonical_urls_behavior' ) ) {
+if ( ! function_exists( 'aioseop_set_canonical_urls_behavior' ) ) {
 	/**
-	 * Get the behavior expected for canonical URLs if they are enabled.
+	 * Sets the behavior expected for canonical URLs in the database taking into account if these options were previously enabled.
 	 *
 	 * @param string $prefix The prefix of the module.
-	 *
-	 * @return bool|array If canonical URLs are disabled, return false else return the behavioral array.
 	 */
-	function aioseop_canonical_urls_behavior( $prefix ) {
+	function aioseop_set_canonical_urls_behavior( $prefix ) {
 		global $aioseop_options;
 
+		if ( empty( $aioseop_options ) ) {
+			return;
+		}
+
 		$default = array(
-			'no_paged_canonical_links' => false,
-			'customize_canonical_links' => true,
+			"{$prefix}can" => 1,
+			"{$prefix}no_paged_canonical_links" => 0,
+			"{$prefix}customize_canonical_links" => 1,
 		);
 
 		$behavior = $default;
 
-		// check if the user had specified a particular behavior before we removed the options.
-		if ( array_key_exists( 'aiosp_can', $aioseop_options ) ) {
-			if ( empty( $aioseop_options['aiosp_can'] ) ) {
-				// user has switched off this option.
-				$behavior = false;
-			} else {
-				// user has switched on the canonical url option, but what about the other two?
-				$user_behavior = array(
-					'no_paged_canonical_links' => ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ),
-					'customize_canonical_links' => ! empty( $aioseop_options['aiosp_customize_canonical_links'] ),
-				);
-
-				$behavior = array_merge( $behavior, $user_behavior );
-			}
+		if ( array_key_exists( "{$prefix}can", $aioseop_options ) ) {
+			// user has seen these options before we removed them.
+			$behavior = array(
+				"{$prefix}can" => empty( $aioseop_options[ "{$prefix}can" ] ) ? 0 : 1,
+				"{$prefix}no_paged_canonical_links" => empty( $aioseop_options[ "{$prefix}no_paged_canonical_links" ] ) ? 0 : 1,
+				"{$prefix}customize_canonical_links" => empty( $aioseop_options[ "{$prefix}customize_canonical_links" ] ) ? 0 : 1,
+			);
+		
+			$behavior = apply_filters( $prefix . 'canonical_urls', $behavior, $default );
 		}
 
-		return apply_filters( $prefix . 'canonical_urls', $behavior, $default );
+		$aioseop_options = array_merge( $aioseop_options, $behavior );
+		update_option( 'aioseop_options', $aioseop_options );
 	}
 }
