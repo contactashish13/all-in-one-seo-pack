@@ -14,7 +14,7 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 
 	/**
-	 * Canonical URLs on all post types except post should include the &post_type parameter.
+	 * Canonical URLs on all post type (except post) archive pages should include the &post_type parameter.
 	 *
 	 * @ticket 491 Canonical urls on custom post type archive pages don't include the required URL variable.
 	 */
