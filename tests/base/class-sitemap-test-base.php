@@ -97,7 +97,9 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 			}
 		}
 
+		$contents = file_get_contents( $file );
 		@unlink( $file );
+		return $contents;
 	}
 
 	/**
