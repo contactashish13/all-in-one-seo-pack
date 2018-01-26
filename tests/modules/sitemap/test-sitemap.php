@@ -119,7 +119,9 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
-	 * Tests posts with and without featured images with dependency on jetpack gallery.
+	 * Tests posts with and without images with dependency on jetpack gallery.
+	 *
+	 * @ticket 1230 XML Sitemap - Add support for images in JetPack and NextGen galleries
 	 */
 	public function test_jetpack_gallery() {
 		$this->markTestSkipped( 'Skipping this till actual use case is determined.' );
@@ -178,7 +180,9 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
-	 * Tests posts with and without featured images with dependency on nextgen gallery.
+	 * Tests posts with and without images with dependency on nextgen gallery.
+	 *
+	 * @ticket 1230 XML Sitemap - Add support for images in JetPack and NextGen galleries
 	 */
 	public function test_nextgen_gallery() {
 		$nextgen = 'nextgen-gallery/nggallery.php';
