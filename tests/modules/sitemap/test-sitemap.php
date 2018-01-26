@@ -118,12 +118,14 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Tests posts with and without featured images with dependency on jetpack gallery.
+	 */
 	public function test_jetpack_gallery() {
 		$this->markTestSkipped( 'Skipping this till actual use case is determined.' );
-
 		
 		$jetpack = 'jetpack/jetpack.php';
-		$file = dirname(dirname( dirname( __FILE__ ) )) . '/';
+		$file = AIOSEOP_UNIT_TESTING_DIR . '/';
 		
 		if ( ! file_exists( $file . $jetpack ) ) {
 			$this->markTestSkipped( 'JetPack not installed. Skipping.' );
@@ -144,7 +146,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		// create 4 attachments.
 		$attachments = array();
 		for ( $x = 0; $x < 4; $x++ ) {
-			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', trailingslashit( __DIR__ ) . 'resources/images/footer-logo.png' ) );
+			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ) );
 		}
 
 		$id = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => '[gallery size="medium" link="file" columns="5" type="slideshow" ids="' . implode( ',', $attachments ) . '"]', 'post_title' => 'jetpack' ) );
@@ -175,9 +177,12 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Tests posts with and without featured images with dependency on nextgen gallery.
+	 */
 	public function test_nextgen_gallery() {
 		$nextgen = 'nextgen-gallery/nggallery.php';
-		$file = dirname(dirname( dirname( __FILE__ ) )) . '/';
+		$file = AIOSEOP_UNIT_TESTING_DIR . '/';
 		
 		if ( ! file_exists( $file . $nextgen ) ) {
 			$this->markTestSkipped( 'NextGen Gallery not installed. Skipping.' );
@@ -198,7 +203,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		// create 4 attachments.
 		$attachments = array();
 		for ( $x = 0; $x < 4; $x++ ) {
-			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', trailingslashit( __DIR__ ) . 'resources/images/footer-logo.png' ) );
+			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ) );
 		}
 
 		$shortcode = '[ngg_images image_ids="' . implode( ',', $attachments ) . '"]';
