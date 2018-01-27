@@ -1124,8 +1124,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$this->layout['default']['options'] = array_diff( array_keys( $this->default_options ), $other_options );
 
 		if ( is_admin() ) {
-			aioseop_set_canonical_urls_behavior( $this->prefix );
-
 			$this->add_help_text_links();
 			add_action( 'aioseop_global_settings_header', array( $this, 'display_right_sidebar' ) );
 			add_action( 'aioseop_global_settings_footer', array( $this, 'display_settings_footer' ) );
@@ -1139,6 +1137,15 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		if ( AIOSEOPPRO ) {
 			add_action( 'split_shared_term', array( $this, 'split_shared_term' ), 10, 4 );
 		}
+		
+		add_action( 'admin_init', array( $this, 'init_canonical_url_settings' ) );
+	}
+
+	/**
+	 * Initializes the behavior of the canonical URL settings.
+	 */
+	public function init_canonical_url_settings() {
+		aioseop_set_canonical_urls_behavior( $this->prefix );
 	}
 
 	//good candidate for pro dir
