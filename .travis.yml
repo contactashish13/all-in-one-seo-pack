@@ -16,3 +16,6 @@ notifications:
 branches:
   except:
   - "/^*-v[0-9]/"
+
+
+script: phpunit
