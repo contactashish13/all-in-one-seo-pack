@@ -34,7 +34,9 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
 		$file = ABSPATH . '/sitemap.xml';
 
-		$this->assertFileIsReadable( $file );
+		if ( method_exists( $this, 'assertFileIsReadable' ) ) {
+			$this->assertFileIsReadable( $file );
+		}
 
 		if ( $debug ) {
 			echo file_get_contents($file);
