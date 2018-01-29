@@ -1,26 +1,19 @@
 language: php
 
-env:
-  - WP_VERSION=latest WP_MULTISITE=0
-  - WP_VERSION=3.3 WP_MULTISITE=0
-  - WP_VERSION=4.0 WP_MULTISITE=0
-
 matrix:
   fast_finish: true
   include:
     - php: 7.0
       env: WP_VERSION=master WP_MULTISITE=0
-    - php: 6.0
-      env: WP_VERSION=master WP_MULTISITE=0
     - php: 5.6
     - php: 5.5
-      env: WP_VERSION=4.0
     - php: 5.4
-      env: WP_VERSION=master WP_MULTISITE=0
     - php: 5.3
     - php: 5.2
     - php: 7.0
       env: WP_VERSION=master WP_MULTISITE=1
+      env: WP_VERSION=4.0
+    - env: WP_VERSION=3.5
   allow_failures:
     - php: 7.0
       env: WP_VERSION=master WP_MULTISITE=1
