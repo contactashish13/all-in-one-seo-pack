@@ -154,7 +154,6 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	 * An empty test is required otherwise tests won't run.
 	 */
 	public final function test_dont_remove_this_method(){
-		$this->assertTrue(true);
 	}
 
 }
