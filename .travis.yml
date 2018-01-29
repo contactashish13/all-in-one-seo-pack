@@ -10,12 +10,16 @@ matrix:
   include:
     - php: 7.0
       env: WP_VERSION=master WP_MULTISITE=0
-    - php: 5.4
+      script: phpunit
+    - php: 6.0
       env: WP_VERSION=master WP_MULTISITE=0
+      script: phpunit
+    - php: 5.6
+      script: phpunit
     - php: 5.5
       env: WP_VERSION=4.0
-    - php: 5.6
     - php: 5.4
+      env: WP_VERSION=master WP_MULTISITE=0
     - php: 5.3
     - php: 5.2
     - php: 7.0
@@ -34,7 +38,8 @@ branches:
   - "/^*-v[0-9]/"
 
 before_script:
-  - curl -sSfL -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
+#  - curl -sSfL -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
-script: ~/.phpenv/versions/hhvm/bin/phpunit
+#script: phpunit
+#script: ~/.phpenv/versions/hhvm/bin/phpunit
