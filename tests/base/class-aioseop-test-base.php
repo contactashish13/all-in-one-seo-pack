@@ -1,6 +1,5 @@
 <?php
 /**
- * @requires extension mysqli
  * AIOSEOP testing base class.
  */
 class AIOSEOP_Test_Base extends WP_UnitTestCase {
