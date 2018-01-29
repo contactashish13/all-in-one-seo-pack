@@ -37,4 +37,4 @@ before_script:
   - curl -sSfL -o ~/.phpenv/versions/hhvm/bin/phpunit https://phar.phpunit.de/phpunit-5.7.phar
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
-script: phpunit
+script: ~/.phpenv/versions/hhvm/bin/phpunit
