@@ -2752,6 +2752,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $images;
 			}
 
+			$attached_url = false;
 			// Check featured image.
 			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
 				$attached_url = get_the_post_thumbnail_url( $post->ID );
