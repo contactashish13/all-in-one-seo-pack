@@ -13,7 +13,7 @@ matrix:
       dist: precise
     - env: WP_VERSION=latest
     - env: WP_VERSION=4.0
-    - env: WP_VERSION=3.5
+    - env: WP_VERSION=3.7
     - env: WP_MULTISITE=1
   allow_failures:
       - env: WP_MULTISITE=1
