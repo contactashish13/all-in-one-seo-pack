@@ -33,4 +33,4 @@ branches:
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
-script: phpunit -c $UNIT_TEST_FILENAME
+script: phpunit --configuration $UNIT_TEST_FILENAME
