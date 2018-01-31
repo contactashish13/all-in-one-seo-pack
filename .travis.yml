@@ -1,5 +1,7 @@
 language: php
 
+global:
+  - UNIT_TEST_FILENAME=phpunit.xml.dist
 matrix:
   fast_finish: true
   include:
@@ -15,7 +17,7 @@ matrix:
       dist: precise
     - env: WP_VERSION=latest
     - env: WP_VERSION=4.0
-    - env: WP_MULTISITE=1
+    - env: WP_MULTISITE=1 UNIT_TEST_FILENAME=multisite.xml.dist
   allow_failures:
       - env: WP_MULTISITE=1
 
@@ -31,4 +33,4 @@ branches:
 before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
-script: phpunit
+script: phpunit -c $UNIT_TEST_FILENAME
