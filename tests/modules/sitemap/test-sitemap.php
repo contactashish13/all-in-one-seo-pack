@@ -136,18 +136,9 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$urls = array( get_permalink( $post_ids[0] ), get_permalink( $post_ids[1] ) );
 
-		add_shortcode( $code, function() {
-			// inject a dummy image, from the same host.
-			return '<img src="' . site_url( '/image.jpg' ) . '"/>';
-		} );
+		add_shortcode( $code, array( $this, 'aioseop_image_shortcodes_shortcode' ) );
 
-		add_filter( 'aioseop_image_shortcodes', function( $dummy, $post_id ){
-			global $shortcode, $post_ids;
-			if ( $post_id == $post_ids[0] ) {
-				return $shortcode;
-			}
-			return $dummy;
-		}, 10, 2 );
+		add_filter( 'aioseop_image_shortcodes', array( $this, 'aioseop_image_shortcodes_filter' ), 10, 2 );
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
@@ -167,6 +158,25 @@ class Test_Sitemap extends Sitemap_Test_Base {
 					),
 			)
 		);
+	}
+
+	/**
+	 * Returns the image for the shortcode.
+	 */
+	public function aioseop_image_shortcodes_shortcode() {
+		// inject a dummy image, from the same host.
+		return '<img src="' . site_url( '/image.jpg' ) . '"/>';
+	}
+
+	/**
+	 * Returns the shortcode to use.
+	 */
+	public function aioseop_image_shortcodes_filter( $dummy, $post_id ) {
+		global $shortcode, $post_ids;
+		if ( $post_id == $post_ids[0] ) {
+			return $shortcode;
+		}
+		return $dummy;
 	}
 
 	/**
