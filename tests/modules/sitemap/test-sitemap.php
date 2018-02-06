@@ -120,7 +120,44 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
+	 *
+	 * @dataProvider enabledPostTypes
+	 */
+	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count ) {
+		// choose numbers which are not multiples of each other.
+		$num_posts = 22;
+		$per_xml = 7;
 
+		$posts = $this->setup_posts( $num_posts );
+		$pages = $this->setup_posts( $num_posts, 0, 'page' );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_max_posts'] = $per_xml;
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = $enabled_post_type;
+		$custom_options['aiosp_sitemap_taxonomies'] = array();
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		// calculate the number of sitemaps expected in the index. The +1 is for the sitemap_addl.xml that includes the home page.
+		$expected = intval( $enabled_post_types_count * ceil( $num_posts / $per_xml ) + 1 );
+		$got = $this->count_sitemap_elements( array( '<sitemap>' ) );
+
+		$this->assertEquals( $expected, $got['<sitemap>'] );
+	}
+
+	/**
+	 * Provides posts types to test test_sitemap_index_pagination against.
+	 */
+	public function enabledPostTypes() {
+		return array(
+			array( array( 'post' ), 1 ),
+			array( array( 'post', 'page' ), 2 ),
+			array( array( 'all', 'post', 'page' ), 2 ),
+		);
+	}
 }
-
-
