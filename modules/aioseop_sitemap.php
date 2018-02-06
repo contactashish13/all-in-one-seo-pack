@@ -1404,6 +1404,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param string $message
 		 */
 		function do_sitemaps( $message = '' ) {
+			if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				$aioseop_options = aioseop_get_options();
+				$this->options = $aioseop_options['modules'][ "{$this->prefix}options" ];
+			}
+
 			if ( ! empty( $this->options["{$this->prefix}indexes"] ) ) {
 				if ( $this->options["{$this->prefix}max_posts"] && ( $this->options["{$this->prefix}max_posts"] > 0 ) && ( $this->options["{$this->prefix}max_posts"] < 50000 ) ) {
 					$this->max_posts = $this->options["{$this->prefix}max_posts"];
@@ -2715,6 +2720,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		private function get_images_from_post( $post ) {
+			global $wp_version;
 
 			if ( ! aiosp_include_images() ) {
 				return array();
@@ -2744,8 +2750,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $images;
 			}
 
+			$attached_url = false;
 			// Check featured image.
-			$attached_url = get_the_post_thumbnail_url( $post->ID );
+			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
+				$attached_url = get_the_post_thumbnail_url( $post->ID );
+			} else {
+				$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
+				if ( $post_thumbnail_id ) {
+					$attached_url = wp_get_attachment_image_src( $post_thumbnail_id );
+				}
+			}
 			if ( false !== $attached_url ) {
 				$images[] = $attached_url;
 			}
