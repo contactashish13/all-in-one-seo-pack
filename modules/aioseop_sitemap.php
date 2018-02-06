@@ -3142,7 +3142,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						$args['post_status'] = 'inherit';
 					}
 
-					$post_counts[ $post_type ] = $this->get_post_count( $args );
+					$count_args = $args;
+					$count_args['post_type'] = $post_type;
+					$post_counts[ $post_type ] = $this->get_post_count( $count_args );
 				}
 			}
 			$post_counts = apply_filters( $this->prefix . 'post_counts', $post_counts, $args );
