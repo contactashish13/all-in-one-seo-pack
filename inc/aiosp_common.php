@@ -13,6 +13,18 @@
 class aiosp_common {
 
 	/**
+	 * The allowed image extensions.
+	 *
+	 * @var      array $image_extensions The allowed image extensions.
+	 */
+	private static $image_extensions    = array(
+		'jpg',
+		'jpeg',
+		'png',
+		'gif',
+	);
+
+	/**
 	 * aiosp_common constructor.
 	 *
 	 */
@@ -104,5 +116,73 @@ class aiosp_common {
 	 */
 	static function get_upgrade_url() {
 		//put build URL stuff in here
+	}
+
+	/**
+	 * Check whether a url is relative and if it is, make it absolute.
+	 *
+	 * @param string $url URL to check.
+	 *
+	 * @return string
+	 */
+	static function absolutize_url( $url ) {
+		if ( strpos( $url, 'http' ) !== 0 && strpos( $url, '//' ) !== 0 && $url != '/' ) {
+			$url = home_url( $url );
+		}
+		return $url;
+	}
+
+	/**
+	 * Cleans the URL so that its acceptable in the sitemap.
+	 *
+	 * @param string $url The image url.
+	 *
+	 * @since 2.4.1
+	 *
+	 * @return string
+	 */
+	public static function clean_url( $url ) {
+		// remove the query string.
+		$url    = strtok( $url, '?' );
+		// make the url XML-safe.
+		$url    = htmlspecialchars( $url );
+		// Make the url absolute, if its relative.
+		$url    = self::absolutize_url( $url );
+		return apply_filters( 'aioseop_clean_url', $url );
+	}
+
+	/**
+	 * Validate the image.
+	 *
+	 * @param string $image The image src.
+	 *
+	 * @since 2.4.1
+	 *
+	 * @return bool
+	 */
+	public static function is_image_valid( $image ) {
+		// Bail if empty image.
+		if ( empty( $image ) ) {
+			return false;
+		}
+
+		// make the url absolute, if its relative.
+		$image	    = self::absolutize_url( $image );
+
+		$extn       = pathinfo( wp_parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+		$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
+		// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
+		if ( ! in_array( $extn, $allowed, true ) ) {
+			return false;
+		}
+
+		// Bail if image refers to an external URL.
+		$image_host = wp_parse_url( $image, PHP_URL_HOST );
+		$wp_host    = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( $image_host !== $wp_host ) {
+			return false;
+		}
+
+		return true;
 	}
 }
