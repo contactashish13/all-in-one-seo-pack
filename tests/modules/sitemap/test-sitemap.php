@@ -154,7 +154,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->_setup_options( 'sitemap', $custom_options );
 
-
 		// each post that has a featured image also contains an image in the content.
 		$featured_plus_content = count( $posts['with'] ) * 2;
 		// we are adding 3 images to each post's content but only 2 of them will be recognized because the external url will be filtered out.
@@ -162,16 +161,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$got = $this->count_sitemap_elements( array( '<image:loc>' ) );
 
 		$this->assertEquals( $featured_plus_content + $only_content, $got['<image:loc>'] );
-
-		$without = $posts['without'];
-		$this->validate_sitemap(
-			array(
-					$without[0] => true,
-					$without[1] => true,
-					$url1['loc'] => true,
-					$url2['loc'] => true,
-			)
-		);
 	}
 
 	/**
