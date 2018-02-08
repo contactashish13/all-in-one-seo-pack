@@ -9,9 +9,9 @@
  * Sitemap test case.
  */
 
-require_once dirname( __FILE__ ) . '/aioseop-test-base.php';
+require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-sitemap-test-base.php';
 
-class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
+class Test_Sitemap extends Sitemap_Test_Base {
 
 	public function setUp(){
 		parent::init();
@@ -23,6 +23,9 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 		parent::tearDown();
 	}
 
+	/**
+	 * Creates posts and pages and tests whether only pages are being shown in the sitemap.
+	 */
 	public function test_only_pages() {
 		$posts = $this->setup_posts( 2 );
 		$pages = $this->setup_posts( 2, 0, 'page' );
@@ -45,6 +48,12 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 		);
 	}
 
+	/**
+	 * @requires PHPUnit 5.7
+	 * Creates posts with and without featured images and tests whether the sitemap
+	 * 1) contains the image tag in the posts that have images attached.
+	 * 2) does not contain the image tag in the posts that do not have images attached.
+	 */
 	public function test_featured_image() {
 		$posts = $this->setup_posts( 2, 2 );
 
@@ -76,6 +85,10 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 		);
 	}
 
+	/**
+	 * @requires PHPUnit 5.7
+	 * Creates posts with and without featured images and switches OFF the images from the sitemap. Tests that the sitemap does not contain the image tag for any post.
+	 */
 	public function test_exclude_images() {
 		$posts = $this->setup_posts( 2, 2 );
 
@@ -107,6 +120,9 @@ class Test_Sitemap extends AIOSEOP_Unit_Test_Base {
 		);
 	}
 
+	/**
+	 * Creates posts with external images and uses the filter 'aioseop_images_allowed_from_hosts' to allow only a particular host's images to be included in the sitemap.
+	 */
 	public function test_external_images() {
 		$posts = $this->setup_posts( 2 );
 
