@@ -3135,14 +3135,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $args ) && ! empty( $args['post_type'] ) ) {
 				// #884: removed hard-to-understand code here which suspected $args['post_type'] to NOT be an array. Do not see any case in which this is likely to happen.
 				foreach ( $args['post_type'] as $post_type ) {
+					$count_args = $args;
 					if ( 'all' === $post_type ) {
 						continue;
 					}
 					if ( 'attachment' === $post_type ) {
-						$args['post_status'] = 'inherit';
+						$count_args['post_status'] = 'inherit';
 					}
 
-					$count_args = $args;
 					$count_args['post_type'] = $post_type;
 					$post_counts[ $post_type ] = $this->get_post_count( $count_args );
 				}
