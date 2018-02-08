@@ -13,6 +13,11 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-sitemap-test-base.php';
 
 class Test_Sitemap extends Sitemap_Test_Base {
 
+	/**
+	 * @var array $_urls Stores the external pages that need to be added to the sitemap.
+	 */
+	private $_urls;
+
 	public function setUp(){
 		parent::init();
 		parent::setUp();
@@ -155,7 +160,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$custom_options['aiosp_sitemap_gzipped'] = '';
 		$custom_options['aiosp_sitemap_posttypes'] = $enabled_post_type;
 		$custom_options['aiosp_sitemap_taxonomies'] = array();
-
+    
 		$this->_setup_options( 'sitemap', $custom_options );
 
 		// calculate the number of sitemaps expected in the index. The +1 is for the sitemap_addl.xml that includes the home page.
@@ -163,6 +168,66 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$got = $this->count_sitemap_elements( array( '<sitemap>' ) );
 
 		$this->assertEquals( $expected, $got['<sitemap>'] );
+  }
+  
+  /**
+	 * Add external URLs to the sitemap using the filter 'aiosp_sitemap_addl_pages_only'.
+	 *
+	 * @dataProvider externalPagesProvider
+	 */
+	public function test_add_external_urls( $url1, $url2 ) {
+		$this->_urls = array( $url1, $url2 );
+
+		$posts = $this->setup_posts( 2 );
+
+		add_filter( 'aiosp_sitemap_addl_pages_only', array( $this, 'add_external_urls' ) );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$without = $posts['without'];
+		$this->validate_sitemap(
+			array(
+					$without[0] => true,
+					$without[1] => true,
+					$url1['loc'] => true,
+					$url2['loc'] => true,
+			)
+		);
+	}
+
+	/**
+	 * Returns the urls to be added to the sitemap.
+	 */
+	public function add_external_urls() {
+		return $this->_urls;
+	}
+
+	/**
+	 * Provides the external pages that need to be added to the sitemap.
+	 */
+	public function externalPagesProvider() {
+		return array(
+			array(
+				array(
+					'loc'        => 'http://www.one.com',
+					'lastmod'    => '2018-01-18T21:46:44Z',
+					'changefreq' => 'daily',
+					'priority'   => '1.0',
+				),
+				array(
+					'loc'        => 'http://www.two.com',
+					'lastmod'    => '2018-01-18T21:46:44Z',
+					'changefreq' => 'daily',
+					'priority'   => '1.0',
+				),
+			),
+		);
 	}
 
 	/**
