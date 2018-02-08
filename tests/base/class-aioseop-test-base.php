@@ -21,7 +21,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	/**
 	 * Create attachments, and, optionally, attach to a post.
 	*/
-	protected final function create_attachments( $num, $id ) {
+	protected final function create_attachments( $num, $id = 0 ) {
 		$image = str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' );
 		$ids = array();
 		for( $x = 0; $x < $num; $x++ ) {
