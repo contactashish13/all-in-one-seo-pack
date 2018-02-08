@@ -231,7 +231,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'type'  => 'text',
 					'label' => 'top',
 					'save'  => false,
-					'required' => true,
 				),
 				'addl_prio'         => array(
 					'name'            => __( 'Page Priority', 'all-in-one-seo-pack' ),
@@ -253,7 +252,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'label' => 'top',
 					'save'  => false,
 					'class' => 'aiseop-date',
-					'required' => true,
 				),
 				'addl_pages'        => array(
 					'name' => __( 'Additional Pages', 'all-in-one-seo-pack' ),
