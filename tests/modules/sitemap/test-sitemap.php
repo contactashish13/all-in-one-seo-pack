@@ -121,17 +121,32 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
 	 *
 	 * @dataProvider enabledPostTypes
 	 */
-	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count ) {
+	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count, $cpt ) {
 		// choose numbers which are not multiples of each other.
 		$num_posts = 22;
 		$per_xml = 7;
 
-		$posts = $this->setup_posts( $num_posts );
-		$pages = $this->setup_posts( $num_posts, 0, 'page' );
+		if ( in_array( 'post', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts );
+		}
+
+		if ( in_array( 'page', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => 'page' ) );
+		}
+
+		if ( in_array( 'attachment', $enabled_post_type ) ) {
+			$this->create_attachments( $num_posts );
+		}
+
+		if ( ! is_null( $cpt ) ) {
+			register_post_type( $cpt );
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => $cpt ) );
+		}
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = 'on';
@@ -155,9 +170,12 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 */
 	public function enabledPostTypes() {
 		return array(
-			array( array( 'post' ), 1 ),
-			array( array( 'post', 'page' ), 2 ),
-			array( array( 'all', 'post', 'page' ), 2 ),
+			array( array( 'post' ), 1, null ),
+			array( array( 'post', 'page' ), 2, null ),
+			array( array( 'product' ), 1, 'product' ),
+			array( array( 'attachment', 'product' ), 2, 'product' ),
+			array( array( 'all', 'post', 'page' ), 2, null ),
+			array( array( 'all', 'post', 'page', 'attachment', 'product' ), 4, 'product' ),
 		);
 	}
 }

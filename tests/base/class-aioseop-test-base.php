@@ -18,6 +18,18 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		return $attachment_id;
 	}
 
+	/**
+	 * Create attachments, and, optionally, attach to a post.
+	*/
+	protected final function create_attachments( $num, $id ) {
+		$image = str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' );
+		$ids = array();
+		for( $x = 0; $x < $num; $x++ ) {
+			$ids[] = $this->factory->attachment->create_upload_object( $image, $id );
+		}
+		return $ids;
+	}
+
 	protected final function init() {
 		$this->clean();
 	}
@@ -123,6 +135,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 			array(
 				'post_type' => 'attachment',
 				'fields'	=> 'ids',
+				'numberposts' => -1,
 		) );
 
 		// 2 attachments created?
