@@ -3016,7 +3016,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			// let's first fetch the taxonomies that have specific terms excluded.
 			if ( $this->option_isset( 'excl_categories' ) && ! empty( $this->options[ $this->prefix . 'excl_categories' ] ) ) {
 				$exclude = $this->options[ $this->prefix . 'excl_categories' ];
-				$terms = get_terms( array(
+				$terms = get_terms( $exclude, array(
 					'include' => $exclude,
 				) );
 				if ( $terms ) {
