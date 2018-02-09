@@ -196,10 +196,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$posts['with'] = array( get_permalink( $id1 ), get_permalink( $id2 ) );
 
 		// allow only www.x.com.
-		add_filter( 'aioseop_images_allowed_from_hosts', function( $hosts ) {
-			$hosts[] = 'www.x.com';
-			return $hosts;
-		} );
+		add_filter( 'aioseop_images_allowed_from_hosts', array( $this, 'filter_aioseop_images_allowed_from_hosts' ) );
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
@@ -227,6 +224,14 @@ class Test_Sitemap extends Sitemap_Test_Base {
 					),
 			)
 		);
+	}
+
+	/**
+	 * Implements the filter 'aioseop_images_allowed_from_hosts' to allow speficic hosts.
+	 */
+	public function filter_aioseop_images_allowed_from_hosts( $hosts ) {
+		$hosts[] = 'www.x.com';
+		return $hosts;
 	}
 
 }
