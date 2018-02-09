@@ -3011,14 +3011,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param bool $only_ids return only the ids or the mapping of taxonomy name => array of term ids.
 		 */
 		function get_excluded_terms( $only_ids = false ) {
+			global $wp_version;
+
 			$map = array();
 
 			// let's first fetch the taxonomies that have specific terms excluded.
 			if ( $this->option_isset( 'excl_categories' ) && ! empty( $this->options[ $this->prefix . 'excl_categories' ] ) ) {
 				$exclude = $this->options[ $this->prefix . 'excl_categories' ];
-				$terms = get_terms( $exclude, array(
-					'include' => $exclude,
-				) );
+
+				if ( version_compare( $wp_version, '4.5.0', '>=' ) ) {
+					$terms = get_terms( array(
+						'include' => $exclude,
+					) );
+				} else {
+					$terms = get_terms( $exclude );
+				}
+
 				if ( $terms ) {
 					foreach ( $terms as $term ) {
 						$taxonomy = $term->taxonomy;
