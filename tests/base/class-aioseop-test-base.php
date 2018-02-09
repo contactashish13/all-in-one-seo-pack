@@ -123,6 +123,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 			array(
 				'post_type' => 'attachment',
 				'fields'	=> 'ids',
+				'numberposts' => -1,
 		) );
 
 		// 2 attachments created?

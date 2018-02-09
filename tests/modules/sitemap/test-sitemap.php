@@ -121,6 +121,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Tests posts with and without images with dependency on jetpack gallery.
 	 *
 	 * @ticket 1230 XML Sitemap - Add support for images in JetPack and NextGen galleries
@@ -182,6 +183,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Tests posts with and without images with dependency on nextgen gallery.
 	 *
 	 * @ticket 1230 XML Sitemap - Add support for images in JetPack and NextGen galleries
