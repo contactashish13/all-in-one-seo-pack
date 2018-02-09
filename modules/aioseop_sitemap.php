@@ -243,6 +243,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'type'  => 'text',
 					'label' => 'top',
 					'save'  => false,
+					'required' => true,
 				),
 				'addl_prio'         => array(
 					'name'            => __( 'Page Priority', 'all-in-one-seo-pack' ),
@@ -260,9 +261,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				),
 				'addl_mod'          => array(
 					'name'  => __( 'Last Modified', 'all-in-one-seo-pack' ),
-					'type'  => 'text',
+					'type'  => 'date',
 					'label' => 'top',
 					'save'  => false,
+					'class' => 'aiseop-date',
+					'required' => true,
 				),
 				'addl_pages'        => array(
 					'name' => __( 'Additional Pages', 'all-in-one-seo-pack' ),
@@ -1354,6 +1357,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 				// Always follow and noindex the sitemap.
 				header( 'X-Robots-Tag: noindex, follow', true );
+
+				do_action( $this->prefix . 'add_headers', $query, $this->options );
 
 				if ( $gzipped ) {
 					ob_start();
@@ -3264,7 +3269,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$start = false;
 			}
 
-			return get_permalink( $post );
+			return aioseop_get_permalink( $post );
 		}
 
 		/**
