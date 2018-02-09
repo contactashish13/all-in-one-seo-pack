@@ -2821,6 +2821,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 		/**
 		 * Validate the image.
+		 * NOTE: We will use parse_url here instead of wp_parse_url as we will correct the URLs beforehand and 
+		 * this saves us the need to check PHP version support.
 		 *
 		 * @param string $image The image src.
 		 *
@@ -2829,6 +2831,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return bool
 		 */
 		function is_image_valid( $image ) {
+			global $wp_version;
+
+			// This comparison does not accomplish anything. This is only to indicate that certain things in this part of the code
+			// need to be looked at again whenever we change the mininum supported version.
+			if ( version_compare( $wp_version, '4.7.0', '<' ) ) {
+				// When the minimum supported version becomes 4.7.0, we can start using wp_parse_url instead of parse_url.
+				// There is no comparison for PHP 4.4.0 because the component parameter was introduced in 4.7.0, so 4.4.0 is of no use to us.
+			}
+
 			// Bail if empty image.
 			if ( empty( $image ) ) {
 				return false;
@@ -2837,20 +2848,19 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			// make the url absolute, if its relative.
 			$image	    = aiosp_common::absolutize_url( $image );
 
-			$extn       = pathinfo( wp_parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+			$extn       = pathinfo( parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
 			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
 			// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
 			if ( ! in_array( $extn, $allowed, true ) ) {
 				return false;
 			}
 
-			// Bail if image refers to an external URL.
-			$image_host = wp_parse_url( $image, PHP_URL_HOST );
-			$wp_host    = wp_parse_url( home_url(), PHP_URL_HOST );
-			if ( $image_host !== $wp_host ) {
+			$image_host = parse_url( $image, PHP_URL_HOST );
+			$host       = parse_url( home_url(), PHP_URL_HOST );
+
+			if ( $image_host !== $host ) {
 				return false;
 			}
-
 			return true;
 		}
 
