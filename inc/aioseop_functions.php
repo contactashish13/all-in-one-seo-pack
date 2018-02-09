@@ -604,6 +604,10 @@ if ( ! function_exists( 'aioseop_ajax_save_settings' ) ) {
 			$output = '<div id="aioseop_settings_header"><div id="message" class="updated fade"><p>' . $output . '</p></div></div><style>body.all-in-one-seo_page_all-in-one-seo-pack-aioseop_feature_manager .aioseop_settings_left { margin-top: 45px !important; }</style>';
 		}
 
+		if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+			return;
+		}
+
 		die( sprintf( AIOSEOP_AJAX_MSG_TMPL, $output ) );
 	}
 }
@@ -977,4 +981,25 @@ function aioseop_home_url( $path = '/' ) {
 
 	$url = apply_filters( 'aioseop_home_url', $path );
 	return $path === $url ? home_url( $path ) : $url;
+}
+
+
+if ( ! function_exists('aiosp_include_images') ) {
+	function aiosp_include_images() {
+		if ( false === apply_filters( 'aioseo_include_images_in_sitemap', true ) ) {
+			return false;
+		}
+
+		global $aioseop_options;
+
+		if( 	isset( $aioseop_options['modules'] ) && 
+			isset( $aioseop_options['modules']['aiosp_sitemap_options'] ) && 
+			isset( $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images'] ) && 
+			'on' === $aioseop_options['modules']['aiosp_sitemap_options']['aiosp_sitemap_images']
+		 ){
+			return false; 	
+ 		}
+
+		return true;	
+	}
 }
