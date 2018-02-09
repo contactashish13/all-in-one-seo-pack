@@ -149,7 +149,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 
 		$rss = ABSPATH . '/sitemap.rss';
-		$this->assertFileIsReadable( $rss );
+		$this->assertFileExists( $rss );
 
 		libxml_use_internal_errors(true);
 		$dom = new DOMDocument(); 
