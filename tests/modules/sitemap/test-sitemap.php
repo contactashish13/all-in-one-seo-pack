@@ -136,14 +136,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		
 		$jetpack = 'jetpack/jetpack.php';
 		$file = dirname( dirname( AIOSEOP_UNIT_TESTING_DIR ) ) . '/';
-		
+
 		if ( ! file_exists( $file . $jetpack ) ) {
 			$this->markTestSkipped( 'JetPack not installed. Skipping.' );
 		}
 
-		tests_add_filter( 'muplugins_loaded', function(){
-			require $file . $jetpack;
-		} );
+		$this->plugin_to_load = $file . $jetpack;
+		tests_add_filter( 'muplugins_loaded', array( $this, 'filter_muplugins_loaded' ) );
 
 		activate_plugin( $jetpack );
 
@@ -201,9 +200,8 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			$this->markTestSkipped( 'NextGen Gallery not installed. Skipping.' );
 		}
 
-		tests_add_filter( 'muplugins_loaded', function(){
-			require $file . $nextgen;
-		} );
+		$this->plugin_to_load = $file . $nextgen;
+		tests_add_filter( 'muplugins_loaded', array( $this, 'filter_muplugins_loaded' ) );
 
 		activate_plugin( $nextgen );
 
@@ -252,6 +250,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 					),
 			)
 		);
+	}
+
+	/**
+	 * Loads the required plugin.
+	 */
+	public function filter_muplugins_loaded() {
+		require $this->plugin_to_load;
 	}
 
 	/**
