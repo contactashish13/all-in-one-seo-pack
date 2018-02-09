@@ -49,6 +49,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Creates posts with and without featured images and tests whether the sitemap
 	 * 1) contains the image tag in the posts that have images attached.
 	 * 2) does not contain the image tag in the posts that do not have images attached.
@@ -85,6 +86,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Creates posts with and without featured images and switches OFF the images from the sitemap. Tests that the sitemap does not contain the image tag for any post.
 	 */
 	public function test_exclude_images() {
