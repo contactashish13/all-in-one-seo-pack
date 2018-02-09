@@ -117,7 +117,7 @@ class aiosp_common {
 		if ( 0 !== strpos( $url, 'http' ) && '/' !== $url ) {
 			if ( 0 === strpos( $url, '//' ) ) {
 				// for //<host>/resource type urls.
-				$scheme = wp_parse_url( home_url(), PHP_URL_SCHEME );
+				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
 				$url    = $scheme . ':' . $url;
 			} else {
 				// for /resource type urls.
