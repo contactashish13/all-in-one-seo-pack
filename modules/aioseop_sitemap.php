@@ -3024,7 +3024,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						'include' => $exclude,
 					) );
 				} else {
-					$terms = get_terms( $exclude );
+					$cat = $this->option_isset( 'excl_taxonomies' ) ? $this->options[ $this->prefix . 'excl_taxonomies' ] : 'category';
+					$terms = get_terms( $cat, $exclude );
 				}
 
 				if ( $terms ) {
