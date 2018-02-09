@@ -158,7 +158,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
   
 
- /**
+	/**
 	 * Add external URLs to the sitemap using the filter 'aiosp_sitemap_addl_pages_only'.
 	 *
 	 * @dataProvider externalPagesProvider
