@@ -231,6 +231,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'type'  => 'text',
 					'label' => 'top',
 					'save'  => false,
+					'required' => true,
 				),
 				'addl_prio'         => array(
 					'name'            => __( 'Page Priority', 'all-in-one-seo-pack' ),
@@ -248,9 +249,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				),
 				'addl_mod'          => array(
 					'name'  => __( 'Last Modified', 'all-in-one-seo-pack' ),
-					'type'  => 'text',
+					'type'  => 'date',
 					'label' => 'top',
 					'save'  => false,
+					'class' => 'aiseop-date',
+					'required' => true,
 				),
 				'addl_pages'        => array(
 					'name' => __( 'Additional Pages', 'all-in-one-seo-pack' ),
@@ -1247,6 +1250,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 				// Always follow and noindex the sitemap.
 				header( 'X-Robots-Tag: noindex, follow', true );
+
+				do_action( $this->prefix . 'add_headers', $query, $this->options );
 
 				if ( $gzipped ) {
 					ob_start();
@@ -2746,6 +2751,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		private function get_images_from_post( $post ) {
+			global $wp_version;
 
 			if ( ! aiosp_include_images() ) {
 				return array();
@@ -2775,8 +2781,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $images;
 			}
 
+			$attached_url = false;
 			// Check featured image.
-			$attached_url = get_the_post_thumbnail_url( $post->ID );
+			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
+				$attached_url = get_the_post_thumbnail_url( $post->ID );
+			} else {
+				$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
+				if ( $post_thumbnail_id ) {
+					$attached_url = wp_get_attachment_image_src( $post_thumbnail_id );
+				}
+			}
 			if ( false !== $attached_url ) {
 				$images[] = $attached_url;
 			}
@@ -3115,7 +3129,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$start = false;
 			}
 
-			return get_permalink( $post );
+			return aioseop_get_permalink( $post );
 		}
 
 		/**
