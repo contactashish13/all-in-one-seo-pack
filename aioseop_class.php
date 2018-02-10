@@ -3142,7 +3142,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$this->default_options['google_author_location']['initial_options'] = array_merge( array( 'front' => __( 'Front Page', 'all-in-one-seo-pack' ) ), $post_types, array( 'all' => __( 'Everywhere Else', 'all-in-one-seo-pack' ) ) );
 		$this->default_options['google_author_location']['default']         = array_keys( $this->default_options['google_author_location']['initial_options'] );
 
-		foreach ( $post_types as $p => $pt ) {
+		foreach ( $all_post_types as $p => $pt ) {
 			$field = $p . '_title_format';
 			$name  = $post_objs[ $p ]->labels->singular_name;
 			if ( ! isset( $this->default_options[ $field ] ) ) {
