@@ -1924,8 +1924,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ( null != $posts ) && isset( $posts['loc'] ) ) {
 				foreach ( $prio as $k => $p ) {
 					if ( $p['loc'] === $posts['loc'] ) {
-						$prio[ $k ]['priority']   = $this->get_default_priority( 'blog' );
 						$prio[ $k ]['changefreq'] = $this->get_default_frequency( 'blog' );
+						$prio[ $k ]['priority']   = $this->get_default_priority( 'blog' );
 						$posts                    = null;
 						break;
 					}
@@ -2166,15 +2166,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $terms as $term ) {
 					$pr_info        = array();
 					$pr_info['loc'] = $this->get_term_link( $term, $term->taxonomy );
-					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) ) {
-						$pr_info['priority'] = $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ];
-					} else {
-						$pr_info['priority'] = $def_prio;
-					}
 					if ( ( 'sel' === $this->options[ $this->prefix . 'freq_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ] ) ) {
 						$pr_info['changefreq'] = $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ];
 					} else {
 						$pr_info['changefreq'] = $def_freq;
+					}
+					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) ) {
+						$pr_info['priority'] = $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ];
+					} else {
+						$pr_info['priority'] = $def_prio;
 					}
 
 					$pr_info['image:image'] = $this->get_images_from_term( $term );
@@ -2658,11 +2658,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						}
 						$pr_info = $this->get_prio_calc( $date, $stat );
 					}
-					if ( $prio_override ) {
-						$pr_info['priority'] = $prio_override;
-					}
 					if ( $freq_override ) {
 						$pr_info['changefreq'] = $freq_override;
+					}
+					if ( $prio_override ) {
+						$pr_info['priority'] = $prio_override;
 					}
 					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_post' ] ) && isset( $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) ) {
 						if ( ( 'no' != $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) && ( 'sel' !== $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) ) {

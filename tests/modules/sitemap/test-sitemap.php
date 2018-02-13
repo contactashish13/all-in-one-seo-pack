@@ -126,6 +126,46 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * Adds posts to taxonomies, enables only taxonomies in the sitemap.
+	 */
+	public function test_only_taxonomies() {
+		// create 3 categories.
+		$test1 = wp_create_category( 'test1' );
+		$test2 = wp_create_category( 'test2' );
+		$test3 = wp_create_category( 'test3' );
+
+		$ids = $this->factory->post->create_many( 10 );
+
+		// first 3 to test1, next 3 to test2 and let others remain uncategorized.
+		for ( $x = 0; $x < 3; $x++ ) {
+			wp_set_post_categories( $ids[ $x ], $test1 );
+		}
+
+		for ( $x = 3; $x < 6; $x++ ) {
+			wp_set_post_categories( $ids[ $x ], $test2 );
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_taxonomies'] = array( 'category' );
+		$custom_options['aiosp_sitemap_posttypes'] = array();
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		// in the sitemap, test3 should not appear as no posts have been assigned to it.
+		$this->validate_sitemap(
+			array(
+					get_category_link( $test1 ) => true,
+					get_category_link( $test2 ) => true,
+					get_category_link( $test3 ) => false,
+					get_category_link( 1 ) => true,
+			)
+		);
+	}
+
+	/**
 	 * Add external URLs to the sitemap using the filter 'aiosp_sitemap_addl_pages_only'.
 	 *
 	 * @dataProvider externalPagesProvider
