@@ -2704,7 +2704,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			$images       = array();
-			if ( version_compare( $wp_version, '4.4.0', '>=' ) {
+			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
 				$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
 			}
 			if ( $thumbnail_id ) {
