@@ -2704,15 +2704,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			$images       = array();
+			// the table term meta table is not defined for lower versions.
 			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
 				$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
-			}
-			if ( $thumbnail_id ) {
-				$image = wp_get_attachment_url( $thumbnail_id );
-				if ( $image ) {
-					$images['image:image'] = array(
-						'image:loc' => $image,
-					);
+				if ( $thumbnail_id ) {
+					$image = wp_get_attachment_url( $thumbnail_id );
+					if ( $image ) {
+						$images['image:image'] = array(
+							'image:loc' => $image,
+						);
+					}
 				}
 			}
 
