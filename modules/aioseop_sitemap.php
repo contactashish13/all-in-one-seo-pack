@@ -2697,13 +2697,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		private function get_images_from_term( $term ) {
+			global $wp_version;
 
 			if ( ! aiosp_include_images() ) {
 				return array();
 			}
 
 			$images       = array();
-			$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
+			if ( version_compare( $wp_version, '4.4.0', '>=' ) {
+				$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
+			}
 			if ( $thumbnail_id ) {
 				$image = wp_get_attachment_url( $thumbnail_id );
 				if ( $image ) {
