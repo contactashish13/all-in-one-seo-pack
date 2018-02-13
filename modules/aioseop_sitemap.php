@@ -231,7 +231,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'type'  => 'text',
 					'label' => 'top',
 					'save'  => false,
-					'required' => true,
 				),
 				'addl_prio'         => array(
 					'name'            => __( 'Page Priority', 'all-in-one-seo-pack' ),
@@ -253,7 +252,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'label' => 'top',
 					'save'  => false,
 					'class' => 'aiseop-date',
-					'required' => true,
 				),
 				'addl_pages'        => array(
 					'name' => __( 'Additional Pages', 'all-in-one-seo-pack' ),
@@ -1627,9 +1625,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'post_type'   => $options["{$this->prefix}posttypes"],
 					'post_status' => 'publish',
 				) );
-				if ( ! is_array( $post_counts ) && is_array( $options["{$this->prefix}posttypes"] ) && count( $options["{$this->prefix}posttypes"] ) == 1 ) {
-					$post_counts = array( $options["{$this->prefix}posttypes"][0] => $post_counts );
-				}
+
 				foreach ( $options["{$this->prefix}posttypes"] as $sm ) {
 					if ( 0 == $post_counts[ $sm ] ) {
 						continue;
@@ -3129,42 +3125,32 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Return post counts using wp_count_posts().
+		 * Return post counts.
 		 *
+		 * @since 2.4.3 Refactored to use get_post_count() instead of wp_count_posts().
 		 * @param $args
 		 *
-		 * @return mixed|null|void
+		 * @return array
 		 */
 		function get_all_post_counts( $args ) {
-			$post_counts = null;
+			$post_counts = array();
 			$status      = 'inherit';
 			if ( ! empty( $args['post_status'] ) ) {
 				$status = $args['post_status'];
 			}
 			if ( ! empty( $args ) && ! empty( $args['post_type'] ) ) {
-				if ( ! is_array( $args['post_type'] ) || ( count( $args['post_type'] ) == 1 ) ) {
-					if ( is_array( $args['post_type'] ) ) {
-						$args['post_type'] = array_shift( $args['post_type'] );
+				// #884: removed hard-to-understand code here which suspected $args['post_type'] to NOT be an array. Do not see any case in which this is likely to happen.
+				foreach ( $args['post_type'] as $post_type ) {
+					$count_args = $args;
+					if ( 'all' === $post_type ) {
+						continue;
 					}
-					$count       = (Array) wp_count_posts( $args['post_type'] );
-					$post_counts = $count[ $status ];
-				} else {
-					foreach ( $args['post_type'] as $post_type ) {
-						if ( 'all' === $post_type ) {
-							continue;
-						}
-						$count = (Array) wp_count_posts( $post_type );
+					if ( 'attachment' === $post_type ) {
+						$count_args['post_status'] = 'inherit';
+					}
 
-						if ( empty( $count ) ) {
-							$post_counts[ $post_type ] = 0;
-						} else {
-							if ( 'attachment' === $post_type ) {
-								$post_counts[ $post_type ] = $count['inherit'];
-							} else {
-								$post_counts[ $post_type ] = $count[ $status ];
-							}
-						}
-					}
+					$count_args['post_type'] = $post_type;
+					$post_counts[ $post_type ] = $this->get_post_count( $count_args );
 				}
 			}
 			$post_counts = apply_filters( $this->prefix . 'post_counts', $post_counts, $args );
@@ -3173,22 +3159,55 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Modify the post arguments in case third-party plugins are being used e.g. WPML.
+		 *
+		 * @param $args
+		 */
+		function modify_post_params_for_external_plugins( &$args ) {
+			// if WPML is being used, do not suppress filters.
+			if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+				$args['suppress_filters'] = false;
+			}
+
+			$args = apply_filters( $this->prefix . 'modify_post_params', $args );
+		}
+
+		/**
+		 * Return post counts for the specified arguments.
+		 *
+		 * @param $args
+		 *
+		 * @return int
+		 */
+		function get_post_count( $args ) {
+			$this->modify_post_params_for_external_plugins( $args );
+
+			// we will use WP_Query instead of get_posts here as that is more efficient.
+			// BEWARE: since we are using WP_Query, suppress_filters is false.
+			$args['posts_per_page']         = -1;
+			$args['fields']                 = 'ids';
+			$args['update_post_meta_cache'] = false;
+			$args['update_post_term_cache'] = false;
+			$query                          = new WP_Query( $args );
+			if ( $query->have_posts() ) {
+				return $query->post_count;
+			}
+			return 0;
+		}
+
+		/**
 		 * Get total post count.
 		 *
 		 * @param $args
 		 *
-		 * @return int|mixed|null|void
+		 * @return int
 		 */
 		function get_total_post_count( $args ) {
 			$total  = 0;
 			$counts = $this->get_all_post_counts( $args );
 			if ( ! empty( $counts ) ) {
-				if ( is_array( $counts ) ) {
-					foreach ( $counts as $count ) {
-						$total += $count;
-					}
-				} else {
-					$total = $counts;
+				foreach ( $counts as $count ) {
+					$total += $count;
 				}
 			}
 
@@ -3219,9 +3238,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'cache_results' => false,
 				'no_found_rows' => true,
 			);
-			if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-				$defaults['suppress_filters'] = false;
-			}
+
+			$this->modify_post_params_for_external_plugins( $defaults );
 
 			/*
 			 * Filter to exclude password protected posts.
@@ -3267,6 +3285,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 			$this->excludes = array_merge( $args['exclude'] , $exclude_slugs ); // Add excluded slugs and IDs to class var.
 
+			// TODO: consider using WP_Query instead of get_posts to improve efficiency.
 			$posts = get_posts( apply_filters( $this->prefix . 'post_query', $args ) );
 			if ( ! empty( $exclude_slugs ) ) {
 				foreach ( $posts as $k => $v ) {
