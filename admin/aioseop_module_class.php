@@ -1575,8 +1575,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				return false;
 			}
 
-			$size  = apply_filters( 'post_thumbnail_size', 'large' ); // Check if someone is using built-in WP filter.
-			$size  = apply_filters( 'aioseop_thumbnail_size', $size );
+			$size  = apply_filters( 'aioseop_attachment_size', apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) ) );
 			$image = wp_get_attachment_image_src( $post_thumbnail_id, $size );
 
 			return $image[0];
@@ -1605,8 +1604,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			) );
 
 			if ( empty( $attachments ) && 'attachment' == get_post_type( $post->ID ) ) {
-				$size  = 'large';
-				$size  = apply_filters( 'aioseop_attachment_size', $size );
+				$size  = apply_filters( 'aioseop_attachment_size', apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) ) );
 				$image = wp_get_attachment_image_src( $post->ID, $size );
 			}
 
@@ -1621,8 +1619,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			/* Loop through each attachment. Once the $order_of_image (default is '1') is reached, break the loop. */
 			foreach ( $attachments as $id => $attachment ) {
 				if ( ++ $i == 1 ) {
-					$size  = 'large';
-					$size  = apply_filters( 'aioseop_attachment_size', $size );
+					$size  = apply_filters( 'aioseop_attachment_size', apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) ) );
 					$image = wp_get_attachment_image_src( $id, $size );
 					$alt   = trim( strip_tags( get_post_field( 'post_excerpt', $id ) ) );
 					break;
@@ -1641,6 +1638,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 * @return bool
 		 */
 		function get_the_image_by_scan( $p = null ) {
+			$url = false;
 
 			if ( $p === null ) {
 				global $post;
@@ -1653,11 +1651,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 
 			/* If there is a match for the image, return its URL. */
 			if ( isset( $matches ) && ! empty( $matches[1][0] ) ) {
-				return $matches[1][0];
+				$url = $matches[1][0];
+				$url = aiosp_common::get_image_src_for_url( $url );
 			}
 
-			return false;
+			return $url;
 		}
+
 
 		/**
 		 * @param        $default_options

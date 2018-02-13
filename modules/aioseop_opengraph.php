@@ -1225,9 +1225,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				} else {
 					switch ( $this->options['aiosp_opengraph_defimg'] ) {
 						case 'featured'    :
-							add_filter( 'post_thumbnail_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
+							add_filter( 'aioseop_thumbnail_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
 							$thumbnail = $this->get_the_image_by_post_thumbnail();
-							remove_filter( 'post_thumbnail_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
+							remove_filter( 'aioseop_thumbnail_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
 							break;
 						case 'attach'    :
 							add_filter( 'aioseop_attachment_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
@@ -1235,7 +1235,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 							remove_filter( 'aioseop_attachment_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
 							break;
 						case 'content'    :
+							add_filter( 'aioseop_attachment_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
 							$thumbnail = $this->get_the_image_by_scan();
+							remove_filter( 'aioseop_attachment_size', array( $this, 'thumbnail_size_full' ), 10, 1 );
 							break;
 						case 'custom'    :
 							$meta_key = $this->options['aiosp_opengraph_meta_key'];

@@ -120,4 +120,39 @@ class aiosp_common {
 		return $url;
 	}
 
+	/**
+	 * Determines if the given image URL is an attachment and, if it is, gets the correct image URL according to the requested size.
+	 */
+	static function get_image_src_for_url( $url ) {
+		// let's check if this image is an attachment.
+		$dir = wp_get_upload_dir();
+		$path = $url;
+	 
+		$site_url = parse_url( $dir['url'] );
+		$image_path = parse_url( $path );
+	 
+		//force the protocols to match if needed
+		if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
+			$path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
+		}
+	 
+		if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
+			$path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
+		}
+
+
+		global $wpdb;
+		$attachment_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_wp_attachment_metadata' AND meta_value LIKE %s", '%' . basename( $path ) . '%' ) );
+
+		if ( $attachment_id ) {
+			$size  = apply_filters( 'aioseop_attachment_size', apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) ) );
+			// if this is a valid attachment, get the correct size.
+			$image = wp_get_attachment_image_src( $attachment_id, $size );
+			if ( $image ) {
+				$url = $image[0];
+			}
+		}
+
+		return $url;
+	}
 }
