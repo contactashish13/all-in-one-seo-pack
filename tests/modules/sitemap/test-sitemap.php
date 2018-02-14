@@ -164,6 +164,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * @requires PHPUnit 5.7
 	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
 	 *
 	 * @dataProvider enabledPostTypes
