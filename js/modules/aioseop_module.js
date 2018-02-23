@@ -716,6 +716,18 @@ jQuery(document).ready( function() {
 });
 
 function initAll($){
+    initCalendar($);
+    initSocialMetaInPosts($);
+}
+
+function initSocialMetaInPosts($) {
+    // clear the radio buttons when the user clicks the upload button.
+    $('input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button').on('click', function(e){
+        $('input[name="aioseop_opengraph_settings_image"]').attr('checked', false);
+    });
+}
+
+function initCalendar($) {
     if ( $('.aiseop-date').length > 0 && $('.aiseop-date').eq(0).prop('type').toLowerCase() === 'text' ) {
         $('.aiseop-date').datepicker({
             dateFormat: "yy-mm-dd"
