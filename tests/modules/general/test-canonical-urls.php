@@ -17,13 +17,14 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 	 * Checks if a paginated post specifies the correct canonical URL on every page i.e. the canonical URL takes into account the page number.
 	 */
 	public function test_pagination() {
-		$this->markTestIncomplete('Pagination does not seem to work (the post is not broken into pages), so skipping this till we figure this out');
+		wp_set_current_user( 1 );
 
 		global $aioseop_options;
 		$aioseop_options['aiosp_can'] = 1;
 		update_option( 'aioseop_options', $aioseop_options );
 
 		$id = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'one <!--nextpage--> two <!--nextpage--> three <!--nextpage-->' ) );
+
 		$link_page = get_permalink( $id );
 		$pages[] = $link_page;
 		$pages[] = add_query_arg( 'page', 2, $link_page );
@@ -31,7 +32,6 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 
 		foreach ( $pages as $page ) {
 			$links = $this->parse_html( $page, array( 'link' ) );
-			//error_log("getting $page " . print_r($links,true));
 			$canonical_url = null;
 			foreach ( $links as $link ) {
 				if ( 'canonical' === $link['rel'] ) {
@@ -47,7 +47,7 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 	 * Checks if a paginated post specifies the same URL on every page i.e. the canonical URL ignores the page number.
 	 */
 	public function test_ignore_pagination() {
-		$this->markTestIncomplete('Pagination does not seem to work (the post is not broken into pages), so skipping this till we figure this out');
+		wp_set_current_user( 1 );
 
 		global $aioseop_options;
 		$aioseop_options['aiosp_can'] = 1;
@@ -62,7 +62,6 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 
 		foreach ( $pages as $page ) {
 			$links = $this->parse_html( $page, array( 'link' ) );
-			//error_log("getting $page " . print_r($links,true));
 			$canonical_url = null;
 			foreach ( $links as $link ) {
 				if ( 'canonical' === $link['rel'] ) {
