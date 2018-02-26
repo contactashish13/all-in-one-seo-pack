@@ -17,7 +17,7 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 	 * Checks if a non-paginated post specifies the same URL on every page even with "No Pagination for Canonical URLs" unchecked.
 	 */
 	public function test_ignore_pagination() {
-		$this->markTestIncomplete('Pagination does not seem to work (the post is not broken into pages), so skipping this till we figure this out');
+		wp_set_current_user( 1 );
 
 		global $aioseop_options;
 		$aioseop_options['aiosp_can'] = 1;
