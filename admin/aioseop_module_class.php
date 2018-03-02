@@ -326,19 +326,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
-		 * convert html string to php array - useful to get a serializable value
+		 * Convert html string to php array - useful to get a serializable value.
 		 *
 		 * @param string $xmlstr
 		 *
 		 * @return array
-		 *
 		 */
 		function html_string_to_array( $xmlstr ) {
 			return $this->xml_string_to_array( $xmlstr );
 		}
 
 		/**
-		 * convert xml string to php array - useful to get a serializable value
+		 * Convert xml string to php array - useful to get a serializable value.
 		 *
 		 * @param string $xmlstr
 		 *
