@@ -333,20 +333,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 * @return array
 		 */
 		function html_string_to_array( $xmlstr ) {
-			return $this->xml_string_to_array( $xmlstr );
-		}
-
-		/**
-		 * Convert xml string to php array - useful to get a serializable value.
-		 *
-		 * @param string $xmlstr
-		 *
-		 * @return array
-		 *
-		 * @author Adrien aka Gaarf & contributors
-		 * @see    http://gaarf.info/2009/08/13/xml-string-to-php-array/
-		 */
-		function xml_string_to_array( $xmlstr ) {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				return array();
 			} else {
