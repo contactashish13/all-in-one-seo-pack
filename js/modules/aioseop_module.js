@@ -72,7 +72,7 @@ function countChars( field, cntfield ) {
 		cntfield.style.color = "#fff";
 		cntfield.style.backgroundColor = "#f00";
 	} else {
-		if ( cntfield.value > ( field_size - 6 ) ) {
+		if ( cntfield.value > ( field_size - 91 ) ) {
 			cntfield.style.color = "#515151";
 			cntfield.style.backgroundColor = "#ff0";
 		} else {
@@ -708,3 +708,17 @@ jQuery( document ).ready(function() {
             return false;
     });
 });
+
+
+jQuery(document).ready( function() {
+    // TODO: consider moving EVERYTHING that needs ready() to this function
+    initAll(jQuery);
+});
+
+function initAll($){
+    if ( $('.aiseop-date').length > 0 && $('.aiseop-date').eq(0).prop('type').toLowerCase() === 'text' ) {
+        $('.aiseop-date').datepicker({
+            dateFormat: "yy-mm-dd"
+        });
+    }
+}
