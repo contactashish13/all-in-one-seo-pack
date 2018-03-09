@@ -2491,7 +2491,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$description = apply_filters(
 			'aioseop_description',
 			$description,
-			$truncate
+			$truncate,
 			$ignore_php_version
 		);
 
@@ -3798,7 +3798,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		global $aioseop_update_checker, $wp_query, $aioseop_options, $posts;
 		static $aioseop_dup_counter = 0;
 		$aioseop_dup_counter ++;
-		if ( $aioseop_dup_counter > 1 ) {
+		if ( ! defined( 'AIOSEOP_UNIT_TESTING' ) && $aioseop_dup_counter > 1 ) {
 			echo "\n<!-- " . sprintf( __( 'Debug Warning: All in One SEO Pack meta data was included again from %1$s filter. Called %2$s times!', 'all-in-one-seo-pack' ), current_filter(), $aioseop_dup_counter ) . " -->\n";
 			if ( ! empty( $old_wp_query ) ) {
 				// Change the query back after we've finished.
