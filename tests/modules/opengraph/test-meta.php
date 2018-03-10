@@ -19,7 +19,7 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 * @dataProvider metaProvider
 	 */
 	public function test_home_page( $title_meta, $desc_meta ) {
-		$this->markIncompleteTest( 'Cannot seem to get any meta tag when accessing the home page. Have set home page as static page as well as showing latest posts. Nothing works.' );
+		$this->markTestIncomplete( 'Cannot seem to get any meta tag when accessing the home page. Have set home page as static page as well as showing latest posts. Nothing works.' );
 
 		$id = $this->factory->post->create(array('post_type' => 'page'));
 		$home_url = get_site_url();//trailingslashit( get_site_url() ) . 'house';
