@@ -2475,8 +2475,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		// #1308 - we want to make sure we are ignoring php version only in the admin area while editing the post, so that it does not impact #932.
-		$screen = get_current_screen();
-		$ignore_php_version = is_admin() && isset( $screen->id ) && 'post' === $screen->id;
+		$screen = is_admin() ? get_current_screen() : null;
+		$ignore_php_version = $screen && isset( $screen->id ) && 'post' === $screen->id;
 
 		$truncate     = false;
 		$aioseop_desc = '';
