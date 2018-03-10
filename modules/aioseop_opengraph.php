@@ -185,7 +185,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				add_action( 'wp', Array( $this, 'type_setup' ) );
 			}
 
-			if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+			if ( ! is_admin() || defined( 'DOING_AJAX' ) || defined( 'AIOSEOP_UNIT_TESTING') ) {
 				$this->do_opengraph();
 			}
 			// Set variables after wordpress load.
