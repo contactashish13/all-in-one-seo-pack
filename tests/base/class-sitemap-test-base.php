@@ -48,7 +48,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$file = $this->create_sitemap();
 
 		if ( $debug ) {
-			echo file_get_contents( $file );
+			error_log( file_get_contents( $file ) );
 		}
 		$xml = simplexml_load_file( $file );
 		$ns = $xml->getNamespaces( true );
