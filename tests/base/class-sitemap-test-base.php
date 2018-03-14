@@ -14,6 +14,25 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
 	/**
+	 * Fires the hooks that create the sitemap.
+	 *
+	 * @return string
+	 */
+	private function create_sitemap() {
+		add_filter( 'aioseo_sitemap_ping', '__return_false' );
+		update_option( 'blog_public', 0 );
+
+		// sitemap will be created in the root of the folder.
+		do_action( 'aiosp_sitemap_settings_update' );
+
+		$file = ABSPATH . '/sitemap.xml';
+
+		$this->assertFileExists( $file );
+
+		return $file;
+	}
+
+	/**
 	 * Check whether the sitemap is valid on the basis of given conditions.
 	 *
 	 * @param array $elements this is the array that is used to compare with the sitemap. It can have a variety of structures but the key is always the URL:
@@ -26,15 +45,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 	 * 
 	*/
 	protected final function validate_sitemap( $elements, $debug = false ) {
-		add_filter( 'aioseo_sitemap_ping', '__return_false' );
-		update_option( 'blog_public', 0 );
-
-		// sitemap will be created in the root of the folder.
-		do_action( 'aiosp_sitemap_settings_update' );
-
-		$file = ABSPATH . '/sitemap.xml';
-
-		$this->assertFileExists( $file );
+		$file = $this->create_sitemap();
 
 		if ( $debug ) {
 			echo file_get_contents($file);
@@ -96,5 +107,25 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$contents = file_get_contents( $file );
 		@unlink( $file );
 		return $contents;
+	}
+
+	/**
+	 * Counts how many times the given string(s) occur in the sitemap.
+	 *
+	 * @param array $elements The elements/attribute/string to search for.
+	 * @return array
+	 */
+	protected final function count_sitemap_elements( $elements ) {
+		$file = $this->create_sitemap();
+		$contents = file_get_contents($file);
+
+		$map = array();
+		foreach ( $elements as $string ) {
+			$map[ $string ] = substr_count( $contents, $string );
+		}
+
+		@unlink( $file );
+
+		return $map;
 	}
 }

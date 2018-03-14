@@ -260,6 +260,50 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
+	 *
+	 * @dataProvider enabledPostTypes
+	 */
+	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count, $cpt ) {
+		// choose numbers which are not multiples of each other.
+		$num_posts = 22;
+		$per_xml = 7;
+
+		if ( in_array( 'post', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts );
+		}
+
+		if ( in_array( 'page', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => 'page' ) );
+		}
+
+		if ( in_array( 'attachment', $enabled_post_type ) ) {
+			$this->create_attachments( $num_posts );
+		}
+
+		if ( ! is_null( $cpt ) ) {
+			register_post_type( $cpt );
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => $cpt ) );
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_max_posts'] = $per_xml;
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = $enabled_post_type;
+		$custom_options['aiosp_sitemap_taxonomies'] = array();
+    
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		// calculate the number of sitemaps expected in the index. The +1 is for the sitemap_addl.xml that includes the home page.
+		$expected = intval( $enabled_post_types_count * ceil( $num_posts / $per_xml ) + 1 );
+		$got = $this->count_sitemap_elements( array( '<sitemap>' ) );
+
+		$this->assertEquals( $expected, $got['<sitemap>'] );
+	}
+  
+	/**
 	 * Add external URLs to the sitemap using the filter 'aiosp_sitemap_addl_pages_only'.
 	 *
 	 * @dataProvider externalPagesProvider
@@ -318,6 +362,18 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			),
 		);
 	}
+
+	/**
+	 * Provides posts types to test test_sitemap_index_pagination against.
+	 */
+	public function enabledPostTypes() {
+		return array(
+			array( array( 'post' ), 1, null ),
+			array( array( 'post', 'page' ), 2, null ),
+			array( array( 'product' ), 1, 'product' ),
+			array( array( 'attachment', 'product' ), 2, 'product' ),
+			array( array( 'all', 'post', 'page' ), 2, null ),
+			array( array( 'all', 'post', 'page', 'attachment', 'product' ), 4, 'product' ),
+		);
+	}
 }
-
-

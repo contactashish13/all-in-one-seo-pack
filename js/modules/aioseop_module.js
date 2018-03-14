@@ -716,7 +716,7 @@ jQuery(document).ready( function() {
 });
 
 function initAll($){
-    if($('.aiseop-date').eq(0).prop('type').toLowerCase() === 'text'){
+    if ( $('.aiseop-date').length > 0 && $('.aiseop-date').eq(0).prop('type').toLowerCase() === 'text' ) {
         $('.aiseop-date').datepicker({
             dateFormat: "yy-mm-dd"
         });
