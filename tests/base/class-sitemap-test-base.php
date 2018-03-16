@@ -157,10 +157,6 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$dom->load( $file ); 
 
 		$this->assertTrue( $dom->schemaValidate( AIOSEOP_UNIT_TESTING_DIR . "/resources/xsd/{$schema}.xsd" ) );
-
-		// @codingStandardsIgnoreStart
-		@unlink( $file );
-		// @codingStandardsIgnoreEnd
 	}
 
 	/**
