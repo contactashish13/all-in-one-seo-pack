@@ -1148,7 +1148,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		if ( ! is_admin() && ! defined( 'AIOSEOP_UNIT_TESTING' ) ) {
 			global $aioseop_options;
 			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
-				//remove_action( 'wp_head', 'rel_canonical' );
+				remove_action( 'wp_head', 'rel_canonical' );
 			}
 		}
 	}
@@ -3646,7 +3646,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			}
 		} else {
 			if ( ! array_key_exists( 'aiosp_can', $aioseop_options ) ) {
-				//add_action( 'wp_head', array( $this, 'init_canonical_url_settings' ), 9 );
+				add_action( 'wp_head', array( $this, 'init_canonical_url_settings' ), 9 );
 			}
 			// Analytics.
 			if ( aioseop_option_isset( 'aiosp_google_analytics_id' ) ) {
