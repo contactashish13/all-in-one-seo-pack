@@ -7,7 +7,9 @@ if ( ! class_exists( 'aioseop_dashboard_widget' ) ) {
 	 *
 	 * @since 2.3.10
 	 */
+	// @codingStandardsIgnoreStart
 	class aioseop_dashboard_widget {
+	// @codingStandardsIgnoreEnd
 
 		/**
 		 * Add the action to the constructor.
@@ -61,11 +63,11 @@ if ( ! class_exists( 'aioseop_dashboard_widget' ) ) {
 				return;
 			}
 
-			include_once( ABSPATH . WPINC . "/feed.php" );
+			include_once( ABSPATH . WPINC . '/feed.php' );
 
 			if ( false === ( $rss_items = get_transient( 'aioseop_feed' ) ) ) {
 
-				$rss = fetch_feed( "https://www.semperplugins.com/feed/" );
+				$rss = fetch_feed( 'https://www.semperplugins.com/feed/' );
 				if ( is_wp_error( $rss ) ) {
 					echo '{Temporarily unable to load feed.}';
 
@@ -78,8 +80,8 @@ if ( ! class_exists( 'aioseop_dashboard_widget' ) ) {
 					$cached[] = array(
 						'url'     => $item->get_permalink(),
 						'title'   => $item->get_title(),
-						'date'    => $item->get_date( "M jS Y" ),
-						'content' => substr( strip_tags( $item->get_content() ), 0, 128 ) . "...",
+						'date'    => $item->get_date( 'M jS Y' ),
+						'content' => substr( strip_tags( $item->get_content() ), 0, 128 ) . '...',
 					);
 				}
 				$rss_items = $cached;
@@ -93,7 +95,7 @@ if ( ! class_exists( 'aioseop_dashboard_widget' ) ) {
 			<ul>
 				<?php
 				if ( false === $rss_items ) {
-					echo "<li>No items</li>";
+					echo '<li>No items</li>';
 
 					return;
 				}
@@ -106,7 +108,7 @@ if ( ! class_exists( 'aioseop_dashboard_widget' ) ) {
 						</a>
 						<span class="aioseop-rss-date"><?php echo $item['date']; ?></span>
 						<div class="aioseop_news">
-							<?php echo strip_tags( $item['content'] ) . "..."; ?>
+							<?php echo strip_tags( $item['content'] ) . '...'; ?>
 						</div>
 					</li>
 					<?php
