@@ -3617,12 +3617,14 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 1000 );
 		}
 
+		// this does not need to be inside is_admin. This needs to be here otherwise the unit test for canonical urls fails.
+		add_action( 'admin_init', array( $this, 'init_canonical_url_settings' ) );
+
 		if ( is_admin() ) {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			add_action( 'admin_head', array( $this, 'add_page_icon' ) );
 			add_action( 'admin_init', 'aioseop_addmycolumns', 1 );
 			add_action( 'admin_init', 'aioseop_handle_ignore_notice' );
-			add_action( 'admin_init', array( $this, 'init_canonical_url_settings' ) );
 
 			if ( AIOSEOPPRO ) {
 				if ( current_user_can( 'update_plugins' ) ) {
