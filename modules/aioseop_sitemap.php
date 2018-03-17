@@ -2878,7 +2878,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			global $wp_version;
-			if ( version_compare( $wp_version, '4.7', '<' ) ) {
+			if ( version_compare( $wp_version, '4.4', '<' ) ) {
+				$p_url = parse_url( $image );
+				$url = $p_url['scheme'] . $p_url['host'] . $p_url['path'];
+			} elseif ( version_compare( $wp_version, '4.7', '<' ) ) {
 				// Compatability for older WP version that don't have 4.7 changes.
 				// @link https://core.trac.wordpress.org/changeset/38726
 				$p_url = wp_parse_url( $image );
