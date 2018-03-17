@@ -154,11 +154,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 			<tr>
 				<th width="50%">URL</th>
 				<?php
-					if ( aiosp_include_images() ) {
+				if ( aiosp_include_images() ) {
 				?>
 				<th>Images</th>
 				<?php
-					}
+				}
 				?>
 				<?php
 					if ( AIOSEOPPRO ) {
@@ -190,15 +190,26 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 						<a href="{$itemURL}">
 							<xsl:value-of select="sitemap:loc"/>
 						</a>
+						<xsl:for-each select="video:video">
+							<xsl:variable name="thumbURL">
+								<xsl:value-of select="video:thumbnail_loc"/>
+							</xsl:variable>
+							<xsl:variable name="playURL">
+								<xsl:value-of select="video:player_loc"/>
+							</xsl:variable>
+							<xsl:if test="$thumbURL != ''">
+								<a href="{$playURL}"><img src="{$thumbURL}" style="max-width:60px;float:right;"/></a>
+							</xsl:if>
+						</xsl:for-each>
 					</td>
 					<?php
-						if ( aiosp_include_images() ) {
+					if ( aiosp_include_images() ) {
 					?>
 					<td>
-						<xsl:value-of select="count(image:image)"/>
+					<xsl:value-of select="count(image:image)"/>
 					</td>
 					<?php
-						}
+					}
 					?>
 					<?php
 						if ( AIOSEOPPRO ) {
