@@ -1146,8 +1146,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		global $aioseop_options;
 		aioseop_set_canonical_urls_behavior( $this->prefix );
 
-		if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
-			remove_action( 'wp_head', 'rel_canonical' );
+		if ( ! is_admin() && ! defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
+				remove_action( 'wp_head', 'rel_canonical' );
+			}
 		}
 	}
 
