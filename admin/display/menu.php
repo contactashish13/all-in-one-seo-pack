@@ -24,7 +24,7 @@ class AIOSEOPAdminMenus {
 	 * @since 2.3.11.5
 	 */
 	function add_pro_submenu() {
-		if ( empty( ini_get( 'open_basedir' ) ) ) {
+		if ( empty( $open_basedir = ini_get( 'open_basedir' ) ) ) {
 			global $submenu;
 			$url = 'https://semperplugins.com/all-in-one-seo-pack-pro-version/?loc=aio_menu';
 			$upgrade_text = __('Upgrade to Pro', 'all-in-one-seo-pack');
