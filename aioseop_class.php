@@ -1143,7 +1143,6 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 * Initializes the behavior of the canonical URL settings.
 	 */
 	public function init_canonical_url_settings() {
-		global $aioseop_options;
 		aioseop_set_canonical_urls_behavior( $this->prefix );
 
 		// this fails the test case on travis only.
@@ -1152,8 +1151,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		if ( ! is_admin() && ! defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+			global $aioseop_options;
 			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
-				remove_action( 'wp_head', 'rel_canonical' );
+				//remove_action( 'wp_head', 'rel_canonical' );
 			}
 		}
 	}
