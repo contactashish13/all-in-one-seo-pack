@@ -21,8 +21,6 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 	public function test_settings() {
 		global $aioseop_options;
 
-		$this->assertArrayNotHasKey( 'aiosp_can', $aioseop_options );
-
 		do_action( 'admin_init' );
 		$this->assertEquals( 1, $aioseop_options['aiosp_can'] );
 		$this->assertEquals( 0, $aioseop_options['aiosp_no_paged_canonical_links'] );

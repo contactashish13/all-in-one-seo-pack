@@ -1143,7 +1143,12 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 * Initializes the behavior of the canonical URL settings.
 	 */
 	public function init_canonical_url_settings() {
+		global $aioseop_options;
 		aioseop_set_canonical_urls_behavior( $this->prefix );
+
+		if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
+			remove_action( 'wp_head', 'rel_canonical' );
+		}
 	}
 
 	// good candidate for pro dir
@@ -3617,7 +3622,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 1000 );
 		}
 
-		// this does not need to be inside is_admin. This needs to be here otherwise the unit test for canonical urls fails.
+		// this needs to be here, not inside is_admin() to ensure the canonical url settings test succeeds.
 		add_action( 'admin_init', array( $this, 'init_canonical_url_settings' ) );
 
 		if ( is_admin() ) {
@@ -3638,8 +3643,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				);
 			}
 		} else {
-			if ( $aioseop_options['aiosp_can'] == '1' || $aioseop_options['aiosp_can'] == 'on' ) {
-				remove_action( 'wp_head', 'rel_canonical' );
+			if ( ! array_key_exists( 'aiosp_can', $aioseop_options ) ) {
+				add_action( 'wp_head', array( $this, 'init_canonical_url_settings' ), 9 );
 			}
 			// Analytics.
 			if ( aioseop_option_isset( 'aiosp_google_analytics_id' ) ) {
