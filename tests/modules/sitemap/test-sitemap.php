@@ -2,7 +2,7 @@
 /**
  * Class Test_Sitemap
  *
- * @package 
+ * @package
  */
 
 /**
@@ -18,12 +18,12 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 */
 	private $_urls;
 
-	public function setUp(){
+	public function setUp() {
 		parent::init();
 		parent::setUp();
 	}
 
-	public function tearDown(){
+	public function tearDown() {
 		parent::init();
 		parent::tearDown();
 	}
@@ -45,10 +45,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->validate_sitemap(
 			array(
-					$pages['without'][0] => true,
-					$pages['without'][1] => true,
-					$posts['without'][0] => false,
-					$posts['without'][1] => false,					
+				$pages['without'][0] => true,
+				$pages['without'][1] => true,
+				$posts['without'][0] => false,
+				$posts['without'][1] => false,
 			)
 		);
 	}
@@ -74,18 +74,18 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$without = $posts['without'];
 		$this->validate_sitemap(
 			array(
-					$with[0] => array(
-						'image'	=> true,
-					),
-					$with[1] => array(
-						'image'	=> true,
-					),
-					$without[0] => array(
-						'image'	=> false,
-					),
-					$without[1] => array(
-						'image'	=> false,
-					),
+				$with[0] => array(
+					'image' => true,
+				),
+				$with[1] => array(
+					'image' => true,
+				),
+				$without[0] => array(
+					'image' => false,
+				),
+				$without[1] => array(
+					'image' => false,
+				),
 			)
 		);
 	}
@@ -109,20 +109,65 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$without = $posts['without'];
 		$this->validate_sitemap(
 			array(
-					$with[0] => array(
-						'image'	=> false,
-					),
-					$with[1] => array(
-						'image'	=> false,
-					),
-					$without[0] => array(
-						'image'	=> false,
-					),
-					$without[1] => array(
-						'image'	=> false,
-					),
+				$with[0] => array(
+					'image' => false,
+				),
+				$with[1] => array(
+					'image' => false,
+				),
+				$without[0] => array(
+					'image' => false,
+				),
+				$without[1] => array(
+					'image' => false,
+				),
 			)
 		);
+	}
+
+	/**
+	 * @requires PHPUnit 5.7
+	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
+	 *
+	 * @dataProvider enabledPostTypes
+	 */
+	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count, $cpt ) {
+		// choose numbers which are not multiples of each other.
+		$num_posts = 22;
+		$per_xml = 7;
+
+		if ( in_array( 'post', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts );
+		}
+
+		if ( in_array( 'page', $enabled_post_type ) ) {
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => 'page' ) );
+		}
+
+		if ( in_array( 'attachment', $enabled_post_type ) ) {
+			$this->create_attachments( $num_posts );
+		}
+
+		if ( ! is_null( $cpt ) ) {
+			register_post_type( $cpt );
+			$this->factory->post->create_many( $num_posts, array( 'post_type' => $cpt ) );
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_max_posts'] = $per_xml;
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = $enabled_post_type;
+		$custom_options['aiosp_sitemap_taxonomies'] = array();
+
+			$this->_setup_options( 'sitemap', $custom_options );
+
+		// calculate the number of sitemaps expected in the index. The +1 is for the sitemap_addl.xml that includes the home page.
+		$expected = intval( $enabled_post_types_count * ceil( $num_posts / $per_xml ) + 1 );
+		$got = $this->count_sitemap_elements( array( '<sitemap>' ) );
+
+		$this->assertEquals( $expected, $got['<sitemap>'] );
 	}
 
 	/**
@@ -148,10 +193,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$without = $posts['without'];
 		$this->validate_sitemap(
 			array(
-					$without[0] => true,
-					$without[1] => true,
-					$url1['loc'] => true,
-					$url2['loc'] => true,
+				$without[0] => true,
+				$without[1] => true,
+				$url1['loc'] => true,
+				$url2['loc'] => true,
 			)
 		);
 	}
@@ -234,4 +279,17 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		return $hosts;
 	}
 
+	/**
+	 * Provides posts types to test test_sitemap_index_pagination against.
+	 */
+	public function enabledPostTypes() {
+		return array(
+			array( array( 'post' ), 1, null ),
+			array( array( 'post', 'page' ), 2, null ),
+			array( array( 'product' ), 1, 'product' ),
+			array( array( 'attachment', 'product' ), 2, 'product' ),
+			array( array( 'all', 'post', 'page' ), 2, null ),
+			array( array( 'all', 'post', 'page', 'attachment', 'product' ), 4, 'product' ),
+		);
+	}
 }
