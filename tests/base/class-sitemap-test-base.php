@@ -2,7 +2,7 @@
 /**
  * Class Test_Sitemap
  *
- * @package 
+ * @package
  */
 
 /**
@@ -14,18 +14,11 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
 	/**
-	 * Check whether the sitemap is valid on the basis of given conditions.
+	 * Fires the hooks that create the sitemap.
 	 *
-	 * @param array $elements this is the array that is used to compare with the sitemap. It can have a variety of structures but the key is always the URL:
-	 * The values can be
-	 * 1) a null - this will check for existence of the url
-	 * 2) a boolean - true will check if the url exists, false if the url does not exist.
-	 * 3) an array - each element of the array will be the name of the XML node. The value, again, can be 
-	 *		i) a boolean - true will check if the node exists, false if the node does not exist.
-	 *		ii) a string - the value of the node should be the same as this value.
-	 * 
-	*/
-	protected final function validate_sitemap( $elements, $debug = false ) {
+	 * @return string
+	 */
+	private function create_sitemap() {
 		add_filter( 'aioseo_sitemap_ping', '__return_false' );
 		update_option( 'blog_public', 0 );
 
@@ -36,11 +29,29 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 
 		$this->assertFileExists( $file );
 
+		return $file;
+	}
+
+	/**
+	 * Check whether the sitemap is valid on the basis of given conditions.
+	 *
+	 * @param array $elements this is the array that is used to compare with the sitemap. It can have a variety of structures but the key is always the URL:
+	 * The values can be
+	 * 1) a null - this will check for existence of the url
+	 * 2) a boolean - true will check if the url exists, false if the url does not exist.
+	 * 3) an array - each element of the array will be the name of the XML node. The value, again, can be
+	 *      i) a boolean - true will check if the node exists, false if the node does not exist.
+	 *      ii) a string - the value of the node should be the same as this value.
+	 *
+	 */
+	protected final function validate_sitemap( $elements, $debug = false ) {
+		$file = $this->create_sitemap();
+
 		if ( $debug ) {
-			echo file_get_contents($file);
+			echo file_get_contents( $file );
 		}
 		$xml = simplexml_load_file( $file );
-		$ns = $xml->getNamespaces(true);
+		$ns = $xml->getNamespaces( true );
 
 		$sitemap = array();
 		foreach ( $xml->url as $url ) {
@@ -94,7 +105,31 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		}
 
 		$contents = file_get_contents( $file );
+		// @codingStandardsIgnoreStart
 		@unlink( $file );
+		// @codingStandardsIgnoreEnd
 		return $contents;
+	}
+
+	/**
+	 * Counts how many times the given string(s) occur in the sitemap.
+	 *
+	 * @param array $elements The elements/attribute/string to search for.
+	 * @return array
+	 */
+	protected final function count_sitemap_elements( $elements ) {
+		$file = $this->create_sitemap();
+		$contents = file_get_contents( $file );
+
+		$map = array();
+		foreach ( $elements as $string ) {
+			$map[ $string ] = substr_count( $contents, $string );
+		}
+
+		// @codingStandardsIgnoreStart
+		@unlink( $file );
+		// @codingStandardsIgnoreEnd
+
+		return $map;
 	}
 }
