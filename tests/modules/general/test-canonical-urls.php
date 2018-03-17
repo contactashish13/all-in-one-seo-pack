@@ -19,7 +19,8 @@ class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 	 * @ticket 374 Remove Canonical URLs setting.
 	 */
 	public function test_settings() {
-		if ( defined( 'TRAVIS' ) ) {
+		$check_travis = getenv( 'TRAVIS' );
+		if ( boolval( $check_travis ) ) {
 			$this->markTestIncomplete('This test fails on Travis with the reason: "Cannot modify header information - headers already sent by (output started at /tmp/wordpress-tests-lib/includes/bootstrap.php:68)". Skipping.');
 		}
 
