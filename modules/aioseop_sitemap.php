@@ -2865,13 +2865,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		function is_image_valid( $image ) {
 			global $wp_version;
 
-			// This comparison does not accomplish anything. This is only to indicate that certain things in this part of the code
-			// need to be looked at again whenever we change the mininum supported version.
-			if ( version_compare( $wp_version, '4.7.0', '<' ) ) {
-				// When the minimum supported version becomes 4.7.0, we can start using wp_parse_url instead of parse_url.
-				// There is no comparison for PHP 4.4.0 because the component parameter was introduced in 4.7.0, so 4.4.0 is of no use to us.
-			}
-
 			// Bail if empty image.
 			if ( empty( $image ) ) {
 				return false;
