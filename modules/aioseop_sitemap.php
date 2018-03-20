@@ -1657,39 +1657,39 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 							$count = 1;
 							for ( $post_count = 0; $post_count < $post_counts[ $sm ]; $post_count += $this->max_posts ) {
 								$files[] = array(
-									'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
-									'priority'   => $prio,
+									'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
 									'changefreq' => $freq,
+									'priority'   => $prio,
 								);
 							}
 						} else {
 							$files[] = array(
-								'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
-								'priority'   => $prio,
+								'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
 								'changefreq' => $freq,
+								'priority'   => $prio,
 							);
 						}
 					} else {
 						$files[] = array(
-							'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
-							'priority'   => $prio,
+							'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
 							'changefreq' => $freq,
+							'priority'   => $prio,
 						);
 					}
 				}
 			}
 			if ( $this->option_isset( 'archive' ) ) {
 				$files[] = array(
-					'loc'        => aioseop_home_url( '/' . $prefix . '_archive' . $suffix ),
-					'priority'   => $this->get_default_priority( 'archive' ),
+					'loc'        => aioseop_home_url ( '/' . $prefix . '_archive' . $suffix ),
 					'changefreq' => $this->get_default_frequency( 'archive' ),
+					'priority'   => $this->get_default_priority( 'archive' ),
 				);
 			}
 			if ( $this->option_isset( 'author' ) ) {
 				$files[] = array(
-					'loc'        => aioseop_home_url( '/' . $prefix . '_author' . $suffix ),
-					'priority'   => $this->get_default_priority( 'author' ),
+					'loc'        => aioseop_home_url ( '/' . $prefix . '_author' . $suffix ),
 					'changefreq' => $this->get_default_frequency( 'author' ),
+					'priority'   => $this->get_default_priority( 'author' ),
 				);
 			}
 
@@ -1702,23 +1702,23 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 								$count = 1;
 								for ( $tc = 0; $tc < $term_count; $tc += $this->max_posts ) {
 									$files[] = array(
-										'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
-										'priority'   => $this->get_default_priority( 'taxonomies' ),
+										'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
 										'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+										'priority'   => $this->get_default_priority( 'taxonomies' ),
 									);
 								}
 							} else {
 								$files[] = array(
-									'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
-									'priority'   => $this->get_default_priority( 'taxonomies' ),
+									'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
 									'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+									'priority'   => $this->get_default_priority( 'taxonomies' ),
 								);
 							}
 						} else {
 							$files[] = array(
-								'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
-								'priority'   => $this->get_default_priority( 'taxonomies' ),
+								'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
 								'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+								'priority'   => $this->get_default_priority( 'taxonomies' ),
 							);
 						}
 					}
@@ -1727,8 +1727,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			foreach ( $this->get_child_sitemap_urls() as $csm ) {
 				$files[] = array(
 					'loc'        => $csm,
-					'priority'   => $this->get_default_priority( 'sitemap' ),
 					'changefreq' => $this->get_default_frequency( 'sitemap' ),
+					'priority'   => $this->get_default_priority( 'sitemap' ),
 				);
 			}
 
@@ -1907,8 +1907,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$home = array(
 				'loc'         => aioseop_home_url(),
-				'priority'    => $this->get_default_priority( 'homepage' ),
 				'changefreq'  => $this->get_default_frequency( 'homepage' ),
+				'priority'    => $this->get_default_priority( 'homepage' ),
 				'image:image' => $this->get_images_from_post( (int) get_option( 'page_on_front' ) ),
 			);
 
@@ -1919,8 +1919,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				} else {
 					$posts = array(
 						'loc'        => $posts,
-						'priority'   => $this->get_default_priority( 'blog' ),
 						'changefreq' => $this->get_default_frequency( 'blog' ),
+						'priority'   => $this->get_default_priority( 'blog' ),
 					);
 				}
 			}
@@ -1941,8 +1941,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ( null != $posts ) && isset( $posts['loc'] ) ) {
 				foreach ( $prio as $k => $p ) {
 					if ( $p['loc'] === $posts['loc'] ) {
-						$prio[ $k ]['priority']   = $this->get_default_priority( 'blog' );
 						$prio[ $k ]['changefreq'] = $this->get_default_frequency( 'blog' );
+						$prio[ $k ]['priority']   = $this->get_default_priority( 'blog' );
 						$posts                    = null;
 						break;
 					}
@@ -2185,15 +2185,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $terms as $term ) {
 					$pr_info        = array();
 					$pr_info['loc'] = $this->get_term_link( $term, $term->taxonomy );
-					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) ) {
-						$pr_info['priority'] = $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ];
-					} else {
-						$pr_info['priority'] = $def_prio;
-					}
 					if ( ( 'sel' === $this->options[ $this->prefix . 'freq_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ] ) ) {
 						$pr_info['changefreq'] = $this->options[ $this->prefix . 'freq_taxonomies_' . $term->taxonomy ];
 					} else {
 						$pr_info['changefreq'] = $def_freq;
+					}
+					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_taxonomies' ] ) && isset( $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) && ( 'no' != $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ] ) ) {
+						$pr_info['priority'] = $this->options[ $this->prefix . 'prio_taxonomies_' . $term->taxonomy ];
+					} else {
+						$pr_info['priority'] = $def_prio;
 					}
 
 					$pr_info['image:image'] = $this->get_images_from_term( $term );
@@ -2386,8 +2386,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$home  = array();
 			$home  = array(
 				'loc'         => aioseop_home_url(),
-				'priority'    => $this->get_default_priority( 'homepage' ),
 				'changefreq'  => $this->get_default_frequency( 'homepage' ),
+				'priority'    => $this->get_default_priority( 'homepage' ),
 				'image:image' => $this->get_images_from_post( (int) get_option( 'page_on_front' ) ),
 			);
 
@@ -2399,8 +2399,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				} else {
 					$posts = array(
 						'loc'        => $posts,
-						'priority'   => $this->get_default_priority( 'blog' ),
 						'changefreq' => $this->get_default_frequency( 'blog' ),
+						'priority'   => $this->get_default_priority( 'blog' ),
 					);
 				}
 			} else {
@@ -2681,11 +2681,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						}
 						$pr_info = $this->get_prio_calc( $date, $stat );
 					}
-					if ( $prio_override ) {
-						$pr_info['priority'] = $prio_override;
-					}
 					if ( $freq_override ) {
 						$pr_info['changefreq'] = $freq_override;
+					}
+					if ( $prio_override ) {
+						$pr_info['priority'] = $prio_override;
 					}
 					if ( ( 'sel' === $this->options[ $this->prefix . 'prio_post' ] ) && isset( $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) ) {
 						if ( ( 'no' != $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) && ( 'sel' !== $this->options[ $this->prefix . 'prio_post_' . $post->post_type ] ) ) {
@@ -2699,11 +2699,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 					$pr_info = array(
 						'loc' => $url,
-						'image:image' => $is_single ? $this->get_images_from_post( $post ) : null,
 					) + $pr_info; // Prepend loc to	the	array.
 					if ( is_float( $pr_info['priority'] ) ) {
 						$pr_info['priority'] = sprintf( '%0.1F', $pr_info['priority'] );
 					}
+					$pr_info['image:image'] = $is_single ? $this->get_images_from_post( $post ) : null;
 					$pr_info = apply_filters( $this->prefix . 'prio_item_filter', $pr_info, $post, $args );
 					if ( ! empty( $pr_info ) ) {
 						$prio[] = $pr_info;
@@ -2724,19 +2724,23 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		private function get_images_from_term( $term ) {
+			global $wp_version;
 
 			if ( ! aiosp_include_images() ) {
 				return array();
 			}
 
 			$images       = array();
-			$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
-			if ( $thumbnail_id ) {
-				$image = wp_get_attachment_url( $thumbnail_id );
-				if ( $image ) {
-					$images['image:image'] = array(
-						'image:loc' => $image,
-					);
+			// the table term meta table is not defined for lower versions.
+			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
+				$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
+				if ( $thumbnail_id ) {
+					$image = wp_get_attachment_url( $thumbnail_id );
+					if ( $image ) {
+						$images['image:image'] = array(
+							'image:loc' => $image,
+						);
+					}
 				}
 			}
 
@@ -2898,8 +2902,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$host       = parse_url( home_url(), PHP_URL_HOST );
 
 			if ( $image_host !== $host ) {
-				// allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
-				// and we will convert that into a regular expression for matching.
+				// Allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
+				// And we will convert that into a regular expression for matching.
 				$whitelist  = apply_filters( 'aioseop_images_allowed_from_hosts', array() );
 				$allowed    = false;
 				if ( $whitelist ) {
@@ -2911,6 +2915,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 				return $allowed;
+
 			}
 			return true;
 		}
