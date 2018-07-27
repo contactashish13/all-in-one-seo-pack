@@ -224,7 +224,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 			} else {
 				foreach ($node->childNodes as $childNode) {
 					if ($childNode->nodeType != XML_TEXT_NODE) {
-						$array[$childNode->nodeName][] = $this->getArray($childNode);
+						$array[$childNode->nodeName][] = $this->get_node_as_array($childNode);
 					}
 				}
 			}
