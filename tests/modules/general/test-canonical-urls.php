@@ -13,6 +13,10 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
 class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 
+	public function setUp() {
+		$this->init( true );
+	}
+
 	/**
 	 * Checks if a paginated post specifies the correct canonical URL on every page i.e. the canonical URL takes into account the page number.
 	 */
