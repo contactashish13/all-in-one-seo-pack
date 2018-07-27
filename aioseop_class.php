@@ -1453,7 +1453,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	function get_queried_object() {
 		static $p = null;
 		global $wp_query, $post;
-		if ( null !== $p ) {
+		if ( null !== $p && ! defined('AIOSEOP_UNIT_TESTING') ) {
 			return $p;
 		}
 		if ( is_object( $post ) ) {
