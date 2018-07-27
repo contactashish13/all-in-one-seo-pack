@@ -42,9 +42,11 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		return $ids;
 	}
 
-	protected final function init() {
+	protected final function init( $call_setup = false ) {
 		$this->clean();
-		$this->_setUp();
+		if ( $call_setup ) {
+			$this->_setUp();
+		}
 	}
 
 	/**

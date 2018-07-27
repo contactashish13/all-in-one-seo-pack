@@ -14,7 +14,7 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 class Test_Meta extends AIOSEOP_Test_Base {
 
 	public function setUp() {
-		$this->init();
+		$this->init( true );
 	}
 
 	/**
