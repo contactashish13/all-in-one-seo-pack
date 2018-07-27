@@ -53,12 +53,12 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	/**
 	 * Check if settings need to be updated / migrated from old version.
 	 *
-	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class?
+	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class? This is called every single time a page is loaded both on the front-end or backend.
 	 */
 	function aioseop_update_settings_check() {
 		global $aioseop_options;
 		if ( empty( $aioseop_options ) || isset( $_POST['aioseop_migrate_options'] ) ) {
-			aioseop_mrt_mkarry();
+			aioseop_initialize_options();
 		}
 		// WPML has now attached to filters, read settings again so they can be translated.
 		aioseop_get_options();
@@ -85,13 +85,13 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_mrt_mkarry' ) ) {
+if ( ! function_exists( 'aioseop_initialize_options' ) ) {
 	/**
-	 * Initialize settings to defaults.
+	 * Initialize settings to defaults. Changed name from the abstruse 'aioseop_mrt_mkarry' to 'aioseop_initialize_options'.
 	 *
 	 * @TODO Should also move.
 	 */
-	function aioseop_mrt_mkarry() {
+	function aioseop_initialize_options() {
 		global $aiosp;
 		global $aioseop_options;
 		$naioseop_options = $aiosp->default_options();
@@ -925,11 +925,11 @@ if ( ! function_exists( 'fnmatch' ) ) {
 }
 
 if ( ! function_exists( 'aiosp_log' ) ) {
-	function aiosp_log( $log ) {
+	function aiosp_log( $log, $force = false ) {
 
 		global $aioseop_options;
 
-		if ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) {
+		if ( ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) || $force || defined( 'AIOSEOP_DO_LOG' ) ) {
 
 			if ( is_array( $log ) || is_object( $log ) ) {
 				error_log( print_r( $log, true ) );
@@ -1084,5 +1084,27 @@ if ( ! function_exists( 'aioseop_set_canonical_urls_behavior' ) ) {
 
 		$aioseop_options = array_merge( $aioseop_options, $behavior );
 		update_option( 'aioseop_options', $aioseop_options );
+	}
+}
+
+if ( ! function_exists( 'aioseop_formatted_date' ) ) {
+	/**
+	 * Get formatted date. For custom formatting, the user has 2 options:
+	 * 1. provide the native date_i18n filter.
+	 * 2. provide a custom aioseop_format_date filter.
+	 *
+	 * @param int    $date Date in UNIX timestamp format.
+	 * @param string $format Require date format.
+	 */
+	function aioseop_formatted_date( $date = null, $format = null ) {
+		if ( ! $format ) {
+			$format = get_option( 'date_format' );
+		}
+		if ( ! $date ) {
+			$date = time();
+		}
+
+		$formatted_date = date_i18n( $format, $date );
+		return apply_filters( 'aioseop_format_date', $formatted_date, $date, $format );
 	}
 }
