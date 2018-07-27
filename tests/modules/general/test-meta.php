@@ -13,6 +13,10 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
 class Test_Meta extends AIOSEOP_Test_Base {
 
+	public function setUp() {
+		$this->init();
+	}
+
 	/**
 	 * Creates a custom field in the post and uses this in the meta description.
 	 * NOTE: This does not require the ACF plugin because the code uses the custom field directly if ACF is not installed.

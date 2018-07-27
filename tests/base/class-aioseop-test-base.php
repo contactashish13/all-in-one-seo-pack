@@ -4,6 +4,17 @@
  */
 class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
+	public function _setUp() {
+		parent::setUp();
+
+		// avoids error - readfile(/src/wp-includes/js/wp-emoji-loader.js): failed to open stream: No such file or directory
+		remove_action('wp_head', 'print_emoji_detection_script', 7);
+		
+		// reset global options.
+		delete_option( 'aioseop_options' );
+		aioseop_initialize_options();
+	}
+
 	/**
 	 * Upload an image and, optionally, attach to the post.
 	 */
@@ -33,6 +44,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 	protected final function init() {
 		$this->clean();
+		$this->_setUp();
 	}
 
 	/**
@@ -190,7 +202,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	protected final function parse_html( $link, $tags = array(), $debug = false ){
 		$html = $this->get_page_source( $link );
 		if ( $debug ) {
-			error_log( $html );
+			error_log( "$link === $html" );
 		}
 
 		libxml_use_internal_errors(true);

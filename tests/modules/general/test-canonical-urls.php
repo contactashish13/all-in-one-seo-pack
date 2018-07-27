@@ -13,6 +13,10 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
 class Test_Canonical_Urls extends AIOSEOP_Test_Base {
 
+	public function setUp() {
+		$this->init();
+	}
+
 	/**
 	 * Checks if a non-paginated post specifies the same URL on every page even with "No Pagination for Canonical URLs" unchecked.
 	 */
