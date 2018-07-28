@@ -366,6 +366,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 	/**
 	 * @requires PHPUnit 5.7
+	 * @requires PHP 5.3
 	 * Creates posts without images and create a shortcode that injects an image into a particlar post. Check if these images are included in the sitemap.
 	 *
 	 * @dataProvider shortcodeProvider
