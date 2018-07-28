@@ -126,6 +126,46 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * Adds posts to taxonomies, enables only taxonomies in the sitemap.
+	 */
+	public function test_only_taxonomies() {
+		// create 3 categories.
+		$test1 = wp_create_category( 'test1' );
+		$test2 = wp_create_category( 'test2' );
+		$test3 = wp_create_category( 'test3' );
+
+		$ids = $this->factory->post->create_many( 10 );
+
+		// first 3 to test1, next 3 to test2 and let others remain uncategorized.
+		for ( $x = 0; $x < 3; $x++ ) {
+			wp_set_post_categories( $ids[ $x ], $test1 );
+		}
+
+		for ( $x = 3; $x < 6; $x++ ) {
+			wp_set_post_categories( $ids[ $x ], $test2 );
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_taxonomies'] = array( 'category' );
+		$custom_options['aiosp_sitemap_posttypes'] = array();
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		// in the sitemap, test3 should not appear as no posts have been assigned to it.
+		$this->validate_sitemap(
+			array(
+					get_category_link( $test1 ) => true,
+					get_category_link( $test2 ) => true,
+					get_category_link( $test3 ) => false,
+					get_category_link( 1 ) => true,
+			)
+		);
+	}
+
+	/**
 	 * @requires PHPUnit 5.7
 	 * Creates multiple posts with images and checks that the number of images are as expected.
 	 */
@@ -133,11 +173,11 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		// create posts with featured images.
 		$posts = $this->setup_posts( 0, 10 );
 
-		// add content images to each post.
+ 		// add content images to each post.
 		foreach( $posts['ids']['with'] as $id ) {
 			wp_update_post( array( 'ID' => $id, 'post_content' => 'local relative <img src="/image.jpg">' ) );
 		}
-		
+
 		// create posts with local images in the content, both absolute and relative as well as external urls.
 		$local = array();
 		for( $x = 0; $x < 10; $x++ ) {
@@ -145,6 +185,33 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			$id = $this->factory->post->create( array( 'post_content' => 'local relative <img src="/image' . $x . '.jpg">, local absolute <img src="' . site_url( '/image' . $x . '.jpg' ) . '">, external <img src="http://www.somewhere.com/image' . $x . '.jpg">' ) );
 			$local[] = $id;
 		}
+
+ 		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+ 		
+		// each post that has a featured image also contains an image in the content.
+		$featured_plus_content = count( $posts['with'] ) * 2;
+		// we are adding 3 images to each post's content but only 2 of them will be recognized because the external url will be filtered out.
+		$only_content = count( $local ) * 2;
+		$got = $this->count_sitemap_elements( array( '<image:loc>' ) );
+ 		
+		$this->assertEquals( $featured_plus_content + $only_content, $got['<image:loc>'] );
+	}
+
+	/**
+	 * @requires PHPUnit 5.7
+	 * Creates posts with schemeless images in the content and checks if they are being correctly included in the sitemap.
+	 */
+	public function test_schemeless_images() {
+		$id1 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="http://example.org/image1.jpg">', 'post_title' => 'title with image' ) );
+		$id2 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="//example.org/image2.jpg">', 'post_title' => 'title with image' ) );
+		$id3 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="/image3.jpg">', 'post_title' => 'title with image' ) );
+		$urls = array( get_permalink( $id1 ), get_permalink( $id2 ), get_permalink( $id3 ) );
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
@@ -154,19 +221,24 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->_setup_options( 'sitemap', $custom_options );
 
-		// each post that has a featured image also contains an image in the content.
-		$featured_plus_content = count( $posts['with'] ) * 2;
-		// we are adding 3 images to each post's content but only 2 of them will be recognized because the external url will be filtered out.
-		$only_content = count( $local ) * 2;
-		$got = $this->count_sitemap_elements( array( '<image:loc>' ) );
-
-		$this->assertEquals( $featured_plus_content + $only_content, $got['<image:loc>'] );
+		$this->validate_sitemap(
+			array(
+					$urls[0] => array(
+						'image'	=> true,
+					),
+					$urls[1] => array(
+						'image'	=> true,
+					),
+					$urls[2] => array(
+						'image'	=> true,
+					),
+			)
+		);
 	}
-
+  
 	/**
-	 * @requires PHPUnit 5.7
 	 * Creates different types of posts, enables indexes and pagination and checks if the posts are being paginated correctly without additional/blank sitemaps.
-	 *
+	 * @requires PHPUnit 5.7
 	 * @dataProvider enabledPostTypes
 	 */
 	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count, $cpt ) {
@@ -218,7 +290,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$posts = $this->setup_posts( 2 );
 
-		add_filter( 'aiosp_sitemap_addl_pages_only', array( $this, 'add_external_urls' ) );
+		add_filter( 'aiosp_sitemap_addl_pages_only', array( $this, 'filter_aiosp_sitemap_addl_pages_only' ) );
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
@@ -239,11 +311,30 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+	/**
+	 * @requires PHPUnit 5.7
+	 * Enables indexes and tests that the index and individual sitemaps are all valid according to the schema.
+	 *
+	 * @ticket 1371 Correct tags order according to Sitemap protocol
+	 */
+	public function test_index() {
+		$posts = $this->setup_posts( 2, 2 );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap_index( array( 'post' ) );
+	}
 
 	/**
 	 * Returns the urls to be added to the sitemap.
 	 */
-	public function add_external_urls() {
+	public function filter_aiosp_sitemap_addl_pages_only() {
 		return $this->_urls;
 	}
 
@@ -267,6 +358,55 @@ class Test_Sitemap extends Sitemap_Test_Base {
 				),
 			),
 		);
+	}
+  
+	/**
+	 * Creates posts with external images and uses the filter 'aioseop_images_allowed_from_hosts' to allow only a particular host's images to be included in the sitemap.
+	 */
+	public function test_external_images() {
+		$posts = $this->setup_posts( 2 );
+
+		$id1 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="http://www.x.com/image.jpg">', 'post_title' => 'title with image' ) );
+		$id2 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="http://www.y.com/image.jpg">', 'post_title' => 'title with image' ) );
+		$posts['with'] = array( get_permalink( $id1 ), get_permalink( $id2 ) );
+
+		// allow only www.x.com.
+		add_filter( 'aioseop_images_allowed_from_hosts', array( $this, 'filter_aioseop_images_allowed_from_hosts' ) );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$with = $posts['with'];
+		$without = $posts['without'];
+		$this->validate_sitemap(
+			array(
+					$with[0] => array(
+						'image'	=> true,
+					),
+					$with[1] => array(
+						'image'	=> false,
+					),
+					$without[0] => array(
+						'image'	=> false,
+					),
+					$without[1] => array(
+						'image'	=> false,
+					),
+			)
+		);
+	}
+
+	/**
+	 * Implements the filter 'aioseop_images_allowed_from_hosts' to allow speficic hosts.
+	 */
+	public function filter_aioseop_images_allowed_from_hosts( $hosts ) {
+		$hosts[] = 'www.x.com';
+		return $hosts;
 	}
 
 	/**
