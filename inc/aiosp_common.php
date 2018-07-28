@@ -162,36 +162,67 @@ class aiosp_common {
 
 	/**
 	 * Validate the image.
+	 * NOTE: We will use parse_url here instead of wp_parse_url as we will correct the URLs beforehand and 
+	 * this saves us the need to check PHP version support.
 	 *
 	 * @param string $image The image src.
 	 *
 	 * @since 2.4.1
+	 * @since 2.4.3 Compatibility with Pre v4.7 wp_parse_url().
 	 *
 	 * @return bool
 	 */
 	public static function is_image_valid( $image ) {
+		global $wp_version;
+
 		// Bail if empty image.
 		if ( empty( $image ) ) {
 			return false;
 		}
 
-		// make the url absolute, if its relative.
-		$image	    = self::absolutize_url( $image );
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.4', '<' ) ) {
+			$p_url = parse_url( $image );
+			$url = $p_url['scheme'] . $p_url['host'] . $p_url['path'];
+		} elseif ( version_compare( $wp_version, '4.7', '<' ) ) {
+			// Compatability for older WP version that don't have 4.7 changes.
+			// @link https://core.trac.wordpress.org/changeset/38726
+			$p_url = wp_parse_url( $image );
+			$url = $p_url['scheme'] . $p_url['host'] . $p_url['path'];
+		} else {
+			$component = PHP_URL_PATH;
+			$url = wp_parse_url( $image, $component );
+		}
 
-		$extn       = pathinfo( wp_parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+		// make the url absolute, if its relative.
+		$image      = aiosp_common::absolutize_url( $image );
+
+		$extn       = pathinfo( parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
 		$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
 		// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
 		if ( ! in_array( $extn, $allowed, true ) ) {
 			return false;
 		}
 
-		// Bail if image refers to an external URL.
-		$image_host = wp_parse_url( $image, PHP_URL_HOST );
-		$wp_host    = wp_parse_url( home_url(), PHP_URL_HOST );
-		if ( $image_host !== $wp_host ) {
-			return false;
-		}
+		$image_host = parse_url( $image, PHP_URL_HOST );
+		$host       = parse_url( home_url(), PHP_URL_HOST );
 
+		if ( $image_host !== $host ) {
+			// Allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
+			// And we will convert that into a regular expression for matching.
+			$whitelist  = apply_filters( 'aioseop_images_allowed_from_hosts', array() );
+			$allowed    = false;
+			if ( $whitelist ) {
+				foreach ( $whitelist as $pattern ) {
+					if ( preg_match( '/' . str_replace( '*', '.*', $pattern ) . '/', $image_host ) === 1 ) {
+						$allowed = true;
+						break;
+					}
+				}
+			}
+			return $allowed;
+
+		}
 		return true;
 	}
 }
