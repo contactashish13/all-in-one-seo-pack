@@ -365,13 +365,17 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 
 	/**
+	 * Creates posts without images and create a shortcode that injects an image into a particlar post. Check if these images are included in the sitemap.
 	 * @requires PHPUnit 5.7
 	 * @requires PHP 5.3
-	 * Creates posts without images and create a shortcode that injects an image into a particlar post. Check if these images are included in the sitemap.
 	 *
 	 * @dataProvider shortcodeProvider
 	 */
 	public function test_filter_aioseop_image_shortcodes( $code ) {
+		if (version_compare(PHP_VERSION, '5.2', '<')) {
+			$this->markTestSkipped( 'Requires PHP 5.3+' );
+		}
+
 		global $shortcode, $post_ids;
 		$shortcode = "[$code]";
 
