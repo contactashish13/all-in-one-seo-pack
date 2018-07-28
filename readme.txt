@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=mrtor
 Tags: SEO, all in one seo, WordPress SEO, Google Search Console, XML Sitemap, image seo
 Requires at least: 4.4
 Tested up to: 4.9
-Stable tag: 2.4.5
+Stable tag: 2.7.1
 License: GPLv2 or later
 Requires PHP: 5.2.4
 
@@ -51,7 +51,7 @@ seo, SEO, All in One, google, meta, meta description, search engine optimization
 
 == Changelog ==
 
-All in One SEO Pack [Changelog](http://semperfiwebdesign.com/documentation/all-in-one-seo-pack/all-in-one-seo-pack-release-history/)
+All in One SEO Pack [Changelog](https://semperfiwebdesign.com/all-in-one-seo-pack-release-history/)
 
 == Frequently Asked Questions ==
 
