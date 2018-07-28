@@ -2,9 +2,9 @@
 Contributors: hallsofmontezuma, semperplugins, wpsmort, arnaudbroes, dougal, pbaylies
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=mrtorbert%40gmail%2ecom&item_name=All%20In%20One%20SEO%20Pack&item_number=Support%20Open%20Source&no_shipping=0&no_note=1&tax=0&currency_code=USD&lc=US&bn=PP%2dDonationsBF&charset=UTF%2d8
 Tags: SEO, all in one seo, WordPress SEO, Google Search Console, XML Sitemap, image seo
-Requires at least: 4.0
-Tested up to: 4.8
-Stable tag: 2.4.2
+Requires at least: 4.4
+Tested up to: 4.9
+Stable tag: 2.7.1
 License: GPLv2 or later
 Requires PHP: 5.2.4
 
@@ -51,7 +51,7 @@ seo, SEO, All in One, google, meta, meta description, search engine optimization
 
 == Changelog ==
 
-All in One SEO Pack [Changelog](http://semperfiwebdesign.com/documentation/all-in-one-seo-pack/all-in-one-seo-pack-release-history/)
+All in One SEO Pack [Changelog](https://semperfiwebdesign.com/all-in-one-seo-pack-release-history/)
 
 == Frequently Asked Questions ==
 
