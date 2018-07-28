@@ -375,7 +375,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$__shortcode = "[$code]";
 
  		// add 2 posts and add the shortcode to the 1st post.
-		$post_ids = $this->factory->post->create_many( 2, array( 'post_type' => 'post', 'post_content' => 'content without image', 'post_title' => 'title without image' ) );
+		$__post_ids = $this->factory->post->create_many( 2, array( 'post_type' => 'post', 'post_content' => 'content without image', 'post_title' => 'title without image' ) );
 		wp_update_post( array( 'ID' => $__post_ids[0], 'post_content' => $__shortcode ) );
 
 		$urls = array( get_permalink( $__post_ids[0] ), get_permalink( $__post_ids[1] ) );
