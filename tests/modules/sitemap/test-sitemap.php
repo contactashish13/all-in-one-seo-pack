@@ -367,38 +367,22 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	/**
 	 * Creates posts without images and create a shortcode that injects an image into a particlar post. Check if these images are included in the sitemap.
 	 * @requires PHPUnit 5.7
-	 * @requires PHP 5.3
 	 *
 	 * @dataProvider shortcodeProvider
 	 */
 	public function test_filter_aioseop_image_shortcodes( $code ) {
-		error_log("current php version " . PHP_VERSION);
-		if (version_compare(PHP_VERSION, '5.3', '<')) {
-			$this->markTestSkipped( 'Requires PHP 5.3+' );
-			return;
-		}
-
-		global $shortcode, $post_ids;
-		$shortcode = "[$code]";
+		global $__shortcode, $__post_ids;
+		$__shortcode = "[$code]";
 
  		// add 2 posts and add the shortcode to the 1st post.
 		$post_ids = $this->factory->post->create_many( 2, array( 'post_type' => 'post', 'post_content' => 'content without image', 'post_title' => 'title without image' ) );
-		wp_update_post( array( 'ID' => $post_ids[0], 'post_content' => $shortcode ) );
+		wp_update_post( array( 'ID' => $__post_ids[0], 'post_content' => $__shortcode ) );
 
-		$urls = array( get_permalink( $post_ids[0] ), get_permalink( $post_ids[1] ) );
+		$urls = array( get_permalink( $__post_ids[0] ), get_permalink( $__post_ids[1] ) );
  		
-		add_shortcode( $code, function() {
-			// inject a dummy image, from the same host.
-			return '<img src="' . site_url( '/image.jpg' ) . '"/>';
-		} );
- 		
-		add_filter( 'aioseop_image_shortcodes', function( $dummy, $post_id ){
-			global $shortcode, $post_ids;
-			if ( $post_id == $post_ids[0] ) {
-				return $shortcode;
-			}
-			return $dummy;
-		}, 10, 2 );
+		add_shortcode( $code, array( $this, 'aioseop_image_shortcode_test' ) );
+			
+		add_filter( 'aioseop_image_shortcodes', array( $this, 'aioseop_image_shortcode_filter' ), 10, 2 );
  		
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
@@ -419,6 +403,20 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			)
 		);
 	}
+
+	public function aioseop_image_shortcode_test() {
+		// inject a dummy image, from the same host.
+		return '<img src="' . site_url( '/image.jpg' ) . '"/>';
+	}
+
+	public function aioseop_image_shortcode_filter( $dummy, $post_id ){
+		global $__shortcode, $__post_ids;
+		if ( $post_id == $__post_ids[0] ) {
+			return $__shortcode;
+		}
+		return $dummy;
+	}
+
 
  	/**
 	 * Returns the shortcode that injects an image into the content.
