@@ -383,7 +383,6 @@ if ( ! function_exists( 'aioseop_init_class' ) ) {
 		require_once( AIOSEOP_PLUGIN_DIR . 'aioseop_class.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop_updates_class.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'inc/commonstrings.php' );
-		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/postedit.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/general-metaboxes.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'inc/aiosp_common.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/meta_import.php' );
