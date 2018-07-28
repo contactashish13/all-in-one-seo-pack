@@ -374,6 +374,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	public function test_filter_aioseop_image_shortcodes( $code ) {
 		if (version_compare(PHP_VERSION, '5.3', '<')) {
 			$this->markTestSkipped( 'Requires PHP 5.3+' );
+			return;
 		}
 
 		global $shortcode, $post_ids;
