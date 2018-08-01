@@ -1422,7 +1422,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						} else {
 							// For everything else.
 							foreach ( $filtered_value as $f ) {
-								echo '<meta ' . $tags[ $t ]['name'] . '="' . $v . '" ' . $tags[ $t ]['value'] . '="' . $f . '" />' . "\n";
+								echo '<meta ' . $tags[ $t ]['name'] . '="' . $v . '" ' . $tags[ $t ]['value'] . '="' . htmlspecialchars_decode( $f, ENT_QUOTES ) . '" />' . "\n";
 							}
 						}
 					}

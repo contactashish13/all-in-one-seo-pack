@@ -59,6 +59,10 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 		}
 		$this->assertEquals( $title_meta, $title );
 		$this->assertEquals( $desc_meta, $desc );
+		$this->assertContains( '&', $desc );
+		$this->assertNotContains( '&amp;', $desc );
+		$this->assertContains( '&', $title );
+		$this->assertNotContains( '&amp;', $title );
 	}
 
 	public function metaProvider() {
