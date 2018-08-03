@@ -16,6 +16,7 @@ class Test_Robots_Multisite extends Test_Robots {
 
 	/**
 	 * Test.
+	 * @function get_active_blog_for_user
 	 */
 	public function test_test() {
 		$this->assertTrue(false);
