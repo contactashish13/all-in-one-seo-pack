@@ -5,7 +5,7 @@
  * @package
  */
 
-require_once AIOSEOP_UNIT_TESTING_DIR . '/tests/modules/robots/test-robots.php';
+require_once AIOSEOP_UNIT_TESTING_DIR . '/modules/robots/test-robots.php';
 
 /**
  * Robots test case.
