@@ -129,4 +129,29 @@ class aiosp_common {
 		return $url;
 	}
 
+	/**
+	 * Check whether a url is relative (does not contain a . before the first /) or absolute and makes it a valid url.
+	 *
+	 * @param string $url URL to check.
+	 *
+	 * @return string
+	 */
+	static function make_url_valid_smartly( $url ) {
+		if ( 0 !== strpos( $url, 'http' ) ) {
+			if ( 0 === strpos( $url, '//' ) ) {
+				// for //<host>/resource type urls.
+				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
+				$url    = $scheme . ':' . $url;
+			} elseif ( strpos( $url, '.' ) !== false && strpos( $url, '/' ) !== false && strpos( $url, '.' ) < strpos( $url, '/' ) ) {
+				// if the . comes before the first / then this is absolute.
+				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
+				$url    = $scheme . '://' . $url;
+			} else {
+				// for /resource type urls.
+				$url = home_url( $url );
+			}
+		}
+		return $url;
+	}
+
 }

@@ -220,7 +220,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				),
 				'addl_url'          => array(
 					'name'  => __( 'Page URL', 'all-in-one-seo-pack' ),
-					'type'  => 'text',
+					'type'  => 'url',
 					'label' => 'top',
 					'save'  => false,
 				),
@@ -502,7 +502,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						if ( is_object( $v ) ) {
 							$v = (Array) $v;
 						}
-						$buf .= "\t<tr><td><a href='#' title='$k' class='aiosp_delete aiosp_delete_url'></a> {$k}</td><td>{$v['prio']}</td><td>{$v['freq']}</td><td>{$v['mod']}</td></tr>\n";
+						$buf .= "\t<tr><td><a href='#' title='$k' class='dashicons dashicons-trash aiosp_delete_url'></a> {$k}</td><td>{$v['prio']}</td><td>{$v['freq']}</td><td>{$v['mod']}</td></tr>\n";
 					}
 					$buf .= "</table>\n";
 				}
@@ -2347,10 +2347,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $this->options[ $this->prefix . 'addl_pages' ] ) ) {
 				$siteurl = parse_url( aioseop_home_url() );
 				foreach ( $this->options[ $this->prefix . 'addl_pages' ] as $k => $v ) {
+					$k	= aiosp_common::make_url_valid_smartly( $k );
 					$url = parse_url( $k );
-					if ( empty( $url['scheme'] ) ) {
-						$url['scheme'] = $siteurl['scheme'];
-					}
 					if ( empty( $url['host'] ) ) {
 						$url['host'] = $siteurl['host'];
 					}
