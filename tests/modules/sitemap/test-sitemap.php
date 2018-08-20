@@ -163,6 +163,53 @@ class Test_Sitemap extends Sitemap_Test_Base {
   
 
 	/**
+	 * Add WooCommerce product gallery images to XML sitemap.
+	 *
+	 * @ticket 366 Add WooCommerce product gallery images to XML sitemap
+	 */
+	public function test_woocommerce_gallery() {
+		$woo = 'woocommerce/woocommerce.php';
+		$file = dirname( dirname( AIOSEOP_UNIT_TESTING_DIR ) ) . '/';
+		
+		if ( ! file_exists( $file . $woo ) ) {
+			$this->markTestSkipped( 'WooCommerce not installed. Skipping.' );
+		}
+
+		$this->plugin_to_load = $file . $woo;
+		tests_add_filter( 'muplugins_loaded', array( $this, 'filter_muplugins_loaded' ) ) ;
+
+		activate_plugin( $woo );
+
+		if ( ! is_plugin_active( $woo ) ) {
+			$this->markTestSkipped( 'WooCommerce not activated. Skipping.' );
+		}
+
+		// create 4 attachments.
+		$attachments = array();
+		for ( $x = 0; $x < 4; $x++ ) {
+			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ) );
+		}
+
+		$id = $this->factory->post->create( array( 'post_type' => 'product' ) );
+		update_post_meta( $id, '_product_image_gallery', implode( ',', $attachments ) );
+		$url = get_permalink( $id );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'product' );
+ 		$this->_setup_options( 'sitemap', $custom_options );
+ 		$this->validate_sitemap(
+			array(
+					$url => array(
+						'image'	=> true,
+					),
+			)
+		);
+	}
+
+	/**
 	 * Adds posts to taxonomies, enables only taxonomies in the sitemap.
 	 */
 	public function test_only_taxonomies() {
@@ -203,7 +250,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
->>>>>>> a5c7eb61f6b8061f157ecfb38b5ce9c795dfb7ee
+	 * Loads the specified plugin.
+	 */
+	public function filter_muplugins_loaded() {
+		require $this->plugin_to_load;
+	}
+
+	/**
 	 * @requires PHPUnit 5.7
 	 * Creates posts with schemeless images in the content and checks if they are being correctly included in the sitemap.
 	 */
