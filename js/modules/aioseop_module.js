@@ -629,7 +629,7 @@ jQuery( document ).ready(
 			}
 		);
 
-		jQuery( "div#aiosp_robots_default_metabox" )
+        jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_edit_rule", "click", function( e ) {
 				e.preventDefault();
@@ -660,7 +660,6 @@ jQuery( document ).ready(
 		});
 
         aiospinitAll();
-        aiospinitCounting();
 
 	}
 );
@@ -868,7 +867,13 @@ function aioseop_overflow_border( el ) {
 }
 
 function aiospinitAll(){
-  if ( jQuery( '.aiseop-date' ).length > 0 && jQuery( '.aiseop-date' ).eq( 0 ).prop( 'type' ).toLowerCase() === 'text' ) {
+    aiospinitSocialMetaInPosts(jQuery);
+    aiospinitCalendar();
+    aiospinitCounting();
+}
+
+function aiospinitCalendar(){
+    if ( jQuery( '.aiseop-date' ).length > 0 && jQuery( '.aiseop-date' ).eq( 0 ).prop( 'type' ).toLowerCase() === 'text' ) {
 	  jQuery( '.aiseop-date' ).datepicker(
 			{
 				dateFormat: "yy-mm-dd"
@@ -876,6 +881,14 @@ function aiospinitAll(){
 		);
 	}
 }
+
+function aiospinitSocialMetaInPosts($) {
+    // clear the radio buttons when the user clicks the upload button.
+    $('input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button').on('click', function(e){
+        $('input[name="aioseop_opengraph_settings_image"]').attr('checked', false);
+    });
+}
+
 
 function aiospinitCounting(){
     /* count them characters */
