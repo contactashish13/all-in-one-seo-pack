@@ -438,7 +438,7 @@ if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 			if ( 'sitemap_addl_pages' === $_POST['settings'] ) {
 				if ( empty( $v ) ) {
 					$valid    = false;
-				} elseif ( 'aiosp_sitemap_addl_url' === $k && filter_var( filter_var( $v, FILTER_SANITIZE_URL ), FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED ) === false ) {
+				} elseif ( 'aiosp_sitemap_addl_url' === $k && aiosp_common::is_url_valid( $v ) ) {
 					$valid    = false;
 					$invalid_msg	= __( 'Please provide absolute URLs (including http or https).', 'all-in-one-seo-pack' );
 				}
