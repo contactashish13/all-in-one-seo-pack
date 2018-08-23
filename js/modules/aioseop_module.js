@@ -647,7 +647,6 @@ jQuery( document ).ready(
 		});
 
         aiospinitAll();
-        aiospinitCounting();
 
 	}
 );
@@ -857,6 +856,7 @@ function aioseop_overflow_border( el ) {
 function aiospinitAll(){
     aiospinitSocialMetaInPosts(jQuery);
     aiospinitCalendar();
+    aiospinitCounting();
 }
 
 function aiospinitCalendar(){
