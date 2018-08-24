@@ -1332,7 +1332,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				} elseif ( 'addl' === $sitemap_type ) {
 					$sitemap_data = $this->get_addl_pages();
 				} elseif ( 'archive' === $sitemap_type && $this->option_isset( 'archive' ) ) {
-					$sitemap_data = $this->get_archive_prio_data();
+					$sitemap_data = $this->get_date_archive_prio_data();
 				} elseif ( 'author' === $sitemap_type && $this->option_isset( 'author' ) ) {
 					$sitemap_data = $this->get_author_prio_data();
 				} elseif ( in_array( $sitemap_type, $posttypes ) ) {
@@ -1939,7 +1939,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			if ( $this->option_isset( 'archive' ) ) {
-				$prio = array_merge( $prio, $this->get_archive_prio_data() );
+				$prio = array_merge( $prio, $this->get_date_archive_prio_data() );
 			}
 			if ( $this->option_isset( 'author' ) ) {
 				$prio = array_merge( $prio, $this->get_author_prio_data() );
@@ -2507,17 +2507,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Generate sitemap priority data for archives from an array of posts.
+		 * Generate sitemap priority data for date archives from an array of posts.
 		 *
 		 * @param $posts
 		 *
 		 * @return array
 		 */
-		function get_archive_prio_from_posts( $posts ) {
+		function get_date_archive_prio_from_posts( $posts ) {
 			$archives = array();
 			if ( is_array( $posts ) ) {
 				foreach ( $posts as $p ) {
-					if ( 'post' !== $p->post_type && ! $this->include_archive_page_for_post_type( $p->post_type ) ) {
+					if ( 'post' !== $p->post_type ) {
 						continue;
 					}
 					// add the post type to the date so as to support posts of different post types created on the same date.
@@ -2531,11 +2531,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
 			if ( ! empty( $archives ) ) {
 				return $this->get_prio_from_posts(
 					$archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
 						$this,
-						'get_archive_link_from_post',
+						'get_date_archive_link_from_post',
 					)
 				);
 			}
@@ -2544,42 +2545,74 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Check if the date archives of the post_type need to be included in the sitemap.
+		 * Generate sitemap priority data for archives from an array of posts.
 		 *
-		 * @param string $post_type The post type.
+		 * @param $posts
 		 *
-		 * @return bool
+		 * @return array
 		 */
-		private function include_archive_page_for_post_type( $post_type ) {
+		private function get_archive_prio_from_posts( $posts ) {
 			$posttypes = array();
 			if ( ! empty( $this->options["{$this->prefix}posttypes"] ) ) {
 				$posttypes = $this->options["{$this->prefix}posttypes"];
 			}
 
-			return in_array( $post_type, apply_filters( $this->prefix . 'include_archives', $posttypes ), true );
+			$types_supporting_archives	= get_post_types( array( 'has_archive' => true, '_builtin' => false, ), 'names' );
+			$types		= array();
+			foreach ( $posts as $p ) {
+				if ( array_key_exists( $p->post_type, $types ) ) {
+					continue;
+				}
+				$types[ $p->post_type ] = $p;
+			}
+
+			$archives	= array();
+			$types		= apply_filters( "{$this->prefix}include_post_types_archives", $types );
+			if ( $types ) {
+				foreach ( $types as $post_type => $p ) {
+					if ( ! ( in_array( $post_type, $posttypes ) && in_array( $post_type, $types_supporting_archives ) ) ) {
+						continue;
+					}
+					$archives	= array_merge(
+						$archives,
+						$this->get_prio_from_posts(
+							array( $p ), $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
+								$this,
+								'get_archive_link_from_post',
+							)
+						)
+					);
+				}
+			}
+			return $archives;
 		}
 
 		/**
-		 * Return an archive link from a post.
+		 * Return an archive link for a post.
 		 *
 		 * @param $post
 		 *
 		 * @return bool|string
 		 */
 		function get_archive_link_from_post( $post ) {
+			return get_post_type_archive_link( $post->post_type );
+		}
+
+		/**
+		 * Return a date archive link for a post.
+		 *
+		 * @param $post
+		 *
+		 * @return bool|string
+		 */
+		function get_date_archive_link_from_post( $post ) {
 			$extra = array();
 			if ( 'post' !== $post->post_type ) {
-				if ( ! $this->include_archive_page_for_post_type( $post->post_type ) ) {
-					return false;
-				}
-
-				$extra = array(
-					'post_type' => $post->post_type,
-				);
+				return false;
 			}
 			$date = mysql2date( 'U', $post->post_date );
 
-			return add_query_arg( $extra, get_month_link( date( 'Y', $date ), date( 'm', $date ) ) );
+			return get_month_link( date( 'Y', $date ), date( 'm', $date ) );
 		}
 
 		/**
@@ -3146,28 +3179,19 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Return sitemap data for archives.
+		 * Return sitemap data for date archives.
 		 *
 		 * @return array
 		 */
-		function get_archive_prio_data() {
-			$posttypes = array();
-			if ( ! empty( $this->options["{$this->prefix}posttypes"] ) ) {
-				$posttypes = $this->options["{$this->prefix}posttypes"];
-			}
-			// backward compatibility so that if users have selected no post type, the "post" archive pages are still shown in the sitemap.
-			if ( empty( $posttypes ) ) {
-				$posttypes = array( 'post' );
-			}
-
+		function get_date_archive_prio_data() {
 			$args  = array(
 				'numberposts' => 50000,
-				'post_type' => $posttypes,
+				'post_type' => 'post',
 			);
 			$args  = $this->set_post_args( $args );
 			$posts = $this->get_all_post_type_data( $args );
 
-			return $this->get_archive_prio_from_posts( $posts );
+			return $this->get_date_archive_prio_from_posts( $posts );
 		}
 
 		/**
@@ -3211,7 +3235,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$args  = $this->set_post_args( $args );
 			$posts = array_merge( $this->get_all_post_type_data( $args ), $posts );
 
-			return $this->get_prio_from_posts( $posts, $this->get_default_priority( 'post', true ), $this->get_default_frequency( 'post', true ) );
+			$links	= $this->get_prio_from_posts( $posts, $this->get_default_priority( 'post', true ), $this->get_default_frequency( 'post', true ) );
+			$links	= array_merge( $links, $this->get_archive_prio_from_posts( $posts ) );
+			return $links;
 		}
 
 		/**
