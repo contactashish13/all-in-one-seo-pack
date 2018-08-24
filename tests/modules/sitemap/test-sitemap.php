@@ -133,36 +133,25 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * @access public
 	 * @dataProvider post_type_archive_pages_provider
 	 */
-	public function test_post_type_archive_pages( $post_types, $exclude ) {
-		update_option( 'timezone_string', 'GMT' );
-		update_option( 'gmt_offset', 0 );
-
-		$links = array();
+	public function test_post_type_archive_pages( $post_types, $has_archive, $exclude ) {
 		$tests = array();
 
-		// create 2 posts, each in a different month.
-		for ( $i = 0; $i < 2; $i++ ) {
-			$date = sprintf( '2017-0%d-01 09:09:09', ( $i + 1 ) );
-			$links['post'][] = get_month_link( 2017, ( $i + 1 ) );
-			$id = $this->factory->post->create( array( 'post_type' => 'post', 'post_date' => $date ) );
-		
-			if ( in_array( 'post', $post_types ) ) {
-				$tests[ get_permalink( $id ) ] = true;
+		foreach( $post_types as $post_type ) {
+			$ids		= array();
+			if ( ! in_array( $post_type, array( 'post', 'page' ) ) ) {
+				register_post_type( $post_type, array( 'has_archive' => $has_archive ) );
 			}
-		}
 
-		if ( in_array( 'page', $post_types ) ) {
-			// create 2 pages, each in a different month.
-			for ( $i = 0; $i < 2; $i++ ) {
-				$date = sprintf( '2017-0%d-01 09:09:09', ( $i + 5 ) );
-				$links['page'][] = get_month_link( 2017, $i + 5 );
-				$id = $this->factory->post->create( array( 'post_type' => 'page', 'post_date' => $date ) );
+			$ids	= $this->factory->post->create_many( 2, array( 'post_type' => $post_type ) );
+			foreach ( $ids as $id ) {
 				$tests[ get_permalink( $id ) ] = true;
 			}
+			$url = get_post_type_archive_link( $post_type );
+			$tests[ $url ] = $has_archive && ! $exclude;
 		}
 
 		if ( $exclude ) {
-			add_filter( 'aiosp_sitemap_include_archives', array( $this, 'filter_aiosp_sitemap_include_archives' ) );
+			add_filter( 'aiosp_sitemap_include_post_types_archives', array( $this, 'filter_aiosp_sitemap_include_post_types_archives' ) );
 		}
 
 		$custom_options = array();
@@ -174,49 +163,31 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->_setup_options( 'sitemap', $custom_options );
 
-		foreach ( $links as $type => $urls ) {
-			foreach ( $urls as $url ) {
-				// any other post type will have a &post_type= argument.
-				if ( 'post' === $type ) {
-					// post date archives will always be present.
-					$tests[ $url ] = true;
-				} else {
-					$url = add_query_arg( 'post_type', $type, $url );
-					// one can switch off date archives of other post types.
-					$tests[ $url ] = ! $exclude;
-				}
-			}
-		}
 		$this->validate_sitemap( $tests );
 	}
 
 	/**
-	 * Implements the filter 'aiosp_sitemap_include_archives'.
+	 * Implements the filter 'aiosp_sitemap_include_post_types_archives'.
 	 */
-	public function filter_aiosp_sitemap_include_archives( $posttypes ) {
+	public function filter_aiosp_sitemap_include_post_types_archives( $types ) {
 		return array();
 	}
 
 	/**
 	 * Provide the post types for testing test_post_type_archive_pages.
 	 * 
-	 * This will enable us to test 3 cases:
-	 * 1) When no post type is selected => only post archives in the sitemap.
-	 * 2) When only post post type is selected => posts and post archives in the sitemap.
-	 * 3) When post and page post types are selected => posts, pages, post archives and page archives in the sitemap.
+	 * This will enable us to test these cases:
+	 * 1) When a CPT post type is selected that DOES NOT support archives => only CPT in the sitemap.
+	 * 2) When a CPT post type is selected that DOES support archives => CPT and CPT archives in the sitemap.
+	 * 3) When a CPT post type is selected that DOES support archives and we exclude this => only CPT in the sitemap.
 	 *
 	 * @access public
 	 */
 	public function post_type_archive_pages_provider() {
 		return array(
-			// include post date archives.
-			array( array(), false ),
-			array( array( 'post' ), false ),
-			array( array( 'post', 'page' ), false ),
-			// exclude post date archives (but only for non "post" post types).
-			array( array(), true ),
-			array( array( 'post' ), true ),
-			array( array( 'post', 'page' ), true ),
+			array( array( 'xxxx' ), false, false ),
+			array( array( 'xxxx' ), true, false ),
+			array( array( 'xxxx' ), true, true ),
 		);
 	}
   
