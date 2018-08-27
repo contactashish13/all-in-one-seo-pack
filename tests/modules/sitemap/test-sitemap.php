@@ -433,13 +433,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
-	 * Loads the required plugin.
-	 */
-	public function filter_muplugins_loaded() {
-		require $this->plugin_to_load;
-	}
-
-	/**
 	 * Add external URLs to the sitemap using the filter 'aiosp_sitemap_addl_pages_only'.
 	 *
 	 * @dataProvider externalPagesProvider
