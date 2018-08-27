@@ -137,18 +137,23 @@ class aiosp_common {
 	 * @return string
 	 */
 	static function make_url_valid_smartly( $url ) {
+		$scheme = parse_url( home_url(), PHP_URL_SCHEME );
 		if ( 0 !== strpos( $url, 'http' ) ) {
 			if ( 0 === strpos( $url, '//' ) ) {
 				// for //<host>/resource type urls.
-				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
 				$url    = $scheme . ':' . $url;
 			} elseif ( strpos( $url, '.' ) !== false && strpos( $url, '/' ) !== false && strpos( $url, '.' ) < strpos( $url, '/' ) ) {
 				// if the . comes before the first / then this is absolute.
-				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
 				$url    = $scheme . '://' . $url;
 			} else {
 				// for /resource type urls.
 				$url = home_url( $url );
+			}
+		} else if ( strpos( $url, 'http://' ) === false ) {
+			if ( 0 === strpos( $url, 'http:/' ) ) {
+				$url	= $scheme . '://' .  str_replace( 'http:/', '', $url );
+			} else if ( 0 === strpos( $url, 'http:' ) ) {
+				$url	= $scheme . '://' . str_replace( 'http:', '', $url );
 			}
 		}
 		return $url;
