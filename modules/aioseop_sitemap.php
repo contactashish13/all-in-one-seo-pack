@@ -2448,11 +2448,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Scores posts based on date and relative comment count, if any.
 		 *
 		 * @param     $date
-		 * @param int $stats
+		 * @param mixed $stats
 		 *
 		 * @return array
 		 */
-		function get_prio_calc( $date, $stats = 0 ) {
+		function get_prio_calc( $date, $stats ) {
 			static $cur_time = null;
 			if ( null === $cur_time ) {
 				$cur_time = time();
@@ -2648,7 +2648,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_prio_from_posts( $posts, $prio_override = false, $freq_override = false, $linkfunc = 'get_permalink' ) {
+		private function get_prio_from_posts( $posts, $prio_override = false, $freq_override = false, $linkfunc = 'get_permalink' ) {
 			$prio = array();
 			$args = array(
 				'prio_override' => $prio_override,
@@ -2664,7 +2664,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $posts as $post ) {
 					// Determine if we check the post for images.
 					$is_single = true;
-					$url          = '';
 					$post->filter = 'sample';
 					if ( 'get_permalink' === $linkfunc ) {
 						$url = $this->get_permalink( $post );
@@ -2672,6 +2671,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						$url = call_user_func( $linkfunc, $post );
 						$is_single = false;
 					}
+
+					if ( strpos( $url, '__trashed' ) !== false ) {
+						// excluded trashed urls.
+						continue;
+					}
+
 					$date = $post->post_modified_gmt;
 					if ( '0000-00-00 00:00:00' === $date ) {
 						$date = $post->post_date_gmt;
@@ -2833,7 +2838,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Fetch images from WP and Jetpack galleries.
+		 * Fetch images from WP, Jetpack and WooCommerce galleries.
 		 *
 		 * @param string $post The post.
 		 * @param array  $images the array of images.
@@ -2865,6 +2870,20 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
+			// Check WooCommerce product gallery.
+			if ( class_exists( 'WooCommerce' ) ) {
+				$woo_images = get_post_meta( $post->ID, '_product_image_gallery', true );
+				if ( ! empty( $woo_images ) ) {
+					$woo_images = array_filter( explode( ',', $woo_images ) );
+					if ( is_array( $woo_images ) ) {
+						foreach ( $woo_images as $id ) {
+							$images[] = wp_get_attachment_url( $id );
+						}
+					}
+				}
+			}
+
 			$images = array_unique( $images );
 		}
 

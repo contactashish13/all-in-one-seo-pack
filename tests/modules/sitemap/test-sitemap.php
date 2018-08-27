@@ -125,6 +125,86 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		);
 	}
 
+  	/**
+	 * Don't include content from trashed pages.
+	 *
+	 * @ticket 1423 XML Sitemap - Don't include content from trashed pages.
+	 */
+	public function test_exclude_trashed_pages() {
+		$posts = $this->factory->post->create_many( 2 );
+		wp_trash_post( $posts[0] );
+	
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = 'on';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$urls = array();
+		foreach( $posts as $id ) {
+			$urls[] = get_permalink( $id );
+		}
+		$xml = $this->validate_sitemap(
+			array(
+					$urls[0] => false,
+					$urls[1] => true,
+			)
+		);
+
+		// check that the file does not contain the string __trashed because that's how trashed pages are included.
+		$this->assertNotContains( $xml, '__trashed' );
+	}
+  
+
+	/**
+	 * Add WooCommerce product gallery images to XML sitemap.
+	 *
+	 * @ticket 366 Add WooCommerce product gallery images to XML sitemap
+	 */
+	public function test_woocommerce_gallery() {
+		$woo = 'woocommerce/woocommerce.php';
+		$file = dirname( dirname( AIOSEOP_UNIT_TESTING_DIR ) ) . '/';
+		
+		if ( ! file_exists( $file . $woo ) ) {
+			$this->markTestSkipped( 'WooCommerce not installed. Skipping.' );
+		}
+
+		$this->plugin_to_load = $file . $woo;
+		tests_add_filter( 'muplugins_loaded', array( $this, 'filter_muplugins_loaded' ) ) ;
+
+		activate_plugin( $woo );
+
+		if ( ! is_plugin_active( $woo ) ) {
+			$this->markTestSkipped( 'WooCommerce not activated. Skipping.' );
+		}
+
+		// create 4 attachments.
+		$attachments = array();
+		for ( $x = 0; $x < 4; $x++ ) {
+			$attachments[] = $this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ) );
+		}
+
+		$id = $this->factory->post->create( array( 'post_type' => 'product' ) );
+		update_post_meta( $id, '_product_image_gallery', implode( ',', $attachments ) );
+		$url = get_permalink( $id );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'product' );
+ 		$this->_setup_options( 'sitemap', $custom_options );
+ 		$this->validate_sitemap(
+			array(
+					$url => array(
+						'image'	=> true,
+					),
+			)
+		);
+	}
+
 	/**
 	 * Adds posts to taxonomies, enables only taxonomies in the sitemap.
 	 */
@@ -163,6 +243,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 					get_category_link( 1 ) => true,
 			)
 		);
+	}
+
+	/**
+	 * Loads the specified plugin.
+	 */
+	public function filter_muplugins_loaded() {
+		require $this->plugin_to_load;
 	}
 
 	/**

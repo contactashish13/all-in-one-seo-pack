@@ -180,5 +180,6 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		// @codingStandardsIgnoreEnd
 
 		return $map;
+
 	}
 }
