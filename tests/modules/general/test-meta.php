@@ -86,6 +86,7 @@ class Test_Meta extends AIOSEOP_Test_Base {
 			}
 		}
 		$this->assertEquals( $meta_desc, $description );
+	}
 
 	/**
 	 * Test whether the meta description contains exactly what is expected.
