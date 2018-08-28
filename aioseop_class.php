@@ -1589,11 +1589,13 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	/**
 	 * Gets the title that will be used by AIOSEOP for title rewrites or returns false.
 	 *
-	 * @param $post
+	 * @param WP_Post $post the post object
+	 * @param bool $use_original_title_format should the original title format be used viz. post_title | blog_title. This parameter was introduced 
+	 * to resolve issue#986
 	 *
 	 * @return bool|string
 	 */
-	function get_aioseop_title( $post ) {
+	function get_aioseop_title( $post, $use_original_title_format = true ) {
 		global $aioseop_options;
 		// the_search_query() is not suitable, it cannot just return.
 		global $s, $STagging;
@@ -1739,14 +1741,14 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title = $this->internationalize( get_post_meta( $post->ID, '_aioseop_title', true ) );
 			if ( ! $title ) {
 				$title = $this->internationalize( get_post_meta( $post->ID, 'title_tag', true ) );
-				if ( ! $title ) {
+				if ( ! $title && $use_original_title_format ) {
 					$title = $this->internationalize( $this->get_original_title( '', false ) );
 				}
 			}
 			if ( empty( $title ) ) {
 				$title = $post->post_title;
 			}
-			if ( ! empty( $title ) ) {
+			if ( ! empty( $title ) && $use_original_title_format ) {
 				$title = $this->apply_post_title_format( $title, $category, $post );
 			}
 			$title = $this->paged_title( $title );
@@ -4098,7 +4100,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$description = str_replace( '%wp_title%', $this->get_original_title(), $description );
 		}
 		if ( strpos( $description, '%post_title%' ) !== false ) {
-			$description = str_replace( '%post_title%', $this->get_aioseop_title( $post ), $description );
+			$description = str_replace( '%post_title%', $this->get_aioseop_title( $post, false ), $description );
 		}
 		if ( strpos( $description, '%current_date%' ) !== false ) {
 			$description = str_replace( '%current_date%', date_i18n( get_option( 'date_format' ) ), $description );
