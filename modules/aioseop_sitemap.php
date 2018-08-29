@@ -3051,7 +3051,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param array  $images the array of images.
 		 */
 		function parse_content_for_images( $content, &$images ) {
-			// these tags should be WITHOUT trailing space because some plugins such as the nextgen gallery put newlines immediately after <img.
+			// These tags should be WITHOUT trailing space because some plugins such as the nextgen gallery put newlines immediately after <img.
 			$total   = substr_count( $content, '<img' ) + substr_count( $content, '<IMG' );
 			// no images found.
 			if ( 0 === $total ) {
