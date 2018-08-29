@@ -48,7 +48,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$file = $this->create_sitemap();
 
 		if ( $debug ) {
-			echo file_get_contents( $file );
+			error_log( file_get_contents( $file ) );
 		}
 
 		// validate file according to schema.
@@ -109,6 +109,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		}
 
 		$contents = file_get_contents( $file );
+
 		// @codingStandardsIgnoreStart
 		@unlink( $file );
 		// @codingStandardsIgnoreEnd
