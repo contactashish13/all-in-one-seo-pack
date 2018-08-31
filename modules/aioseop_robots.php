@@ -105,7 +105,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 			add_action( 'wp_ajax_aioseop_ajax_robots_physical', array( $this, 'ajax_action_physical_file' ) );
 			add_filter( 'robots_txt', array( $this, 'robots_txt' ), 10, 2 );
 
-			// we want to define this because calling admin init in the unit tests causes an error and does not call this method.
+			// We want to define this because calling admin init in the unit tests causes an error and does not call this method.
 			if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
 				add_action( "aioseop_ut_{$this->prefix}admin_init", array( $this, 'import_default_robots' ) );
 			}
