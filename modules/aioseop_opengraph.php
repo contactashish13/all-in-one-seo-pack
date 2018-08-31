@@ -202,83 +202,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			$this->init();
 		}
 
-	/**
-	 * Called when this module is activated.
-	 */
-	public function activate_module() {
-		if ( $this->locations !== null ) {
-			foreach ( $this->locations as $k => $v ) {
-				if ( ! isset( $v['type'] ) || 'metabox' !== $v['type'] ) {
-					continue;
-				}
-				$this->set_virgin_tax_terms( $k );
-			}
-		}
-	}
-
-	/**
-	 * This iterates over all taxonomies that do not have a opengraph setting defined and sets the defaults.
-	 *
-	 * @param string $k The key against which the options will be determined/set.
-	 */
-	private function set_virgin_tax_terms( $k ) {
-		global $aioseop_options;
-		$prefix  = $this->get_prefix( $k );
-		$opts    = $this->default_options( $k );
-		$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
-		$taxonomies = get_taxonomies( array( 'public' => true ), 'object' );
-		if ( ! $taxonomies ) {
-			return;
-		}
-		foreach ( $taxonomies as $name => $tax ) {
-			$terms = get_terms( $name, array(
-				'meta_query' => array(
-					array(
-						'key' => '_' . $prefix . $k,
-						'compare' => 'NOT EXISTS',
-					)
-				),
-				'number' => PHP_INT_MAX,
-				'fields' => 'ids',
-				'hide_empty' => false,
-			) );
-			if ( empty( $terms ) ) {
-				continue;
-			}
-			$category = null;
-			if ( true === $tax->_builtin ) {
-				$category = 'article';
-			} else {
-				// custom taxonomy. Let's get a post against this to determine its post type.
-				$posts = get_posts( array(
-					'numberposts' => 1,
-					'post_type' => 'any',
-					'tax_query' => array(
-						array(
-							'taxonomy' => $name,
-							'field' => 'term_id',
-							'terms' => $terms
-						),
-					),
-				) );
-				if ( $posts ) {
-					$post_type = $posts[0]->post_type;
-					// now let's see what default object type is set for this post type.
-					$object_type = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
-					if ( ! empty( $object_type ) ) {
-						$category = $object_type;
-					}
-				}
-			}
-			if ( $category ) {
-				$opts[ $prefix . $k .'_category' ] = $category;
-				foreach ( $terms as $term_id ) {
-					update_term_meta( $term_id, '_' . $prefix . $k, $opts );
-				}
-			}
-		}
-	}
-
 		/**
 		 * Hook called after WordPress has been loaded.
 		 *
@@ -852,8 +775,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 							);
 					}
 
+					// #1308 - we want to make sure we are ignoring php version only in the admin area while editing the post, so that it does not impact #932.
+					$screen = get_current_screen();
+					$ignore_php_version = is_admin() && isset( $screen->id ) && 'post' == $screen->id;
+
 					// Add filters
-					$description = apply_filters( 'aioseop_description', $description );
+					$description = apply_filters( 'aioseop_description', $description, false, $ignore_php_version );
 					// Add placholders
 					$settings[ "{$prefix}title" ]['placeholder'] = apply_filters( 'aioseop_opengraph_placeholder', $title );
 					$settings[ "{$prefix}desc" ]['placeholder']  = apply_filters( 'aioseop_opengraph_placeholder', $description );
@@ -1813,6 +1740,82 @@ END;
             ><?php echo __( 'Debug This Post', 'all-in-one-seo-pack' ); ?></a>
 			<?php
 			return ob_get_clean();
+		}
+	}
+
+	/**
+	 * Called when this module is activated.
+	 */
+	public function activate_module() {
+		if ( $this->locations !== null ) {
+			foreach ( $this->locations as $k => $v ) {
+				if ( ! isset( $v['type'] ) || 'metabox' !== $v['type'] ) {
+					continue;
+				}
+				$this->set_virgin_tax_terms( $k );
+			}
+		}
+	}
+	/**
+	 * This iterates over all taxonomies that do not have a opengraph setting defined and sets the defaults.
+	 *
+	 * @param string $k The key against which the options will be determined/set.
+	 */
+	private function set_virgin_tax_terms( $k ) {
+		global $aioseop_options;
+		$prefix  = $this->get_prefix( $k );
+		$opts    = $this->default_options( $k );
+		$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
+		$taxonomies = get_taxonomies( array( 'public' => true ), 'object' );
+		if ( ! $taxonomies ) {
+			return;
+		}
+		foreach ( $taxonomies as $name => $tax ) {
+			$terms = get_terms( $name, array(
+				'meta_query' => array(
+					array(
+						'key' => '_' . $prefix . $k,
+						'compare' => 'NOT EXISTS',
+					)
+				),
+				'number' => PHP_INT_MAX,
+				'fields' => 'ids',
+				'hide_empty' => false,
+			) );
+			if ( empty( $terms ) ) {
+				continue;
+			}
+			$category = null;
+			if ( true === $tax->_builtin ) {
+				$category = 'article';
+			} else {
+				// custom taxonomy. Let's get a post against this to determine its post type.
+				$posts = get_posts( array(
+					'numberposts' => 1,
+					'post_type' => 'any',
+					'tax_query' => array(
+						array(
+							'taxonomy' => $name,
+							'field' => 'term_id',
+							'terms' => $terms
+						),
+					),
+				) );
+				if ( $posts ) {
+					$post_type = $posts[0]->post_type;
+					// now let's see what default object type is set for this post type.
+					$object_type = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
+					if ( ! empty( $object_type ) ) {
+						$category = $object_type;
+					}
+				}
+			}
+			if ( $category ) {
+				$opts[ $prefix . $k .'_category' ] = $category;
+				foreach ( $terms as $term_id ) {
+					update_term_meta( $term_id, '_' . $prefix . $k, $opts );
+				}
+			}
 		}
 	}
 }
