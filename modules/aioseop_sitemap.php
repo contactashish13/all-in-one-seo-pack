@@ -712,8 +712,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( isset( $options[ $this->prefix . 'max_posts' ] ) && ( ( $options[ $this->prefix . 'max_posts' ] <= 0 ) || ( $options[ $this->prefix . 'max_posts' ] >= 50000 ) ) ) {
 				$options[ $this->prefix . 'max_posts' ] = 50000;
 			}
-			$url = aioseop_home_url( '/' . $options[ $this->prefix . 'filename' ] . '.xml' );
-			$url_rss = aioseop_home_url( '/' . $options[ $this->prefix . 'filename' ] . '.rss' );
+			$url = aioseop_home_url( '/' . $this->get_filename() . '.xml' );
+			$url_rss = aioseop_home_url( '/' . $this->get_filename() . '.rss' );
 
 			$options[ $this->prefix . 'link' ] = sprintf( __( 'Click here to %s.', 'all-in-one-seo-pack' ), '<a href="' . esc_url( $url ) . '" target="_blank">' . __( 'view your XML sitemap', 'all-in-one-seo-pack' ) . '</a>' );
 			$options[ $this->prefix . 'link' ] .= __( ' Your sitemap has been created with content and images.', 'all-in-one-seo-pack' );
