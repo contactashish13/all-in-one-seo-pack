@@ -2101,7 +2101,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					<guid>' . esc_url( $url['loc'] ) . '</guid>
 					<title>' . esc_html( $url['rss']['title'] ) . '</title>
 					<link>' . esc_url( $url['loc'] ) . '</link>
-					<description>' . esc_html( $url['rss']['description'] ) . '</description>
+					<description>' . esc_html( html_entity_decode( $url['rss']['description'] ) ) . '</description>
 					<pubDate>' . esc_html( $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
 			}
