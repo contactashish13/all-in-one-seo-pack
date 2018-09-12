@@ -876,7 +876,6 @@ function aiospinitSocialMetaInPosts($) {
 }
 
 
->>>>>>> 94a847ebb82930ba2bb38279d84c1757c3e6d141
 function aiospinitCounting(){
     /* count them characters */
 	jQuery( '.aioseop_count_chars' ).on('keyup keydown', function(){
@@ -885,8 +884,4 @@ function aiospinitCounting(){
 	jQuery( '.aioseop_count_chars' ).each(function(){
         countChars( jQuery(this).eq(0), jQuery(this).parent().find('[name="' + jQuery(this).attr('data-length-field') + '"]').eq(0));
     });
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 94a847ebb82930ba2bb38279d84c1757c3e6d141
