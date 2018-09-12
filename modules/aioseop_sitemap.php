@@ -220,7 +220,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				),
 				'addl_url'          => array(
 					'name'  => __( 'Page URL', 'all-in-one-seo-pack' ),
-					'type'  => 'text',
+					'type'  => 'url',
 					'label' => 'top',
 					'save'  => false,
 				),
@@ -400,7 +400,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return;
 			}
 
-			$this->do_sitemaps();
+			if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				$this->do_sitemaps();
+			} elseif ( ! has_action( 'shutdown', $callback = array( $this, 'do_sitemaps' ) ) ) {
+				/**
+				 * Defer do_sitemaps until after everything is done.
+				 * And run it only once regardless of posts updated.
+				 */
+				add_action( 'shutdown', $callback );
+			}
 		}
 
 		/**
@@ -502,7 +510,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						if ( is_object( $v ) ) {
 							$v = (Array) $v;
 						}
-						$buf .= "\t<tr><td><a href='#' title='$k' class='aiosp_delete aiosp_delete_url'></a> {$k}</td><td>{$v['prio']}</td><td>{$v['freq']}</td><td>{$v['mod']}</td></tr>\n";
+						$buf .= "\t<tr><td><a href='#' title='$k' class='dashicons dashicons-trash aiosp_delete_url'></a> {$k}</td><td>{$v['prio']}</td><td>{$v['freq']}</td><td>{$v['mod']}</td></tr>\n";
 					}
 					$buf .= "</table>\n";
 				}
@@ -679,6 +687,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $this->options["{$this->prefix}filename"] ) ) {
 				$filename = $this->options["{$this->prefix}filename"];
 				$filename = str_replace( '/', '', $filename );
+			} else if ( 'aiosp_video_sitemap_' === $this->prefix ) {
+				$filename	= 'video-sitemap';
 			}
 			return $filename;
 		}
@@ -775,6 +785,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( isset( $options[ $this->prefix . 'addl_pages' ][0] ) ) {
 				unset( $options[ $this->prefix . 'addl_pages' ][0] );
 			}
+
 			// TODO Refactor all these... use a nonce, dump the incoming _Post into an array and use that.
 			if ( ! empty( $_POST[ $this->prefix . 'addl_url' ] ) ) {
 				foreach ( array( 'addl_url', 'addl_prio', 'addl_freq', 'addl_mod' ) as $field ) {
@@ -787,11 +798,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( ! is_array( $options[ $this->prefix . 'addl_pages' ] ) ) {
 					$options[ $this->prefix . 'addl_pages' ] = array();
 				}
-				$options[ $this->prefix . 'addl_pages' ][ $_POST[ $this->prefix . 'addl_url' ] ] = array(
-					'prio' => $_POST[ $this->prefix . 'addl_prio' ],
-					'freq' => $_POST[ $this->prefix . 'addl_freq' ],
-					'mod'  => $_POST[ $this->prefix . 'addl_mod' ],
-				);
+
+				if ( aiosp_common::is_url_valid( $_POST[ $this->prefix . 'addl_url' ] ) ) {
+					$options[ $this->prefix . 'addl_pages' ][ $_POST[ $this->prefix . 'addl_url' ] ] = array(
+						'prio' => $_POST[ $this->prefix . 'addl_prio' ],
+						'freq' => $_POST[ $this->prefix . 'addl_freq' ],
+						'mod'  => $_POST[ $this->prefix . 'addl_mod' ],
+					);
+				}
 			}
 
 			return $options;
@@ -1136,7 +1150,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Set up hooks for rewrite rules for dynamic sitemap generation.
 		 */
 		function setup_rewrites() {
-			add_action( 'rewrite_rules_array', array( $this, 'rewrite_hook' ) );
+			add_filter( 'rewrite_rules_array', array( $this, 'rewrite_hook' ) );
 			add_filter( 'query_vars', array( $this, 'query_var_hook' ) );
 			add_action( 'parse_query', array( $this, 'sitemap_output_hook' ) );
 			if ( ! get_transient( "{$this->prefix}rules_flushed" ) ) {
@@ -1332,7 +1346,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				} elseif ( 'addl' === $sitemap_type ) {
 					$sitemap_data = $this->get_addl_pages();
 				} elseif ( 'archive' === $sitemap_type && $this->option_isset( 'archive' ) ) {
-					$sitemap_data = $this->get_archive_prio_data();
+					$sitemap_data = $this->get_date_archive_prio_data();
 				} elseif ( 'author' === $sitemap_type && $this->option_isset( 'author' ) ) {
 					$sitemap_data = $this->get_author_prio_data();
 				} elseif ( in_array( $sitemap_type, $posttypes ) ) {
@@ -1939,7 +1953,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			if ( $this->option_isset( 'archive' ) ) {
-				$prio = array_merge( $prio, $this->get_archive_prio_data() );
+				$prio = array_merge( $prio, $this->get_date_archive_prio_data() );
 			}
 			if ( $this->option_isset( 'author' ) ) {
 				$prio = array_merge( $prio, $this->get_author_prio_data() );
@@ -2347,10 +2361,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $this->options[ $this->prefix . 'addl_pages' ] ) ) {
 				$siteurl = parse_url( aioseop_home_url() );
 				foreach ( $this->options[ $this->prefix . 'addl_pages' ] as $k => $v ) {
+					$k	= aiosp_common::make_url_valid_smartly( $k );
 					$url = parse_url( $k );
-					if ( empty( $url['scheme'] ) ) {
-						$url['scheme'] = $siteurl['scheme'];
-					}
 					if ( empty( $url['host'] ) ) {
 						$url['host'] = $siteurl['host'];
 					}
@@ -2507,20 +2519,21 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Generate sitemap priority data for archives from an array of posts.
+		 * Generate sitemap priority data for date archives from an array of posts.
 		 *
 		 * @param $posts
 		 *
 		 * @return array
 		 */
-		function get_archive_prio_from_posts( $posts ) {
+		function get_date_archive_prio_from_posts( $posts ) {
 			$archives = array();
 			if ( is_array( $posts ) ) {
 				foreach ( $posts as $p ) {
 					if ( 'post' !== $p->post_type ) {
 						continue;
 					}
-					$date = date( 'Y-m', mysql2date( 'U', $p->post_date ) );
+					// add the post type to the date so as to support posts of different post types created on the same date.
+					$date = date( 'Y-m', mysql2date( 'U', $p->post_date ) ) . $p->post_type;
 					if ( empty( $archives[ $date ] ) ) {
 						$archives[ $date ] = $p;
 					} else {
@@ -2530,11 +2543,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
 			if ( ! empty( $archives ) ) {
 				return $this->get_prio_from_posts(
 					$archives, $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
 						$this,
-						'get_archive_link_from_post',
+						'get_date_archive_link_from_post',
 					)
 				);
 			}
@@ -2543,13 +2557,68 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Return an archive link from a post.
+		 * Generate sitemap priority data for archives from an array of posts.
+		 *
+		 * @param $posts
+		 *
+		 * @return array
+		 */
+		private function get_archive_prio_from_posts( $posts ) {
+			$posttypes = array();
+			if ( ! empty( $this->options["{$this->prefix}posttypes"] ) ) {
+				$posttypes = $this->options["{$this->prefix}posttypes"];
+			}
+
+			$types_supporting_archives	= get_post_types( array( 'has_archive' => true, '_builtin' => false, ), 'names' );
+			$types		= array();
+			foreach ( $posts as $p ) {
+				if ( array_key_exists( $p->post_type, $types ) ) {
+					continue;
+				}
+				$types[ $p->post_type ] = $p;
+			}
+
+			$archives	= array();
+			$types		= apply_filters( "{$this->prefix}include_post_types_archives", $types );
+			if ( $types ) {
+				foreach ( $types as $post_type => $p ) {
+					if ( ! ( in_array( $post_type, $posttypes ) && in_array( $post_type, $types_supporting_archives ) ) ) {
+						continue;
+					}
+					$archives	= array_merge(
+						$archives,
+						$this->get_prio_from_posts(
+							array( $p ), $this->get_default_priority( 'archive', true ), $this->get_default_frequency( 'archive', true ), array(
+								$this,
+								'get_archive_link_from_post',
+							)
+						)
+					);
+				}
+			}
+			return $archives;
+		}
+
+		/**
+		 * Return an archive link for a post.
 		 *
 		 * @param $post
 		 *
 		 * @return bool|string
 		 */
 		function get_archive_link_from_post( $post ) {
+			return get_post_type_archive_link( $post->post_type );
+		}
+
+		/**
+		 * Return a date archive link for a post.
+		 *
+		 * @param $post
+		 *
+		 * @return bool|string
+		 */
+		function get_date_archive_link_from_post( $post ) {
+			$extra = array();
 			if ( 'post' !== $post->post_type ) {
 				return false;
 			}
@@ -2805,9 +2874,29 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $images;
 			}
 
-			$attached_url = get_the_post_thumbnail_url( $post->ID );
-			if ( $attached_url ) {
-				$images[] = $attached_url;
+			/**
+			 * Static attachment cache, 1 query vs. n posts.
+			 */
+			static $post_thumbnails;
+
+			if ( is_null( $post_thumbnails ) || defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				global $wpdb;
+
+				$post_thumbnails = $wpdb->get_results( "SELECT post_ID, meta_value FROM $wpdb->postmeta WHERE meta_key = '_thumbnail_id'", ARRAY_A );
+
+				if ( $post_thumbnails ) {
+					$post_thumbnails = array_combine(
+						wp_list_pluck( $post_thumbnails, 'post_ID' ),
+						wp_list_pluck( $post_thumbnails, 'meta_value' )
+					);
+				}
+			}
+
+			if ( isset( $post_thumbnails[ $post->ID ] ) ) {
+				$attachment_url = wp_get_attachment_image_url( $post_thumbnails[ $post->ID ], 'post-thumbnail' );
+				if ( $attachment_url ) {
+					$images[] = $attachment_url;
+				}
 			}
 
 			$content = '';
@@ -3051,7 +3140,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param array  $images the array of images.
 		 */
 		function parse_content_for_images( $content, &$images ) {
-			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+			// These tags should be WITHOUT trailing space because some plugins such as the nextgen gallery put newlines immediately after <img.
+			$total   = substr_count( $content, '<img' ) + substr_count( $content, '<IMG' );
 			// no images found.
 			if ( 0 === $total ) {
 				return;
@@ -3127,16 +3217,19 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
-		 * Return sitemap data for archives.
+		 * Return sitemap data for date archives.
 		 *
 		 * @return array
 		 */
-		function get_archive_prio_data() {
-			$args  = array( 'numberposts' => 50000, 'post_type' => 'post' );
+		function get_date_archive_prio_data() {
+			$args  = array(
+				'numberposts' => 50000,
+				'post_type' => 'post',
+			);
 			$args  = $this->set_post_args( $args );
 			$posts = $this->get_all_post_type_data( $args );
 
-			return $this->get_archive_prio_from_posts( $posts );
+			return $this->get_date_archive_prio_from_posts( $posts );
 		}
 
 		/**
@@ -3180,7 +3273,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$args  = $this->set_post_args( $args );
 			$posts = array_merge( $this->get_all_post_type_data( $args ), $posts );
 
-			return $this->get_prio_from_posts( $posts, $this->get_default_priority( 'post', true ), $this->get_default_frequency( 'post', true ) );
+			$links	= $this->get_prio_from_posts( $posts, $this->get_default_priority( 'post', true ), $this->get_default_frequency( 'post', true ) );
+			$links	= array_merge( $links, $this->get_archive_prio_from_posts( $posts ) );
+			return $links;
 		}
 
 		/**

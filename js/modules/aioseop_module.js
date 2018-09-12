@@ -628,8 +628,8 @@ jQuery( document ).ready(
 				return false;
 			}
 		);
-
-        jQuery( "div#aiosp_robots_default_metabox" )
+    
+		jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_edit_rule", "click", function( e ) {
 				e.preventDefault();
@@ -660,7 +660,6 @@ jQuery( document ).ready(
 		});
 
         aiospinitAll();
-
 	}
 );
 
