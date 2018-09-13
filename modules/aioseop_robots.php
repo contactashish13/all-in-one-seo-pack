@@ -340,17 +340,21 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 
 		private function delete_rule( $id ) {
 			global $aioseop_options;
+
+			$deleted_rule	= null;
 			// first check the defined rules.
 			$blog_rules	= $this->get_all_rules();
 			$rules = array();
 			foreach ( $blog_rules as $rule ) {
 				if ( $id === $rule['id'] ) {
+					$deleted_rule	= $rule;
 					continue;
 				}
 				$rules[] = $rule;
 			}
 			$aioseop_options['modules']["{$this->prefix}options"]["{$this->prefix}rules"] = $rules;
 			update_option( 'aioseop_options', $aioseop_options );
+			return $deleted_rule;
 		}
 
 		private function add_error( $error ) {
@@ -372,9 +376,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 		 */
 		function filter_options( $options ) {	
 			$modify		= isset( $_POST[ "{$this->prefix}id" ] ) && ! empty( $_POST[ "{$this->prefix}id" ] );
+			$deleted_rule = null;
 			if ( $modify ) {
-				// let's first delete the original rule
-				$this->delete_rule( $_POST[ "{$this->prefix}id" ] );
+				// let's first delete the original rule and save it temporarily so that we can add it back in case of an error with the new rule.
+				$deleted_rule	= $this->delete_rule( $_POST[ "{$this->prefix}id" ] );
 			}
 			
 			$blog_rules = $this->get_all_rules();
@@ -396,6 +401,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 				$rule	= $this->validate_rule( $blog_rules, $new_rule );
 				if ( is_wp_error( $rule ) ) {
 					$this->add_error( $rule );
+					if ( $deleted_rule ) {
+						$blog_rules[] = $deleted_rule;
+					}
 				} else {
 					$blog_rules[] = $rule;
 				}
