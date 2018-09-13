@@ -680,7 +680,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$filename = $this->options["{$this->prefix}filename"];
 				$filename = str_replace( '/', '', $filename );
 			}
-			return $filename;
+			return apply_filters( "{$this->prefix}filename", $filename );
 		}
 
 		/**
