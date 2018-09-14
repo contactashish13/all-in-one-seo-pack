@@ -349,6 +349,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				case 'fetch_terms':
 					$terms = get_terms( $_POST['taxonomy'], array(
 						'fields' => 'id=>name',
+						'hide_empty' => false,
 					) );
 					$response = array(
 						'terms' => $terms,
@@ -390,6 +391,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$options['l10n'] = array(
 					'choose_terms' => __( 'Choose specific terms from the above selected taxonomies to exclude.', 'all-in-one-seo-pack' ),
 					'terms_not_found' => __( 'Term not found', 'all-in-one-seo-pack' ) . ':',
+					'loading' => __( 'Loading', 'all-in-one-seo-pack' ),
 				);
 				wp_enqueue_script( 'aioseop-sitemap', AIOSEOP_PLUGIN_URL . 'js/modules/sitemap.js', $deps, AIOSEOP_VERSION );
 				wp_localize_script( 'aioseop-sitemap', 'sitemap', $options );

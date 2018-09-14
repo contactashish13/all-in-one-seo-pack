@@ -9,12 +9,16 @@
         initChosen();
     }
 
-    function showSpinner(element){
-        // TODO.
+    function showLoading(element, type, name){
+        element.find('.chosen-container').hide();
+        element.find('.aioseop_option_div').append($('<div class="aioseop-chosen-loading aioseop-chosen-loading-' + type + '">' + sitemap.l10n.loading + ' ' + name + '...</div>'));
     }
 
-    function hideSpinner(element){
-        // TODO.
+    function hideLoading(element, type){
+        element.find('.aioseop_option_div .aioseop-chosen-loading-' + type).remove();
+        if(element.find('.aioseop_option_div .aioseop-chosen-loading').length === 0){
+            element.find('.chosen-container').show();
+        }
     }
 
     function initTaxonomyListener(){
@@ -23,7 +27,7 @@
         $('.aioseop-excl-taxonomy').on('click', function(e){
             var taxonomy = $(this);
             if(taxonomy.is(':checked')){
-                showSpinner(combo_wrapper);
+                showLoading(combo_wrapper, taxonomy.val(), taxonomy.parent().text().trim());
                 $.ajax({
                     url     : ajaxurl,
                     method  : 'post',
@@ -44,7 +48,7 @@
                             combo.append($group);
                             combo.trigger("chosen:updated");
                         }
-                        hideSpinner(combo_wrapper);
+                        hideLoading(combo_wrapper, taxonomy.val());
                     }
                 });
             }else{
