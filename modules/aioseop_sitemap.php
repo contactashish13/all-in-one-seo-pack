@@ -3342,9 +3342,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				foreach ( $map as $k => $v ) {
 					$ids = array_merge( $v, $ids );
 				}
-				return $ids;
+				return apply_filters( "{$this->prefix}exclude_term_ids", $ids );
 			}
-			return $map;
+			return apply_filters( "{$this->prefix}exclude_terms", $map );
 		}
 
 		/**
