@@ -680,6 +680,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$filename = $this->options["{$this->prefix}filename"];
 				$filename = str_replace( '/', '', $filename );
 			}
+			/**
+			 * Filters the filename: aiosp_sitemap_filename OR aiosp_video_sitemap_filename.
+			 *
+			 * @param string  $filename	 The file name.
+			 */
 			return apply_filters( "{$this->prefix}filename", $filename );
 		}
 
