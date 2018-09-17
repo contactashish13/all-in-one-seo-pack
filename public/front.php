@@ -49,8 +49,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Front' ) ) {
 
 			global $post;
 			if ( is_attachment() && ( ( is_object( $post ) && isset( $post->post_parent ) ) && ( is_numeric( $post->post_parent ) && $post->post_parent != 0 ) ) ) {
-				wp_safe_redirect( aioseop_get_permalink( $post->post_parent ), 301 );
-				exit;
+				// check if the post parent is a valid post and is not trashed.
+				$parent_post	= get_post( $post->post_parent );
+				if ( $parent_post && 'trash' !== $parent_post->post_status ) {
+					wp_safe_redirect( aioseop_get_permalink( $post->post_parent ), 301 );
+					exit;
+				} else {
+					// let's redirect to the image itself if the post has been deleted or does not exist.
+					wp_safe_redirect( wp_get_attachment_url( $post->ID ), 301 );
+					exit;
+				}
 			}
 		}
 	}
