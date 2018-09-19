@@ -157,4 +157,69 @@ class aiosp_common {
 
 		return $url;
 	}
+
+	/**
+	 * Parses the content of the post provided for images and galleries.
+	 *
+	 * @param WP_Post	$post	The post to parse.
+	 * @return array
+	 */
+	public static function parse_content_for_images( WP_Post $post ) {
+		$images		= array();
+		$content	= $post->post_content;
+		// Check images galleries in the content. DO NOT run the_content filter here as it might cause issues with other shortcodes.
+		if ( has_shortcode( $content, 'gallery' ) ) {
+			$galleries = get_post_galleries( $post, false );
+			if ( $galleries ) {
+				foreach ( $galleries as $gallery ) {
+					$images = array_merge( $images, $gallery['src'] );
+				}
+			}
+		}
+
+		self::parse_dom_for_images( $content, $images );
+
+		return $images;
+	}
+
+	/**
+	 * Parse the post for images.
+	 *
+	 * @param string $content the post content.
+	 * @param array  $images the array of images.
+	 *
+	 * @return void
+	 */
+	public static function parse_dom_for_images( $content, &$images ) {
+		$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+		// no images found.
+		if ( 0 === $total ) {
+			return;
+		}
+
+		if ( class_exists( 'DOMDocument' ) ) {
+			$dom = new domDocument();
+			// Non-compliant HTML might give errors, so ignore them.
+			libxml_use_internal_errors( true );
+			$dom->loadHTML( $content );
+			libxml_clear_errors();
+			$dom->preserveWhiteSpace = false;
+			$matches = $dom->getElementsByTagName( 'img' );
+			foreach ( $matches as $match ) {
+				$images[] = $match->getAttribute( 'src' );
+			}
+		} else {
+			// Fall back to regex, but also report an error.
+			global $img_err_msg;
+			if ( ! isset( $img_err_msg ) ) {
+				// we will log this error message only once, not per post.
+				$img_err_msg = true;
+				aiosp_log( 'DOMDocument not found; using REGEX' );
+			}
+			preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
+			if ( $matches && isset( $matches[2] ) ) {
+				$images = array_merge( $images, $matches[2] );
+			}
+		}
+	}
 }

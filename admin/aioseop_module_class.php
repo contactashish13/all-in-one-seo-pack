@@ -1672,15 +1672,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				$post = $p;
 			}
 
-			/* Search the post's content for the <img /> tag and get its URL. */
-			preg_match_all( '|<img.*?src=[\'"](.*?)[\'"].*?>|i', get_post_field( 'post_content', $post->ID ), $matches );
-
-			/* If there is a match for the image, return its URL. */
-			if ( isset( $matches ) && ! empty( $matches[1][0] ) ) {
-				$url = $matches[1][0];
-				$url = aiosp_common::get_image_src_for_url( $url );
+			$images		= aiosp_common::parse_content_for_images( $post );
+			if ( $images ) {
+				$url = $images[0];
 			}
 
+error_log("get_the_image_by_scan $url for {$post->ID}");
 			return $url;
 		}
 
