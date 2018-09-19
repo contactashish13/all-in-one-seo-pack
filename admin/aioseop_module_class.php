@@ -326,37 +326,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
-		 * convert xml string to php array - useful to get a serializable value
+		 * Convert html string to php array - useful to get a serializable value.
 		 *
 		 * @param string $xmlstr
 		 *
 		 * @return array
-		 *
-		 * @author Adrien aka Gaarf & contributors
-		 * @see    http://gaarf.info/2009/08/13/xml-string-to-php-array/
 		 */
-		function html_string_to_array( $xmlstr ) {
+		function html_string_to_array( $htmlstr ) {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				return array();
 			} else {
 				$doc = new DOMDocument();
-				$doc->loadHTML( $xmlstr );
-
-				return $this->domnode_to_array( $doc->documentElement );
-			}
-		}
-
-		/**
-		 * @param $xmlstr
-		 *
-		 * @return array|string
-		 */
-		function xml_string_to_array( $xmlstr ) {
-			if ( ! class_exists( 'DOMDocument' ) ) {
-				return array();
-			} else {
-				$doc = new DOMDocument();
-				$doc->loadXML( $xmlstr );
+				$doc->loadXML( $htmlstr );
 
 				return $this->domnode_to_array( $doc->documentElement );
 			}
@@ -443,9 +424,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 						if ( ! empty( $post ) ) {
 							$result = get_post_meta( $post->ID, $matches[1], true );
 						}
-					}
-					if ( empty( $result ) ) {
-						$result = $matches[0];
 					}
 				} else {
 					$result = $matches[0];
@@ -1674,10 +1652,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 
 			$images		= aiosp_common::parse_content_for_images( $post );
 			if ( $images ) {
-				$url = $images[0];
+				$url = aiosp_common::get_image_src_for_url( $images[0] );
 			}
 
-error_log("get_the_image_by_scan $url for {$post->ID}");
 			return $url;
 		}
 
@@ -2146,9 +2123,11 @@ error_log("get_the_image_by_scan $url for {$post->ID}");
 		 * @return string
 		 */
 		function do_multi_input( $args ) {
-			// @codingStandardsIgnoreStart
-			extract( $args );
-			// @codingStandardsIgnoreEnd
+			$options = $args['options'];
+			$value = $args['value'];
+			$name = $args['name'];
+			$attr = $args['attr'];
+
 			$buf1 = '';
 			$type = $options['type'];
 
@@ -2225,9 +2204,12 @@ error_log("get_the_image_by_scan $url for {$post->ID}");
 		 */
 		function get_option_html( $args ) {
 			static $n = 0;
-			// @codingStandardsIgnoreStart
-			extract( $args );
-			// @codingStandardsIgnoreEnd
+
+			$options = $args['options'];
+			$value = $args['value'];
+			$name = $args['name'];
+			$attr = $args['attr'];
+			$prefix = isset( $args['prefix'] ) ? $args['prefix'] : '';
 
 			if ( $options['type'] == 'custom' ) {
 				return apply_filters( "{$prefix}output_option", '', $args );
@@ -2253,8 +2235,9 @@ error_log("get_the_image_by_scan $url for {$post->ID}");
 			$onload = '';
 			if ( ! empty( $options['count'] ) ) {
 				$n ++;
-				$attr .= " onKeyDown='if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n)' onKeyUp='if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n)'";
-				$onload = "if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n);";
+				$classes = isset( $options['class'] ) ? $options['class'] : '';
+				$classes .= ' aioseop_count_chars';
+				$attr .= " class='{$classes}' data-length-field='{$prefix}length$n'";
 			}
 			if ( isset( $opts['id'] ) ) {
 				$attr .= " id=\"{$opts['id']}\" ";
@@ -2314,15 +2297,12 @@ error_log("get_the_image_by_scan $url for {$post->ID}");
 				} elseif ( isset( $options['rows'] ) && isset( $options['cols'] ) ) {
 					$size = $options['rows'] * $options['cols'];
 				}
-				if ( 'Description' === $options['name'] && isset( $options['name'] ) ) {
-					$size = ( $size - 90 ) . '-' . $size;
-				}
 				if ( isset( $options['count_desc'] ) ) {
 					$count_desc = $options['count_desc'];
 				} else {
 					$count_desc = __( ' characters. Most search engines use a maximum of %1$s chars for the %2$s.', 'all-in-one-seo-pack' );
 				}
-				$buf .= "<br /><input readonly type='text' name='{$prefix}length$n' size='3' maxlength='3' style='width:53px;height:23px;margin:0px;padding:0px 0px 0px 10px;' value='" . $this->strlen( $value ) . "' />"
+				$buf .= "<br /><input readonly tabindex='-1' type='text' name='{$prefix}length$n' size='3' maxlength='3' style='width:53px;height:23px;margin:0px;padding:0px 0px 0px 10px;' value='" . $this->strlen( $value ) . "' />"
 						. sprintf( $count_desc, $size, trim( $this->strtolower( $options['name'] ), ':' ) );
 				if ( ! empty( $onload ) ) {
 					$buf .= "<script>jQuery( document ).ready(function() { {$onload} });</script>";
@@ -2523,6 +2503,8 @@ error_log("get_the_image_by_scan $url for {$post->ID}");
 						case 'filename':
 							$this->options[ $k ] = sanitize_file_name( $this->options[ $k ] );
 							break;
+						case 'url':
+							// fall through.
 						case 'text':
 							$this->options[ $k ] = wp_kses_post( $this->options[ $k ] );
 							// fall through.

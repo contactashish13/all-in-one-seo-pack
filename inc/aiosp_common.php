@@ -116,8 +116,45 @@ class aiosp_common {
 	 * @return string
 	 */
 	static function absolutize_url( $url ) {
-		if ( strpos( $url, 'http' ) !== 0 && strpos( $url, '//' ) !== 0 && $url != '/' ) {
-			$url = home_url( $url );
+		if ( 0 !== strpos( $url, 'http' ) && '/' !== $url ) {
+			if ( 0 === strpos( $url, '//' ) ) {
+				// for //<host>/resource type urls.
+				$scheme = parse_url( home_url(), PHP_URL_SCHEME );
+				$url    = $scheme . ':' . $url;
+			} else {
+				// for /resource type urls.
+				$url = home_url( $url );
+			}
+		}
+		return $url;
+	}
+
+	/**
+	 * Check whether a url is relative (does not contain a . before the first /) or absolute and makes it a valid url.
+	 *
+	 * @param string $url URL to check.
+	 *
+	 * @return string
+	 */
+	static function make_url_valid_smartly( $url ) {
+		$scheme = parse_url( home_url(), PHP_URL_SCHEME );
+		if ( 0 !== strpos( $url, 'http' ) ) {
+			if ( 0 === strpos( $url, '//' ) ) {
+				// for //<host>/resource type urls.
+				$url    = $scheme . ':' . $url;
+			} elseif ( strpos( $url, '.' ) !== false && strpos( $url, '/' ) !== false && strpos( $url, '.' ) < strpos( $url, '/' ) ) {
+				// if the . comes before the first / then this is absolute.
+				$url    = $scheme . '://' . $url;
+			} else {
+				// for /resource type urls.
+				$url = home_url( $url );
+			}
+		} else if ( strpos( $url, 'http://' ) === false ) {
+			if ( 0 === strpos( $url, 'http:/' ) ) {
+				$url	= $scheme . '://' .  str_replace( 'http:/', '', $url );
+			} else if ( 0 === strpos( $url, 'http:' ) ) {
+				$url	= $scheme . '://' . str_replace( 'http:', '', $url );
+			}
 		}
 		return $url;
 	}
@@ -159,6 +196,129 @@ class aiosp_common {
 	}
 
 	/**
+	 * Fetch images from WP, Jetpack and WooCommerce galleries.
+	 *
+	 * @param string $post The post.
+	 * @param array  $images the array of images.
+	 *
+	 * @return void
+	 * @since 2.4.2
+	 */
+	public static function get_gallery_images( $post, &$images ) {
+		if ( false === apply_filters( 'aioseo_include_images_in_wp_gallery', true ) ) {
+			return;
+		}
+
+		// Check images galleries in the content. DO NOT run the_content filter here as it might cause issues with other shortcodes.
+		if ( has_shortcode( $post->post_content, 'gallery' ) ) {
+			// Get the jetpack gallery images.
+			if ( class_exists( 'Jetpack_PostImages' ) ) {
+				$jetpack    = Jetpack_PostImages::get_images( $post->ID );
+				if ( $jetpack ) {
+					foreach ( $jetpack as $jetpack_image ) {
+						$images[]   = $jetpack_image['src'];
+					}
+				}
+			}
+
+			// Get the default WP gallery images.
+			$galleries = get_post_galleries( $post, false );
+			if ( $galleries ) {
+				foreach ( $galleries as $gallery ) {
+					$images = array_merge( $images, $gallery['src'] );
+				}
+			}
+		}
+
+		// Check WooCommerce product gallery.
+		if ( class_exists( 'WooCommerce' ) ) {
+			$woo_images = get_post_meta( $post->ID, '_product_image_gallery', true );
+			if ( ! empty( $woo_images ) ) {
+				$woo_images = array_filter( explode( ',', $woo_images ) );
+				if ( is_array( $woo_images ) ) {
+					foreach ( $woo_images as $id ) {
+						$images[] = wp_get_attachment_url( $id );
+					}
+				}
+			}
+		}
+
+		$images = array_unique( $images );
+	}
+
+	/**
+	 * Parses the content to find out if specified images galleries exist and if they do, parse them for images.
+	 * Supports NextGen.
+	 *
+	 * @param string $content The post content.
+	 *
+	 * @since 2.4.2
+	 *
+	 * @return string
+	 */
+	public static function get_content_from_galleries( $content ) {
+		// Support for NextGen Gallery.
+		static $gallery_types   = array( 'ngg_images' );
+		$types                  = apply_filters( 'aioseop_gallery_shortcodes', $gallery_types );
+
+		$gallery_content    = '';
+
+		if ( ! $types ) {
+			return $gallery_content;
+		}
+
+		$found  = array();
+		if ( $types ) {
+			foreach ( $types as $type ) {
+				if ( has_shortcode( $content, $type ) ) {
+					$found[] = $type;
+				}
+			}
+		}
+
+		// If none of the shortcodes-of-interest are found, bail.
+		if ( empty( $found ) ) {
+			return $gallery_content;
+		}
+
+		$galleries = array();
+
+		if ( ! preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER ) ) {
+			return $gallery_content;
+		}
+
+		// Collect the shortcodes and their attributes.
+		foreach ( $found as $type ) {
+			foreach ( $matches as $shortcode ) {
+				if ( $type === $shortcode[2] ) {
+
+					$attributes = shortcode_parse_atts( $shortcode[3] );
+
+					if ( '' === $attributes ) { // Valid shortcode without any attributes.
+						$attributes = array();
+					}
+
+					$galleries[ $shortcode[2] ] = $attributes;
+				}
+			}
+		}
+
+		// Recreate the shortcodes and then render them to get the HTML content.
+		if ( $galleries ) {
+			foreach ( $galleries as $shortcode => $attributes ) {
+				$code   = '[' . $shortcode;
+				foreach ( $attributes as $key => $value ) {
+					$code   .= " $key=$value";
+				}
+				$code .= ']';
+				$gallery_content .= do_shortcode( $code );
+			}
+		}
+
+		return $gallery_content;
+	}
+
+	/**
 	 * Parses the content of the post provided for images and galleries.
 	 *
 	 * @param WP_Post	$post	The post to parse.
@@ -167,15 +327,10 @@ class aiosp_common {
 	public static function parse_content_for_images( WP_Post $post ) {
 		$images		= array();
 		$content	= $post->post_content;
-		// Check images galleries in the content. DO NOT run the_content filter here as it might cause issues with other shortcodes.
-		if ( has_shortcode( $content, 'gallery' ) ) {
-			$galleries = get_post_galleries( $post, false );
-			if ( $galleries ) {
-				foreach ( $galleries as $gallery ) {
-					$images = array_merge( $images, $gallery['src'] );
-				}
-			}
-		}
+		
+		self::get_gallery_images( $post, $images );
+
+		$content .= self::get_content_from_galleries( $content );
 
 		self::parse_dom_for_images( $content, $images );
 
@@ -191,7 +346,8 @@ class aiosp_common {
 	 * @return void
 	 */
 	public static function parse_dom_for_images( $content, &$images ) {
-		$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
+		// These tags should be WITHOUT trailing space because some plugins such as the nextgen gallery put newlines immediately after <img.
+		$total   = substr_count( $content, '<img' ) + substr_count( $content, '<IMG' );
 		// no images found.
 		if ( 0 === $total ) {
 			return;
@@ -214,7 +370,7 @@ class aiosp_common {
 			if ( ! isset( $img_err_msg ) ) {
 				// we will log this error message only once, not per post.
 				$img_err_msg = true;
-				aiosp_log( 'DOMDocument not found; using REGEX' );
+				$this->debug_message( 'DOMDocument not found; using REGEX' );
 			}
 			preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
 			if ( $matches && isset( $matches[2] ) ) {
@@ -222,4 +378,16 @@ class aiosp_common {
 			}
 		}
 	}
+
+	/**
+	 * Check whether a url is valid.
+	 *
+	 * @param string $url URL to check.
+	 *
+	 * @return bool
+	 */
+	public static function is_url_valid( $url ) {
+		return filter_var( filter_var( $url, FILTER_SANITIZE_URL ), FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED ) !== false;
+	}
+
 }
