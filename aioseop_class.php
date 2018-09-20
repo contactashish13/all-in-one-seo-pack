@@ -995,7 +995,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 						'condshow' => array( 'aiosp_disable' => 'on' ),
 					),
 				),
-				'display'         => null,
+				// #1067: if SEO is disabled and an empty array is passed below, it will be overriden. So let's pass a post type that cannot possibly exist.
+				'display'         => 'on' === $aioseop_options['aiosp_enablecpost'] ? $aioseop_options['aiosp_cpostactive'] : array( '___null___' ),
 			),
 		);
 
@@ -1176,12 +1177,22 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$args['options']['nowrap'] = false;
 			$args['options']['save']   = false;
 			$info                      = $this->get_page_snippet_info();
-			// @codingStandardsIgnoreStart
-			extract( $info );
-			// @codingStandardsIgnoreEnd
 		} else {
 			return '';
 		}
+
+		$args['options']['type']   = 'html';
+		$args['options']['nowrap'] = false;
+		$args['options']['save']   = false;
+		$info                      = $this->get_page_snippet_info();
+		$title = $info['title'];
+		$description = $info['description'];
+		$keywords = $info['keywords'];
+		$url = $info['url'];
+		$title_format = $info['title_format'];
+		$category = $info['category'];
+		$w = $info['w'];
+		$p = $info['p'];
 
 		if ( $this->strlen( $title ) > 70 ) {
 			$title = $this->trim_excerpt_without_filters(
@@ -1211,10 +1222,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				$title_format = str_replace( '%page_title%', $replace_title, $title_format );
 			}
 			if ( strpos( $title_format, '%current_date%' ) !== false ) {
-				$title_format = str_replace( '%current_date%', date_i18n( get_option( 'date_format' ) ), $title_format );
+				$title_format = str_replace( '%current_date%', aioseop_formatted_date(), $title_format );
 			}
-			if ( strpos( $title_format, '%post_date%' ) !== false ) {
-				$title_format = str_replace( '%post_date%', get_the_date(), $title_format );
+
+			if ( strpos( $title_format, "%post_date%" ) !== false ){
+				$title_format = str_replace( '%post_date%', aioseop_formatted_date( get_the_time( 'U' ) ), $title_format );
 			}
 			if ( strpos( $title_format, '%post_year%' ) !== false ) {
 				$title_format = str_replace( '%post_year%', get_the_date( 'Y' ), $title_format );
@@ -2082,11 +2094,12 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		if ( strpos( $new_title, "%{$type}_author_lastname%" ) !== false ) {
 			$new_title = str_replace( "%{$type}_author_lastname%", $this->ucwords( $authordata->last_name ), $new_title );
 		}
-		if ( strpos( $new_title, '%current_date%' ) !== false ) {
-			$new_title = str_replace( '%current_date%', date_i18n( get_option( 'date_format' ) ), $new_title );
+
+		if ( strpos( $new_title, "%current_date%" ) !== false ){
+			$new_title = str_replace( '%current_date%', aioseop_formatted_date(), $new_title );
 		}
-		if ( strpos( $new_title, '%post_date%' ) !== false ) {
-			$new_title = str_replace( '%post_date%', get_the_date(), $new_title );
+		if ( strpos( $new_title, "%post_date%" ) !== false ){
+			$new_title = str_replace( '%post_date%', aioseop_formatted_date( get_the_date( 'U' ) ), $new_title );
 		}
 		if ( strpos( $new_title, '%post_year%' ) !== false ) {
 			$new_title = str_replace( '%post_year%', get_the_date( 'Y' ), $new_title );
@@ -2480,7 +2493,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$aioseop_desc = get_post_meta( $post->ID, '_aioseop_description', true );
 		}
 
-		if ( empty( $aioseop_desc ) && 'on' === $aioseop_options['aiosp_generate_descriptions'] && empty( $aioseop_options['aiosp_dont_truncate_descriptions'] ) ) {
+		if ( empty( $aioseop_desc ) && isset( $aioseop_options['aiosp_generate_descriptions'] ) && 'on' === $aioseop_options['aiosp_generate_descriptions'] && empty( $aioseop_options['aiosp_dont_truncate_descriptions'] ) ) {
 			$truncate = true;
 		}
 
@@ -2659,7 +2672,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			return false;
 		}
 		$link    = '';
-		$haspost = count( $query->posts ) > 0;
+		$haspost = false;
+		if ( ! empty( $query->posts ) ) {
+			$haspost = count( $query->posts ) > 0;
+		}
+
 		if ( get_query_var( 'm' ) ) {
 			$m = preg_replace( '/[^0-9]/', '', get_query_var( 'm' ) );
 			switch ( $this->strlen( $m ) ) {
@@ -3369,12 +3386,15 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 				global $post;
 				$info = $this->get_page_snippet_info();
-				// @codingStandardsIgnoreStart
-				extract( $info );
-				// @codingStandardsIgnoreEnd
-				$settings[ "{$prefix}title" ]['placeholder']       = $this->html_entity_decode( $title );
-				$settings[ "{$prefix}description" ]['placeholder'] = $this->html_entity_decode( $description );
-				$settings[ "{$prefix}keywords" ]['placeholder']    = $keywords;
+
+
+				$title = $info['title'];
+				$description = $info['description'];
+				$keywords = $info['keywords'];
+
+				$settings["{$prefix}title"]['placeholder']       = $this->html_entity_decode( $title );
+				$settings["{$prefix}description"]['placeholder'] = $this->html_entity_decode( $description );
+				$settings["{$prefix}keywords"]['placeholder']    = $keywords;
 			}
 
 			if ( ! AIOSEOPPRO ) {
@@ -3619,12 +3639,11 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	function add_hooks() {
 		global $aioseop_options, $aioseop_update_checker;
 
-		// MOVED TO MAIN PLUGIN FILE IN ORDER TO FIRE SOONS
-		// $role = get_role( 'administrator' );
-		// if ( is_object( $role ) ) {
-		// $role->add_cap( 'aiosp_manage_seo' );
-		// }
-		aioseop_update_settings_check();
+		if ( is_admin() ) {
+			// this checks if the settiongs options exist and if they dont, it sets the defaults.
+			// let's do this only in backend.
+			aioseop_update_settings_check();
+		}
 		add_filter( 'user_contactmethods', 'aioseop_add_contactmethods' );
 		if ( is_user_logged_in() && is_admin_bar_showing() && current_user_can( 'aiosp_manage_seo' ) ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 1000 );
@@ -3793,8 +3812,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		global $aioseop_update_checker, $wp_query, $aioseop_options, $posts;
 		static $aioseop_dup_counter = 0;
 		$aioseop_dup_counter ++;
-		if ( $aioseop_dup_counter > 1 ) {
-			echo "\n<!-- " . sprintf( __( 'Debug Warning: All in One SEO Pack meta data was included again from %1$s filter. Called %2$s times!', 'all-in-one-seo-pack' ), current_filter(), $aioseop_dup_counter ) . " -->\n";
+
+		if ( ! defined('AIOSEOP_UNIT_TESTING') && $aioseop_dup_counter > 1 ) {
+			echo "\n<!-- " . sprintf( __( 'Debug Warning: All in One SEO Pack meta data was included again from %s filter. Called %s times!', 'all-in-one-seo-pack' ), current_filter(), $aioseop_dup_counter ) . " -->\n";
 			if ( ! empty( $old_wp_query ) ) {
 				// Change the query back after we've finished.
 				$GLOBALS['wp_query'] = $old_wp_query;
@@ -3960,7 +3980,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$show_page = false;
 		}
 
-		if ( $aioseop_options['aiosp_can'] ) {
+		if ( isset( $aioseop_options['aiosp_can'] ) && $aioseop_options['aiosp_can'] ) {
 			$url = '';
 			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
 				$url = $opts['aiosp_custom_link'];
@@ -4114,6 +4134,12 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$aiosp_noindex = $aiosp_nofollow = '';
 		$noindex       = 'index';
 		$nofollow      = 'follow';
+
+		if ( ! empty( $opts ) ) {
+			$aiosp_noindex  = htmlspecialchars( stripslashes( $opts['aiosp_noindex'] ) );
+			$aiosp_nofollow = htmlspecialchars( stripslashes( $opts['aiosp_nofollow'] ) );
+		}
+
 		if ( ( is_category() && ! empty( $aioseop_options['aiosp_category_noindex'] ) ) || ( ! is_category() && is_archive() && ! is_tag() && ! is_tax()
 																							 && ( ( is_date() && ! empty( $aioseop_options['aiosp_archive_date_noindex'] ) ) || ( is_author() && ! empty( $aioseop_options['aiosp_archive_author_noindex'] ) ) ) )
 			 || ( is_tag() && ! empty( $aioseop_options['aiosp_tags_noindex'] ) )
@@ -4122,17 +4148,23 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			 || ( is_tax() && in_array( get_query_var( 'taxonomy' ), $tax_noindex ) )
 		) {
 			$noindex = 'noindex';
+
+			// #322: duplicating this code so that we don't step on some other entities' toes.
+			if ( ( 'on' === $aiosp_nofollow ) || ( ( ! empty( $aioseop_options['aiosp_paginated_nofollow'] ) ) && $page > 1 ) ||
+				 ( ( '' === $aiosp_nofollow ) && ( ! empty( $aioseop_options['aiosp_cpostnofollow'] ) ) && in_array( $post_type, $aioseop_options['aiosp_cpostnofollow'] ) )
+			) {
+				$nofollow = 'nofollow';
+			}
+			// #322: duplicating this code so that we don't step on some other entities' toes.
 		} elseif ( is_single() || is_page() || $this->is_static_posts_page() || is_attachment() || is_category() || is_tag() || is_tax() || ( $page > 1 ) ) {
 			$post_type = get_post_type();
-			if ( ! empty( $opts ) ) {
-				$aiosp_noindex  = htmlspecialchars( stripslashes( $opts['aiosp_noindex'] ) );
-				$aiosp_nofollow = htmlspecialchars( stripslashes( $opts['aiosp_nofollow'] ) );
-			}
 			if ( $aiosp_noindex || $aiosp_nofollow || ! empty( $aioseop_options['aiosp_cpostnoindex'] )
 				 || ! empty( $aioseop_options['aiosp_cpostnofollow'] ) || ! empty( $aioseop_options['aiosp_paginated_noindex'] ) || ! empty( $aioseop_options['aiosp_paginated_nofollow'] )
 			) {
-				if ( ( $aiosp_noindex == 'on' ) || ( ( ! empty( $aioseop_options['aiosp_paginated_noindex'] ) ) && $page > 1 ) ||
-					 ( ( $aiosp_noindex == '' ) && ( ! empty( $aioseop_options['aiosp_cpostnoindex'] ) ) && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) )
+
+				if ( ( 'on' === $aiosp_noindex ) || ( ( ! empty( $aioseop_options['aiosp_paginated_noindex'] ) ) && $page > 1 ) ||
+				     ( ( '' === $aiosp_noindex ) && ( ! empty( $aioseop_options['aiosp_cpostnoindex'] ) ) && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) )
+
 				) {
 					$noindex = 'noindex';
 				}
@@ -4805,7 +4837,9 @@ EOF;
 					$this->locations['aiosp']['display'] = array();
 				}
 			}
-		} else {
+		} elseif ( empty( $this->locations['aiosp']['display'] ) ) {
+			// #1067: if SEO was disabled, it was always displaying for post and page. Because we are now sending an invalid post type '___null___' when SEO is disabled,
+			// this else will be unreachable. Still keeping it in case there is an undiscovered path that needs this condition.
 			$this->locations['aiosp']['display'] = array( 'post', 'page' );
 		}
 
