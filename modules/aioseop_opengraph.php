@@ -942,8 +942,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 
 			$attributes = apply_filters(
 				$this->prefix . 'attributes', array(
-					'itemscope',
-					'itemtype="http://schema.org/' . ucfirst( $type ) . '"',
 					'prefix="og: http://ogp.me/ns#"',
 				)
 			);
@@ -974,7 +972,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		function add_meta() {
 			global $post, $aiosp, $aioseop_options, $wp_query;
 			$metabox           = $this->get_current_options( array(), 'settings' );
-
+	
 			// we have to introduce this because, for some reason, $this->options is not being populated at all while testing.
 			if ( defined( 'AIOSEOP_UNIT_TESTING' ) && AIOSEOP_UNIT_TESTING ) {
 				$this->options	= $aioseop_options['modules']['aiosp_opengraph_options'];
