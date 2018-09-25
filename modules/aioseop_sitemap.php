@@ -2734,6 +2734,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( $thumbnail_id ) {
 				$image = wp_get_attachment_url( $thumbnail_id );
 				if ( $image ) {
+					$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
 					$images['image:image'] = array(
 						'image:loc' => $image,
 					);
@@ -2802,10 +2803,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$content = '';
 			$content = $post->post_content;
 
-			$this->get_gallery_images( $post, $images );
-
-			$content .= $this->get_content_from_galleries( $content );
-			$this->parse_content_for_images( $content, $images );
+			$images = array_merge( $images, aiosp_common::parse_content_for_images( $post ) );
 
 			if ( $images ) {
 				$tmp = $images;
@@ -2817,6 +2815,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
+					$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
 					$images[] = array(
 						'image:loc' => $this->clean_url( $image ),
 					);
@@ -2824,139 +2823,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return $images;
-		}
-
-		/**
-		 * Fetch images from WP and Jetpack galleries.
-		 *
-		 * @param string $post The post.
-		 * @param array  $images the array of images.
-		 *
-		 * @since 2.4.2
-		 */
-		private function get_gallery_images( $post, &$images ) {
-			if ( false === apply_filters( 'aioseo_include_images_in_wp_gallery', true ) ) {
-				return;
-			}
-
-			// Check images galleries in the content. DO NOT run the_content filter here as it might cause issues with other shortcodes.
-			if ( has_shortcode( $post->post_content, 'gallery' ) ) {
-				// Get the jetpack gallery images.
-				if ( class_exists( 'Jetpack_PostImages' ) ) {
-					// the method specifies default width and height so we need to provide these values to override the defaults.
-					// since there is no way to determine the original image's dimensions, we will fetch the 'large' size image here.
-					$jetpack    = Jetpack_PostImages::get_images( $post->ID, $this->get_dimensions_for_image_size( 'large' ) );
-					if ( $jetpack ) {
-						foreach ( $jetpack as $jetpack_image ) {
-							$images[]   = $jetpack_image['src'];
-						}
-					}
-				}
-
-				// Get the default WP gallery images.
-				$galleries = get_post_galleries( $post, false );
-				if ( $galleries ) {
-					foreach ( $galleries as $gallery ) {
-						$images = array_merge( $images, $gallery['src'] );
-					}
-				}
-			}
-			$images = array_unique( $images );
-		}
-
-		/**
-		 * Fetch the width and height for the specified image size.
-		 *
-		 * @param string $size The image size e.g. 'large', 'medium' etc.
-		 *
-		 * @since 2.4.3
-		 */
-		private function get_dimensions_for_image_size( $size ) {
-			$sizes  = get_intermediate_image_sizes();
-			if ( ! in_array( $size, $sizes, true ) ) {
-				// our specified size does not exist in the registered sizes, so let's use the largest one available.
-				$size   = end( $sizes );
-			}
-
-			if ( $size ) {
-				return array(
-					'width'     => get_option( "{$size}_size_w" ),
-					'height'    => get_option( "{$size}_size_h" ),
-				);
-			}
-			return null;
-		}
-
-		/**
-		 * Parses the content to find out if specified images galleries exist and if they do, parse them for images.
-		 * Supports NextGen.
-		 *
-		 * @param string $content The post content.
-		 *
-		 * @since 2.4.2
-		 *
-		 * @return string
-		 */
-		private function get_content_from_galleries( $content ) {
-			// Support for NextGen Gallery.
-			static $gallery_types   = array( 'ngg_images' );
-			$types                  = apply_filters( 'aioseop_gallery_shortcodes', $gallery_types );
-
-			$gallery_content    = '';
-
-			if ( ! $types ) {
-				return $gallery_content;
-			}
-
-			$found  = array();
-			if ( $types ) {
-				foreach ( $types as $type ) {
-					if ( has_shortcode( $content, $type ) ) {
-						$found[] = $type;
-					}
-				}
-			}
-
-			// If none of the shortcodes-of-interest are found, bail.
-			if ( empty( $found ) ) {
-				return $gallery_content;
-			}
-
-			$galleries = array();
-
-			if ( ! preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER ) ) {
-				return $gallery_content;
-			}
-
-			// Collect the shortcodes and their attributes.
-			foreach ( $found as $type ) {
-				foreach ( $matches as $shortcode ) {
-					if ( $type === $shortcode[2] ) {
-
-						$attributes = shortcode_parse_atts( $shortcode[3] );
-
-						if ( '' === $attributes ) { // Valid shortcode without any attributes.
-							$attributes = array();
-						}
-
-						$galleries[ $shortcode[2] ] = $attributes;
-					}
-				}
-			}
-
-			// Recreate the shortcodes and then render them to get the HTML content.
-			if ( $galleries ) {
-				foreach ( $galleries as $shortcode => $attributes ) {
-					$code   = '[' . $shortcode;
-					foreach ( $attributes as $key => $value ) {
-						$code   .= " $key=$value";
-					}
-					$code .= ']';
-					$gallery_content .= do_shortcode( $code );
-				}
-			}
-
-			return $gallery_content;
 		}
 
 		/**
@@ -3023,45 +2889,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return true;
-		}
-
-		/**
-		 * Parse the post for images.
-		 *
-		 * @param string $content the post content.
-		 * @param array  $images the array of images.
-		 */
-		function parse_content_for_images( $content, &$images ) {
-			$total   = substr_count( $content, '<img ' ) + substr_count( $content, '<IMG ' );
-			// no images found.
-			if ( 0 === $total ) {
-				return;
-			}
-
-			if ( class_exists( 'DOMDocument' ) ) {
-				$dom = new domDocument();
-				// Non-compliant HTML might give errors, so ignore them.
-				libxml_use_internal_errors( true );
-				$dom->loadHTML( $content );
-				libxml_clear_errors();
-				$dom->preserveWhiteSpace = false;
-				$matches = $dom->getElementsByTagName( 'img' );
-				foreach ( $matches as $match ) {
-					$images[] = $match->getAttribute( 'src' );
-				}
-			} else {
-				// Fall back to regex, but also report an error.
-				global $img_err_msg;
-				if ( ! isset( $img_err_msg ) ) {
-					// we will log this error message only once, not per post.
-					$img_err_msg = true;
-					$this->debug_message( 'DOMDocument not found; using REGEX' );
-				}
-				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
-				if ( $matches && isset( $matches[2] ) ) {
-					$images = array_merge( $images, $matches[2] );
-				}
-			}
 		}
 
 		/**
