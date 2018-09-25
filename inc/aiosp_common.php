@@ -248,6 +248,19 @@ class aiosp_common {
 			}
 		}
 
+		// Check WooCommerce product gallery.
+		if ( class_exists( 'WooCommerce' ) ) {
+			$woo_images = get_post_meta( $post->ID, '_product_image_gallery', true );
+			if ( ! empty( $woo_images ) ) {
+				$woo_images = array_filter( explode( ',', $woo_images ) );
+				if ( is_array( $woo_images ) ) {
+					foreach ( $woo_images as $id ) {
+						$images[] = wp_get_attachment_url( $id );
+					}
+				}
+			}
+		}
+
 		$images = array_unique( $images );
 	}
 
