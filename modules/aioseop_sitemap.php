@@ -28,18 +28,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		var $excludes = array();
 
 		/**
-		 * The allowed image extensions.
-		 *
-		 * @var      array $image_extensions The allowed image extensions.
-		 */
-		private static $image_extensions    = array(
-			'jpg',
-			'jpeg',
-			'png',
-			'gif',
-		);
-
-		/**
 		 * All_in_One_SEO_Pack_Sitemap constructor.
 		 */
 		function __construct() {
@@ -2818,29 +2806,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			$images       = array();
-<<<<<<< HEAD
-			$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
-			if ( $thumbnail_id ) {
-				$image = wp_get_attachment_url( $thumbnail_id );
-				if ( $image ) {
-					$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
-					$images['image:image'] = array(
-						'image:loc' => $image,
-					);
-=======
 			// the table term meta table is not defined for lower versions.
 			if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
 				$thumbnail_id = get_term_meta( $term->term_id, 'thumbnail_id', true );
 				if ( $thumbnail_id ) {
 					$image = wp_get_attachment_url( $thumbnail_id );
 					if ( $image ) {
+						$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
 						$images['image:image'] = array(
 							'image:loc' => $image,
-							'image:caption' => wp_get_attachment_caption( $thumbnail_id ),
-							'image:title' => get_the_title( $thumbnail_id ),
 						);
 					}
->>>>>>> f21c797b5d10429acb72011fd4ad250444a13da6
 				}
 			}
 
@@ -2880,7 +2856,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$attributes = wp_get_attachment_image_src( $post->ID, 'full' );
 				if ( $attributes ) {
 					$images[] = array(
-						'image:loc' => $this->clean_url( $attributes[0] ),
+						'image:loc' => aiosp_common::clean_url( $attributes[0] ),
 						'image:caption' => wp_get_attachment_caption( $post->ID ),
 						'image:title' => get_the_title( $post->ID ),
 					);
@@ -2889,22 +2865,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $images;
 			}
 
-<<<<<<< HEAD
-			$attached_url = false;
-			// Check featured image.
-			if ( post_type_supports( $post->post_type, 'thumbnail' ) ) {
-				if ( version_compare( $wp_version, '4.4.0', '>=' ) ) {
-					$attached_url = get_the_post_thumbnail_url( $post->ID );
-				} else {
-					$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
-					if ( $post_thumbnail_id ) {
-						$attached_url = wp_get_attachment_image_src( $post_thumbnail_id );
-					}
-				}
-				if ( false !== $attached_url ) {
-					$images[] = $attached_url;
-				}
-=======
 			/**
 			 * Static attachment cache, 1 query vs. n posts.
 			 */
@@ -2928,7 +2888,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( $attachment_url ) {
 					$images[] = $attachment_url;
 				}
->>>>>>> f21c797b5d10429acb72011fd4ad250444a13da6
 			}
 
 			$content = '';
@@ -2943,46 +2902,21 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$tmp = array_unique( $images );
 				}
 				// remove any invalid/empty images.
-				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
+				$tmp = array_filter( $images, array( 'aiosp_common', 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
-<<<<<<< HEAD
 					$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
-					$images[] = array(
-						'image:loc' => $this->clean_url( $image ),
-=======
-					$image_attributes	= $this->get_image_attributes( $image );
+					$image_attributes	= aiosp_common::get_image_attributes( $image );
 					$images[] = array_merge(
 							array(
-								'image:loc' => $this->clean_url( $image ),
+								'image:loc' => aiosp_common::clean_url( $image ),
 							),
 							$image_attributes
->>>>>>> f21c797b5d10429acb72011fd4ad250444a13da6
 					);
 				}
 			}
 
 			return $images;
-		}
-
-		/**
-<<<<<<< HEAD
-=======
-		 * Fetch image attributes such as title and caption given the image URL.
-		 *
-		 * @param string $url The image URL.
-		 */
-		private function get_image_attributes( $url ) {
-			$attributes	= array();
-			global $wpdb;
-			$attachment = $wpdb->get_col( $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $url ) ); 
-			if ( $attachment && is_array( $attachment ) && is_numeric( $attachment[0] ) ) {
-				$attributes	= array(
-					'image:caption' => wp_get_attachment_caption( $attachment[0] ),
-					'image:title' => get_the_title( $attachment[0] ),
-				);
-			}
-			return $attributes;
 		}
 
 		/**
@@ -3108,135 +3042,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
->>>>>>> f21c797b5d10429acb72011fd4ad250444a13da6
-		 * Cleans the URL so that its acceptable in the sitemap.
-		 *
-		 * @param string $url The image url.
-		 *
-		 * @since 2.4.1
-		 *
-		 * @return string
-		 */
-		function clean_url( $url ) {
-			// remove the query string.
-			$url    = strtok( $url, '?' );
-			// make the url XML-safe.
-			$url    = htmlspecialchars( $url );
-			// Make the url absolute, if its relative.
-			$url    = aiosp_common::absolutize_url( $url );
-			return apply_filters( 'aioseop_clean_url', $url );
-		}
-
-		/**
-		 * Validate the image.
-		 * NOTE: We will use parse_url here instead of wp_parse_url as we will correct the URLs beforehand and 
-		 * this saves us the need to check PHP version support.
-		 *
-		 * @param string $image The image src.
-		 *
-		 * @since 2.4.1
-		 * @since 2.4.3 Compatibility with Pre v4.7 wp_parse_url().
-		 *
-		 * @return bool
-		 */
-		function is_image_valid( $image ) {
-			global $wp_version;
-
-			// Bail if empty image.
-			if ( empty( $image ) ) {
-				return false;
-			}
-
-			global $wp_version;
-			if ( version_compare( $wp_version, '4.4', '<' ) ) {
-				$p_url = parse_url( $image );
-				$url = $p_url['scheme'] . $p_url['host'] . $p_url['path'];
-			} elseif ( version_compare( $wp_version, '4.7', '<' ) ) {
-				// Compatability for older WP version that don't have 4.7 changes.
-				// @link https://core.trac.wordpress.org/changeset/38726
-				$p_url = wp_parse_url( $image );
-				$url = $p_url['scheme'] . $p_url['host'] . $p_url['path'];
-			} else {
-				$component = PHP_URL_PATH;
-				$url = wp_parse_url( $image, $component );
-			}
-
-			// make the url absolute, if its relative.
-			$image      = aiosp_common::absolutize_url( $image );
-
-			$extn       = pathinfo( parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
-			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
-			// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
-			if ( ! in_array( $extn, $allowed, true ) ) {
-				return false;
-			}
-
-			$image_host = parse_url( $image, PHP_URL_HOST );
-			$host       = parse_url( home_url(), PHP_URL_HOST );
-
-			if ( $image_host !== $host ) {
-				// Allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
-				// And we will convert that into a regular expression for matching.
-				$whitelist  = apply_filters( 'aioseop_images_allowed_from_hosts', array() );
-				$allowed    = false;
-				if ( $whitelist ) {
-					foreach ( $whitelist as $pattern ) {
-						if ( preg_match( '/' . str_replace( '*', '.*', $pattern ) . '/', $image_host ) === 1 ) {
-							$allowed = true;
-							break;
-						}
-					}
-				}
-				return $allowed;
-
-			}
-			return true;
-		}
-
-		/**
-<<<<<<< HEAD
-=======
-		 * Parse the post for images.
-		 *
-		 * @param string $content the post content.
-		 * @param array  $images the array of images.
-		 */
-		function parse_content_for_images( $content, &$images ) {
-			// These tags should be WITHOUT trailing space because some plugins such as the nextgen gallery put newlines immediately after <img.
-			$total   = substr_count( $content, '<img' ) + substr_count( $content, '<IMG' );
-			// no images found.
-			if ( 0 === $total ) {
-				return;
-			}
-
-			if ( class_exists( 'DOMDocument' ) ) {
-				$dom = new domDocument();
-				// Non-compliant HTML might give errors, so ignore them.
-				libxml_use_internal_errors( true );
-				$dom->loadHTML( $content );
-				libxml_clear_errors();
-				$dom->preserveWhiteSpace = false;
-				$matches = $dom->getElementsByTagName( 'img' );
-				foreach ( $matches as $match ) {
-					$images[] = $match->getAttribute( 'src' );
-				}
-			} else {
-				// Fall back to regex, but also report an error.
-				global $img_err_msg;
-				if ( ! isset( $img_err_msg ) ) {
-					// we will log this error message only once, not per post.
-					$img_err_msg = true;
-					$this->debug_message( 'DOMDocument not found; using REGEX' );
-				}
-				preg_match_all( '/<img.*src=([\'"])?(.*?)\\1/', $content, $matches );
-				if ( $matches && isset( $matches[2] ) ) {
-					$images = array_merge( $images, $matches[2] );
-				}
-			}
-		}
-
-		/**
->>>>>>> f21c797b5d10429acb72011fd4ad250444a13da6
 		 * Return excluded categories for taxonomy queries.
 		 *
 		 * @param int $page
