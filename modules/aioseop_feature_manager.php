@@ -39,7 +39,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Feature_Manager' ) ) {
 				),
 				'file_editor'       => array(
 					'name'        => __( 'File Editor', 'all-in-one-seo-pack' ),
-					'description' => __( 'Edit your robots.txt file and your .htaccess file to fine-tune your site.', 'all-in-one-seo-pack' ),
+					'description' => __( 'Edit your .htaccess file to fine-tune your site.', 'all-in-one-seo-pack' ),
 				),
 				'importer_exporter' => array(
 					'name'        => __( 'Importer & Exporter', 'all-in-one-seo-pack' ),
