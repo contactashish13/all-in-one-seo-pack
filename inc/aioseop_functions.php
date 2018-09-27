@@ -53,12 +53,12 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	/**
 	 * Check if settings need to be updated / migrated from old version.
 	 *
-	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class? This is called every single time a page is loaded both on the front-end or backend.
+	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class?
 	 */
 	function aioseop_update_settings_check() {
 		global $aioseop_options;
 		if ( empty( $aioseop_options ) || isset( $_POST['aioseop_migrate_options'] ) ) {
-			aioseop_initialize_options();
+			aioseop_mrt_mkarry();
 		}
 		// WPML has now attached to filters, read settings again so they can be translated.
 		aioseop_get_options();
@@ -85,13 +85,13 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_initialize_options' ) ) {
+if ( ! function_exists( 'aioseop_mrt_mkarry' ) ) {
 	/**
-	 * Initialize settings to defaults. Changed name from the abstruse 'aioseop_mrt_mkarry' to 'aioseop_initialize_options'.
+	 * Initialize settings to defaults.
 	 *
 	 * @TODO Should also move.
 	 */
-	function aioseop_initialize_options() {
+	function aioseop_mrt_mkarry() {
 		global $aiosp;
 		global $aioseop_options;
 		$naioseop_options = $aiosp->default_options();
@@ -925,11 +925,11 @@ if ( ! function_exists( 'fnmatch' ) ) {
 }
 
 if ( ! function_exists( 'aiosp_log' ) ) {
-	function aiosp_log( $log, $force = false ) {
+	function aiosp_log( $log ) {
 
 		global $aioseop_options;
 
-		if ( ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) || $force || defined( 'AIOSEOP_DO_LOG' ) ) {
+		if ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) {
 
 			if ( is_array( $log ) || is_object( $log ) ) {
 				error_log( print_r( $log, true ) );
