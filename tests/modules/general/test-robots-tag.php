@@ -18,7 +18,7 @@ class Test_Robots_Tag extends AIOSEOP_Test_Base {
 	 *
 	 * @param string	$noindex				The post type to enable for noindex.
 	 * @param string	$nofollow				The post type to enable for nofollow.
-	 * @param array		$additional_key_value	Any additional configuration item to set (key = item name, value = item value).
+	 * @param array		$additional_key_value	Any additional configuration item to set ([0] = item name, [1] = item value).
 	 * @param string	$result					The expected result.
 	 *
 	 * @dataProvider	categoryDataProvider
