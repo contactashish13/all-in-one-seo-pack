@@ -124,7 +124,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				__( '%blog_description% - Your blog description', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_title% - The original title of the post', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%category_title% - The (main) category of the post', 'all-in-one-seo-pack' ) . '</li><li>' .
-				__( '%1$category% - Alias for %2$category_title%', 'all-in-one-seo-pack' ) . '</li><li>' .
+				__( '%category% - Alias for %category_title%', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_login% - This post's author' login", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_nicename% - This post's author' nicename", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_firstname% - This post's author' first name (capitalized)", 'all-in-one-seo-pack' ) . '</li><li>' .
