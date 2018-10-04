@@ -1831,31 +1831,36 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $options[ "{$this->prefix}taxonomies" ] ) ) {
 				foreach ( $options[ "{$this->prefix}taxonomies" ] as $sm ) {
 					$term_count = wp_count_terms( $sm, array( 'hide_empty' => true ) );
-					if ( ! is_wp_error( $term_count ) && ( $term_count > 0 ) ) {
-						if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
-							if ( $term_count > $this->max_posts ) {
-								$count = 1;
-								for ( $tc = 0; $tc < $term_count; $tc += $this->max_posts ) {
-									$files[] = array(
-										'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
-										'changefreq' => $this->get_default_frequency( 'taxonomies' ),
-										'priority'   => $this->get_default_priority( 'taxonomies' ),
-									);
-								}
-							} else {
+					// no terms in the taxonomy.
+					if ( 0 === $term_count ) {
+						continue;
+					}
+
+					if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
+						if ( $term_count > $this->max_posts ) {
+							$count = 1;
+							for ( $tc = 0; $tc < $term_count; $tc += $this->max_posts ) {
+								$files[] = array(
+									'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
+									'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+									'priority'   => $this->get_default_priority( 'taxonomies' ),
+								);
+							}
+						} else {
+							if ( ! $this->has_taxonomy_been_excluded( $sm ) ) {
 								$files[] = array(
 									'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
 									'changefreq' => $this->get_default_frequency( 'taxonomies' ),
 									'priority'   => $this->get_default_priority( 'taxonomies' ),
 								);
 							}
-						} else {
-							$files[] = array(
-								'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
-								'changefreq' => $this->get_default_frequency( 'taxonomies' ),
-								'priority'   => $this->get_default_priority( 'taxonomies' ),
-							);
 						}
+					} else {
+						$files[] = array(
+							'loc'        => aioseop_home_url ( '/' . $prefix . '_' . $sm . $suffix ),
+							'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+							'priority'   => $this->get_default_priority( 'taxonomies' ),
+						);
 					}
 				}
 			}
@@ -1870,6 +1875,58 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$files  = apply_filters( 'aioseop_sitemap_index_filenames', $files, $prefix, $suffix );
 
 			return $files;
+		}
+
+		/**
+		 * Checks if a taxonomy has been excluded. This could either be because all its terms have been selected or none of its terms have been selected.
+		 *
+		 * @param string	$tax	The taxonomy name.
+		 */
+		private function has_taxonomy_been_excluded( $tax ) {
+			global $wp_version;
+
+			if ( ! $this->option_isset( 'excl_taxonomies' ) ) {
+				return false;
+			}
+
+			$exclude = $this->options[ $this->prefix . 'excl_taxonomies' ];
+			if ( ! in_array( $tax, $exclude ) ) {
+				return false;
+			}
+
+			$term_count = intval( wp_count_terms( $tax, array( 'hide_empty' => true ) ) );
+			if ( 0 === $term_count ) {
+				return false;
+			}
+
+			// terms defined for this taxonomy.
+			$terms	= array();
+			if ( version_compare( $wp_version, '4.5.0', '>=' ) ) {
+				$terms = get_terms( array(
+					'taxonomy' => $tax,
+					'hide_empty' => true
+				) );
+			} else {
+				$terms = get_terms( $tax, array( 'hide_empty' => true ) );
+			}
+
+			if ( is_wp_error( $terms ) ) {
+				return false;
+			}
+
+			$term_ids = array();
+			foreach ( $terms as $term ) {
+				$term_ids[]	= $term->term_id;
+			}
+
+			// terms excluded in the settings.
+			$terms_excluded = $this->options[ $this->prefix . 'excl_categories' ];
+
+			$common	= count( array_intersect( $term_ids, $terms_excluded ) );
+
+			// the category is excluded if ALL or NONE of its terms have been specified in the exclude terms list.
+			return 0 === $common || $common === count( $term_ids );
+
 		}
 
 		/**
