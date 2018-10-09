@@ -284,34 +284,6 @@ jQuery( document ).ready(
 		);
 
         /**
-         * @summary workaround for bug that causes radio inputs to lose settings when meta box is dragged.
-         *
-         * props to commentluv for this fix
-         * @author commentluv.
-         * @link https://core.trac.wordpress.org/ticket/16972
-         * @since 1.0.0
-         */
-        jQuery(document).ready(
-            function () {
-                // listen for drag drop of metaboxes , bind mousedown to .hndle so it only fires when starting to drag
-                jQuery('.hndle').mousedown(
-                    function () {
-
-                        // set live event listener for mouse up on the content .wrap and wait a tick to give the dragged div time to settle before firing the reclick function
-                        jQuery('.wrap').mouseup(
-                            function () {
-                                aiosp_store_radio();
-                                setTimeout(function () {
-                                    aiosp_reclick_radio();
-                                }, 50);
-                            }
-                        );
-                    }
-                );
-            }
-        );
-
-        /**
          * @summary Javascript for using WP media uploader. Indentifies which DOM should use custom uploader plugin.
          *
          * @see http://www.webmaster-source.com/2013/02/06/using-the-wordpress-3-5-media-uploader-in-your-plugin-or-theme/
@@ -613,7 +585,7 @@ jQuery( document ).ready(
 		);
 
 
-		jQuery( "div#aiosp_robots_default_metabox" )
+        jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_delete_rule", "click", function( e ) {
 				e.preventDefault();
@@ -628,8 +600,8 @@ jQuery( document ).ready(
 				return false;
 			}
 		);
-    
-		jQuery( "div#aiosp_robots_default_metabox" )
+
+        jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_edit_rule", "click", function( e ) {
 				e.preventDefault();
