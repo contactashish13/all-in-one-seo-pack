@@ -1158,9 +1158,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! get_transient( "{$this->prefix}rules_flushed" ) ) {
 				add_action( 'wp_loaded', array( $this, 'flush_rules_hook' ) );
 			}
-			if ( ! get_transient( "{$this->prefix}rules_flushed_rss" ) ) {
-				add_action( 'wp_loaded', array( $this, 'flush_rules_hook' ) );
-			}
 		}
 
 		/**
@@ -1215,11 +1212,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$sitemap_rules = $this->get_rewrite_rules( $wp_rewrite );
 			if ( ! empty( $sitemap_rules ) ) {
 				$rules = get_option( 'rewrite_rules' );
-				$rule  = key( $sitemap_rules );
-				if ( ! isset( $rules[ $rule ] ) || ( $rules[ $rule ] !== $sitemap_rules[ $rule ] ) ) {
-					$wp_rewrite->flush_rules();
-					set_transient( "{$this->prefix}rules_flushed", true, 43200 );
-					set_transient( "{$this->prefix}rules_flushed_rss", true, 43200 );
+				$new_rules = array_keys( $sitemap_rules );
+				foreach ( $new_rules as $rule ) {
+					if ( ! isset( $rules[ $rule ] ) || ( $rules[ $rule ] !== $sitemap_rules[ $rule ] ) ) {
+						$wp_rewrite->flush_rules();
+						set_transient( "{$this->prefix}rules_flushed", true, 43200 );
+					}
 				}
 			}
 		}
@@ -1494,7 +1492,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 			} else {
 				delete_transient( "{$this->prefix}rules_flushed" );
-				delete_transient( "{$this->prefix}rules_flushed_rss" );
 			}
 			$this->do_notify();
 			if ( ! empty( $message ) && is_string( $message ) ) {
