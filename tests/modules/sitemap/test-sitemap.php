@@ -32,6 +32,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * Creates posts and pages and tests whether only pages are being shown in the sitemap.
 	 */
 	public function test_only_pages() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$posts = $this->setup_posts( 2 );
 		$pages = $this->setup_posts( 2, 0, 'page' );
 
@@ -60,6 +64,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * 2) does not contain the image tag in the posts that do not have images attached.
 	 */
 	public function test_featured_image() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$posts = $this->setup_posts( 2, 2 );
 
 		$custom_options = array();
@@ -95,6 +103,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * Creates posts with and without featured images and switches OFF the images from the sitemap. Tests that the sitemap does not contain the image tag for any post.
 	 */
 	public function test_exclude_images() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$posts = $this->setup_posts( 2, 2 );
 
 		$custom_options = array();
@@ -275,6 +287,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * Adds posts to taxonomies, enables only taxonomies in the sitemap.
 	 */
 	public function test_only_taxonomies() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		// create 3 categories.
 		$test1 = wp_create_category( 'test1' );
 		$test2 = wp_create_category( 'test2' );
@@ -317,6 +333,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * Creates posts with schemeless images in the content and checks if they are being correctly included in the sitemap.
 	 */
 	public function test_schemeless_images() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$id1 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="http://example.org/image1.jpg">', 'post_title' => 'title with image' ) );
 		$id2 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="//example.org/image2.jpg">', 'post_title' => 'title with image' ) );
 		$id3 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="/image3.jpg">', 'post_title' => 'title with image' ) );
@@ -351,6 +371,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * @dataProvider enabledPostTypes
 	 */
 	public function test_sitemap_index_pagination( $enabled_post_type, $enabled_post_types_count, $cpt ) {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		// choose numbers which are not multiples of each other.
 		$num_posts = 22;
 		$per_xml = 7;
@@ -498,6 +522,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * @dataProvider externalPagesProvider
 	 */
 	public function test_add_external_urls( $url1, $url2 ) {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$this->_urls = array( $url1, $url2 );
 
 		$posts = $this->setup_posts( 2 );
@@ -530,6 +558,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * @ticket 1371 Correct tags order according to Sitemap protocol
 	 */
 	public function test_index() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$posts = $this->setup_posts( 2, 2 );
 
 		$custom_options = array();
@@ -576,6 +608,10 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * Creates posts with external images and uses the filter 'aioseop_images_allowed_from_hosts' to allow only a particular host's images to be included in the sitemap.
 	 */
 	public function test_external_images() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
 		$posts = $this->setup_posts( 2 );
 
 		$id1 = $this->factory->post->create( array( 'post_type' => 'post', 'post_content' => 'content <img src="http://www.x.com/image.jpg">', 'post_title' => 'title with image' ) );
@@ -632,6 +668,102 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			array( array( 'attachment', 'product' ), 2, 'product' ),
 			array( array( 'all', 'post', 'page' ), 2, null ),
 			array( array( 'all', 'post', 'page', 'attachment', 'product' ), 4, 'product' ),
+		);
+	}
+
+	/**
+	 * Add invalid external URLs to the sitemap and see if they are shown as valid in the sitemap.
+	 *
+	 * @dataProvider invalidExternalPagesProvider
+	 */
+	public function test_make_external_urls_valid( $urls ) {
+		$posts = $this->setup_posts( 2 );
+
+		$pages	= array();
+		foreach ( $urls as $url ) {
+			$pages[ $url['loc'] ] = array(
+				'prio'		=> $url['priority'],
+				'freq'		=> $url['changefreq'],
+				'mod'		=> $url['lastmod'],
+			);
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+		$custom_options['aiosp_sitemap_addl_pages'] = $pages;
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$validate_urls	= array();
+		foreach ( $urls as $url ) {
+			// the ones with http should be present and the ones without http should not be present.
+			$validate_urls[ $url['loc'] ] = strpos( $url['loc'], 'http' ) !== false;
+			if ( strpos( $url['loc'], 'absolute' ) !== false ) {
+				// the ones with absolute should be absolute.
+				$validate_urls[ 'http://' . str_replace( array( 'http', '://' ), '', ltrim( $url['loc'], '/' ) ) ] = true;
+			} else {
+				// the ones without absolute should be relative.
+				$validate_urls[ home_url( ltrim( $url['loc'], '/' ) ) ] = true;
+			}
+		}
+
+		$without = $posts['without'];
+		$this->validate_sitemap(
+			array_merge(
+				array(
+					$without[0] => true,
+					$without[1] => true,
+				),
+				$validate_urls
+			)
+		);
+
+		// so all urls 
+	}
+
+
+	/**
+	 * Provides the invalid external pages that need to be added to the sitemap.
+	 */
+	public function invalidExternalPagesProvider() {
+		return array(
+			array(
+				array(
+					array(
+						'loc'        => 'http://www.absolute.com',
+						'lastmod'    => '2018-01-18T21:46:44Z',
+						'changefreq' => 'daily',
+						'priority'   => '1.0',
+					),
+					array(
+						'loc'        => 'http://www.absolute.com/',
+						'lastmod'    => '2018-01-18T21:46:44Z',
+						'changefreq' => 'daily',
+						'priority'   => '1.0',
+					),
+					array(
+						'loc'        => 'www.absolute.com/page1',
+						'lastmod'    => '2018-01-18T21:46:44Z',
+						'changefreq' => 'daily',
+						'priority'   => '1.0',
+					),
+					array(
+						'loc'        => '//www.absolute.com/page2',
+						'lastmod'    => '2018-01-18T21:46:44Z',
+						'changefreq' => 'daily',
+						'priority'   => '1.0',
+					),
+					array(
+						'loc'        => '/five/page',
+						'lastmod'    => '2018-01-18T21:46:44Z',
+						'changefreq' => 'daily',
+						'priority'   => '1.0',
+					),
+				),
+			),
 		);
 	}
 }

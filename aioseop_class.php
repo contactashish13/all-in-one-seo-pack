@@ -3010,8 +3010,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	function add_page_icon() {
 		wp_enqueue_script( 'wp-pointer', false, array( 'jquery' ) );
 		wp_enqueue_style( 'wp-pointer' );
-		// $this->add_admin_pointers();
-		wp_enqueue_style( 'aiosp_admin_style', AIOSEOP_PLUGIN_URL . 'css/aiosp_admin.css', array(), AIOSEOP_VERSION );
+		//$this->add_admin_pointers();
+
 		?>
 		<script>
 			function aioseop_show_pointer(handle, value) {
@@ -3276,6 +3276,18 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 	function settings_page_init() {
 		add_filter( "{$this->prefix}submit_options", array( $this, 'filter_submit' ) );
+	}
+
+	/**
+	 * Admin Enqueue Scripts
+	 *
+	 * @since 2.5.0
+	 *
+	 * @uses All_in_One_SEO_Pack_Module::admin_enqueue_scripts();
+	 */
+	function admin_enqueue_scripts() {
+		wp_enqueue_style( 'aiosp_admin_style', AIOSEOP_PLUGIN_URL . 'css/aiosp_admin.css', array(), AIOSEOP_VERSION );
+		parent::admin_enqueue_scripts();
 	}
 
 	function enqueue_scripts() {
@@ -3664,6 +3676,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
 			add_action( 'admin_head', array( $this, 'add_page_icon' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 			add_action( 'admin_init', 'aioseop_addmycolumns', 1 );
 			add_action( 'admin_init', 'aioseop_handle_ignore_notice' );
 			if ( AIOSEOPPRO ) {
@@ -3869,9 +3882,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		$posts       = $save_posts;
-		$description = $this->get_main_description( $post );    // Get the description.
 		// Handle the description format.
-		if ( isset( $description ) && ( $this->strlen( $description ) > $this->minimum_description_length ) && ! ( is_front_page() && is_paged() ) ) {
+		// We are not going to mandate that post description needs to be present because the content could be derived from a custom field too.
+		if ( ! ( is_front_page() && is_paged() ) ) {
+			$description = $this->get_main_description( $post );    // Get the description.
 			$description = $this->trim_description( $description );
 			if ( ! isset( $meta_string ) ) {
 				$meta_string = '';
@@ -3883,7 +3897,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				$desc_attr = '';
 			}
 			$desc_attr = apply_filters( 'aioseop_description_attributes', $desc_attr );
-			$meta_string .= sprintf( "<meta name=\"description\" %s content=\"%s\" />\n", $desc_attr, $description );
+			if ( ! empty( $description ) ) {
+				$meta_string .= sprintf( "<meta name=\"description\" %s content=\"%s\" />\n", $desc_attr, $description );
+			}
 		}
 		// Get the keywords.
 		$togglekeywords = 0;

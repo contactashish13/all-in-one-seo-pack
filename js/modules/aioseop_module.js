@@ -647,7 +647,6 @@ jQuery( document ).ready(
 		});
 
         aiospinitAll();
-
 	}
 );
 
