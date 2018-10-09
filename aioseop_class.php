@@ -124,7 +124,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				__( '%blog_description% - Your blog description', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_title% - The original title of the post', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%category_title% - The (main) category of the post', 'all-in-one-seo-pack' ) . '</li><li>' .
-				__( '%1$category% - Alias for %2$category_title%', 'all-in-one-seo-pack' ) . '</li><li>' .
+				__( '%category% - Alias for %category_title%', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_login% - This post's author' login", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_nicename% - This post's author' nicename", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%post_author_firstname% - This post's author' first name (capitalized)", 'all-in-one-seo-pack' ) . '</li><li>' .
@@ -182,7 +182,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 											 __( '%blog_description% - Your blog description', 'all-in-one-seo-pack' ) . '</li><li>' .
 											 __( '%request_url% - The original URL path, like "/url-that-does-not-exist/"', 'all-in-one-seo-pack' ) . '</li><li>' .
 											 __( '%request_words% - The URL path in human readable form, like "Url That Does Not Exist"', 'all-in-one-seo-pack' ) . '</li><li>' .
-											 __( '%404_title% - Additional 404 title input"', 'all-in-one-seo-pack' ) . '</li></ul>',
+											 __( '%404_title% - Additional 404 title input', 'all-in-one-seo-pack' ) . '</li></ul>',
 			'paged_format'                => __( 'This string gets appended/prepended to titles of paged index pages (like home or archive pages).', 'all-in-one-seo-pack' )
 											 . __( 'The following macros are supported:', 'all-in-one-seo-pack' )
 											 . '<ul><li>' . __( '%page% - The page number', 'all-in-one-seo-pack' ) . '</li></ul>',
@@ -1589,11 +1589,13 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	/**
 	 * Gets the title that will be used by AIOSEOP for title rewrites or returns false.
 	 *
-	 * @param $post
+	 * @param WP_Post $post the post object
+	 * @param bool $use_original_title_format should the original title format be used viz. post_title | blog_title. This parameter was introduced 
+	 * to resolve issue#986
 	 *
 	 * @return bool|string
 	 */
-	function get_aioseop_title( $post ) {
+	function get_aioseop_title( $post, $use_original_title_format = true ) {
 		global $aioseop_options;
 		// the_search_query() is not suitable, it cannot just return.
 		global $s, $STagging;
@@ -1739,14 +1741,14 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$title = $this->internationalize( get_post_meta( $post->ID, '_aioseop_title', true ) );
 			if ( ! $title ) {
 				$title = $this->internationalize( get_post_meta( $post->ID, 'title_tag', true ) );
-				if ( ! $title ) {
+				if ( ! $title && $use_original_title_format ) {
 					$title = $this->internationalize( $this->get_original_title( '', false ) );
 				}
 			}
 			if ( empty( $title ) ) {
 				$title = $post->post_title;
 			}
-			if ( ! empty( $title ) ) {
+			if ( ! empty( $title ) && $use_original_title_format ) {
 				$title = $this->apply_post_title_format( $title, $category, $post );
 			}
 			$title = $this->paged_title( $title );
@@ -2488,6 +2490,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$description = $this->internationalize( $description );
 		}
 
+		// #1308 - we want to make sure we are ignoring php version only in the admin area while editing the post, so that it does not impact #932.
+		$screen = is_admin() ? get_current_screen() : null;
+		$ignore_php_version = $screen && isset( $screen->id ) && 'post' === $screen->id;
+
 		$truncate     = false;
 		$aioseop_desc = '';
 		if ( ! empty( $post->ID ) ) {
@@ -2501,7 +2507,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		$description = apply_filters(
 			'aioseop_description',
 			$description,
-			$truncate
+			$truncate,
+			$ignore_php_version
 		);
 
 		return $description;
@@ -3017,8 +3024,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	function add_page_icon() {
 		wp_enqueue_script( 'wp-pointer', false, array( 'jquery' ) );
 		wp_enqueue_style( 'wp-pointer' );
-		// $this->add_admin_pointers();
-		wp_enqueue_style( 'aiosp_admin_style', AIOSEOP_PLUGIN_URL . 'css/aiosp_admin.css', array(), AIOSEOP_VERSION );
+		//$this->add_admin_pointers();
+
 		?>
 		<script>
 			function aioseop_show_pointer(handle, value) {
@@ -3285,6 +3292,18 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		add_filter( "{$this->prefix}submit_options", array( $this, 'filter_submit' ) );
 	}
 
+	/**
+	 * Admin Enqueue Scripts
+	 *
+	 * @since 2.5.0
+	 *
+	 * @uses All_in_One_SEO_Pack_Module::admin_enqueue_scripts();
+	 */
+	function admin_enqueue_scripts() {
+		wp_enqueue_style( 'aiosp_admin_style', AIOSEOP_PLUGIN_URL . 'css/aiosp_admin.css', array(), AIOSEOP_VERSION );
+		parent::admin_enqueue_scripts();
+	}
+
 	function enqueue_scripts() {
 		add_filter( "{$this->prefix}display_settings", array( $this, 'filter_settings' ), 10, 3 );
 		add_filter( "{$this->prefix}display_options", array( $this, 'filter_options' ), 10, 2 );
@@ -3538,7 +3557,26 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 					return false;
 				}
 			} else {
-				if ( is_singular() && ! in_array( $post_type, $wp_post_types ) && ! is_front_page() ) {
+
+				// Make sure noindex works even of SEO is turned off for that post type.
+				$cp_noindex_active = false;
+				if ( ! empty( $aioseop_options['aiosp_cpostnoindex'] ) && is_array( $aioseop_options['aiosp_cpostnoindex'] ) ) {
+					$cp_noindex_active = in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] );
+				}
+
+				if ( is_singular() && ! in_array( $post_type, $wp_post_types ) && ! is_front_page() && ! $cp_noindex_active ) {
+					return false;
+				}
+				if ( is_post_type_archive() && ! is_post_type_archive( $wp_post_types ) ) {
+					return false;
+				}
+			
+				// Make sure nofollow works even of SEO is turned off for that post type.
+				$cp_nofollow_active = false;
+				if ( ! empty( $aioseop_options['aiosp_cpostnofollow'] ) && is_array( $aioseop_options['aiosp_cpostnofollow'] ) ) {
+					$cp_nofollow_active = in_array( $post_type, $aioseop_options['aiosp_cpostnofollow'] );
+				}
+				if ( is_singular() && ! in_array( $post_type, $wp_post_types ) && ! is_front_page() && ! $cp_nofollow_active ) {
 					return false;
 				}
 				if ( is_post_type_archive() && ! is_post_type_archive( $wp_post_types ) ) {
@@ -3671,6 +3709,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
 			add_action( 'admin_head', array( $this, 'add_page_icon' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 			add_action( 'admin_init', 'aioseop_addmycolumns', 1 );
 			add_action( 'admin_init', 'aioseop_handle_ignore_notice' );
 			if ( AIOSEOPPRO ) {
@@ -3696,7 +3735,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'amp_post_template_head', array( $this, 'amp_head' ), 11 );
 			add_action( 'template_redirect', array( $this, 'template_redirect' ), 0 );
 		}
-		add_filter( 'aioseop_description', array( &$this, 'filter_description' ), 10, 2 );
+		add_filter( 'aioseop_description', array( &$this, 'filter_description' ), 10, 3 );
 		add_filter( 'aioseop_title', array( &$this, 'filter_title' ) );
 	}
 
@@ -3831,9 +3870,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		global $aioseop_update_checker, $wp_query, $aioseop_options, $posts;
 		static $aioseop_dup_counter = 0;
 		$aioseop_dup_counter ++;
-
+    
 		if ( ! defined( 'AIOSEOP_UNIT_TESTING' ) && $aioseop_dup_counter > 1 ) {
-			echo "\n<!-- " . sprintf( __( 'Debug Warning: All in One SEO Pack meta data was included again from %s filter. Called %s times!', 'all-in-one-seo-pack' ), current_filter(), $aioseop_dup_counter ) . " -->\n";
+			echo "\n<!-- " . sprintf( __( 'Debug Warning: All in One SEO Pack meta data was included again from %1$s filter. Called %2$s times!', 'all-in-one-seo-pack' ), current_filter(), $aioseop_dup_counter ) . " -->\n";
 			if ( ! empty( $old_wp_query ) ) {
 				// Change the query back after we've finished.
 				$GLOBALS['wp_query'] = $old_wp_query;
@@ -3877,9 +3916,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 
 		$posts       = $save_posts;
-		$description = $this->get_main_description( $post );    // Get the description.
 		// Handle the description format.
-		if ( isset( $description ) && ( $this->strlen( $description ) > $this->minimum_description_length ) && ! ( is_front_page() && is_paged() ) ) {
+		// We are not going to mandate that post description needs to be present because the content could be derived from a custom field too.
+		if ( ! ( is_front_page() && is_paged() ) ) {
+			$description = $this->get_main_description( $post );    // Get the description.
 			$description = $this->trim_description( $description );
 			if ( ! isset( $meta_string ) ) {
 				$meta_string = '';
@@ -3891,7 +3931,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				$desc_attr = '';
 			}
 			$desc_attr = apply_filters( 'aioseop_description_attributes', $desc_attr );
-			$meta_string .= sprintf( "<meta name=\"description\" %s content=\"%s\" />\n", $desc_attr, $description );
+			if ( ! empty( $description ) ) {
+				$meta_string .= sprintf( "<meta name=\"description\" %s content=\"%s\" />\n", $desc_attr, $description );
+			}
 		}
 		// Get the keywords.
 		$togglekeywords = 0;
@@ -4108,7 +4150,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$description = str_replace( '%wp_title%', $this->get_original_title(), $description );
 		}
 		if ( strpos( $description, '%post_title%' ) !== false ) {
-			$description = str_replace( '%post_title%', $this->get_aioseop_title( $post ), $description );
+			$description = str_replace( '%post_title%', $this->get_aioseop_title( $post, false ), $description );
 		}
 		if ( strpos( $description, '%current_date%' ) !== false ) {
 			$description = str_replace( '%current_date%', date_i18n( get_option( 'date_format' ) ), $description );
@@ -4778,6 +4820,7 @@ EOF;
 	}
 
 	function admin_menu() {
+		$this->check_recently_activated_modules( $_POST );
 		$file      = plugin_basename( __FILE__ );
 		$menu_name = __( 'All in One SEO', 'all-in-one-seo-pack' );
 
@@ -4953,6 +4996,32 @@ EOF;
 	}
 
 	/**
+	 * Checks which module(s) have been (de)activated just now and fires a corresponding action.
+	 *
+	 * @param array $post Duplicate of $_POST.
+	 */
+	private function check_recently_activated_modules( $post ) {
+		global $aioseop_options;
+		$modules	= array();
+		if ( array_key_exists( 'modules', $aioseop_options ) && array_key_exists( 'aiosp_feature_manager_options', $aioseop_options['modules'] ) ) {
+			$modules = array_keys( $aioseop_options['modules']['aiosp_feature_manager_options'] );
+		}
+
+ 		if ( $modules ) {
+			foreach ( $modules as $module ) {
+				$name = str_replace( 'aiosp_feature_manager_enable_', '', $module );
+				if ( empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! empty( $post[ $module ] ) ) {
+					// this module was activated.
+					do_action( $this->prefix . 'activate_' . $name );
+				} else if ( ! empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! isset( $post[ $module ] ) ) {
+					// this module was deactivated. This action should be registered NOT in the specific module but elsewhere because that module is not going to be loaded.
+					do_action( $this->prefix . 'deactivate_' . $name );
+				}
+			}
+		}
+	}
+
+	/**
 	 * @param $menu_order
 	 *
 	 * @return array
@@ -5014,11 +5083,13 @@ EOF;
 	 *
 	 * @param string $value    Value to filter.
 	 * @param bool   $truncate Flag that indicates if value should be truncated/cropped.
+	 * @param bool   $ignore_php_version Flag that indicates if the php version check should be ignored.
 	 *
 	 * @return string
 	 */
-	public function filter_description( $value, $truncate = false ) {
-		if ( preg_match( '/5.2[\s\S]+/', PHP_VERSION ) ) {
+	public function filter_description( $value, $truncate = false, $ignore_php_version = false ) {
+		// TODO: change preg_match to version_compare someday when the reason for this condition is understood better.
+		if ( $ignore_php_version || preg_match( '/5.2[\s\S]+/', PHP_VERSION ) ) {
 			$value = htmlspecialchars( wp_strip_all_tags( htmlspecialchars_decode( $value ) ) );
 		}
 		// Decode entities
