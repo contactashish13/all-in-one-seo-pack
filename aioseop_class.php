@@ -4999,32 +4999,6 @@ EOF;
 	}
 
 	/**
-	 * Checks which module(s) have been (de)activated just now and fires a corresponding action.
-	 *
-	 * @param array $post Duplicate of $_POST.
-	 */
-	private function check_recently_activated_modules( $post ) {
-		global $aioseop_options;
-		$modules	= array();
-		if ( array_key_exists( 'modules', $aioseop_options ) && array_key_exists( 'aiosp_feature_manager_options', $aioseop_options['modules'] ) ) {
-			$modules = array_keys( $aioseop_options['modules']['aiosp_feature_manager_options'] );
-		}
-
- 		if ( $modules ) {
-			foreach ( $modules as $module ) {
-				$name = str_replace( 'aiosp_feature_manager_enable_', '', $module );
-				if ( empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! empty( $post[ $module ] ) ) {
-					// this module was activated.
-					do_action( $this->prefix . 'activate_' . $name );
-				} else if ( ! empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! isset( $post[ $module ] ) ) {
-					// this module was deactivated. This action should be registered NOT in the specific module but elsewhere because that module is not going to be loaded.
-					do_action( $this->prefix . 'deactivate_' . $name );
-				}
-			}
-		}
-	}
-
-	/**
 	 * @param $menu_order
 	 *
 	 * @return array
@@ -5230,13 +5204,19 @@ EOF;
 		<?php
 	}
 
- 	private function check_recently_activated_modules( $post ) {
+	/**
+	 * Checks which module(s) have been (de)activated just now and fires a corresponding action.
+	 *
+	 * @param array $post Duplicate of $_POST.
+	 */
+	private function check_recently_activated_modules( $post ) {
 		global $aioseop_options;
 		$modules	= array();
 		if ( array_key_exists( 'modules', $aioseop_options ) && array_key_exists( 'aiosp_feature_manager_options', $aioseop_options['modules'] ) ) {
 			$modules = array_keys( $aioseop_options['modules']['aiosp_feature_manager_options'] );
 		}
-		if ( $modules ) {
+
+ 		if ( $modules ) {
 			foreach ( $modules as $module ) {
 				$name = str_replace( 'aiosp_feature_manager_enable_', '', $module );
 				if ( empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! empty( $post[ $module ] ) ) {
@@ -5249,5 +5229,4 @@ EOF;
 			}
 		}
 	}
-
 }
