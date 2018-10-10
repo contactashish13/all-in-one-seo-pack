@@ -1571,6 +1571,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 	/*** Used to filter wp_title(), get our title. ***/
 	function wp_title() {
+		if ( ! $this->is_seo_enabled_for_cpt() ) {
+			return;
+		}
+
 		global $aioseop_options;
 		$title = false;
 		$post  = $this->get_queried_object();
@@ -3802,6 +3806,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 * @since 2.3.11.5
 	 */
 	function amp_head() {
+		if ( ! $this->is_seo_enabled_for_cpt() ) {
+			return;
+		}
+
 		$post = $this->get_queried_object();
 		$description = apply_filters( 'aioseop_amp_description', $this->get_main_description( $post ) );    // Get the description.
 
@@ -3809,6 +3817,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		if ( isset( $description ) && false == $description ) {
 			return;
 		}
+
+		global $aioseop_options;
 
 		// Handle the description format.
 		if ( isset( $description ) && ( $this->strlen( $description ) > $this->minimum_description_length ) && ! ( is_front_page() && is_paged() ) ) {
@@ -3831,10 +3841,20 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	}
 
 	/**
+	 * Checks whether the current CPT should show the SEO tags.
+	 */
+	private function is_seo_enabled_for_cpt() {
+		global $aioseop_options;
+		return 'on' === $aioseop_options['aiosp_enablecpost'] && in_array( get_post_type(), $aioseop_options['aiosp_cpostactive'], true );
+	}
+
+	/**
 	 * @since 2.3.14 #932 Removes filter "aioseop_description".
 	 */
 	function wp_head() {
-
+		if ( ! $this->is_seo_enabled_for_cpt() ) {
+			return;
+		}
 		// Check if we're in the main query to support bad themes and plugins.
 		global $wp_query;
 		$old_wp_query = null;
@@ -3954,7 +3974,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				) as $k => $v
 			) {
 				if ( ! empty( $aioseop_options[ "aiosp_{$k}_verify" ] ) ) {
-					$meta_string .= '<meta name="' . $v . '" content="' . trim( strip_tags( $aioseop_options[ "aiosp_{$k}_verify" ] ) ) . '" />' . "\n";
+					$meta_string .= '<meta name="' . $v . '" content="' . trim( strip_tags( $aioseop_options["aiosp_{$k}_verify"] ) ) . '" />' . "\n";
 				}
 			}
 
