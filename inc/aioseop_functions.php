@@ -53,12 +53,12 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	/**
 	 * Check if settings need to be updated / migrated from old version.
 	 *
-	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class?
+	 * @TODO See when this is from and if we can move it elsewhere... our new db updates/upgrades class? This is called every single time a page is loaded both on the front-end or backend.
 	 */
 	function aioseop_update_settings_check() {
 		global $aioseop_options;
 		if ( empty( $aioseop_options ) || isset( $_POST['aioseop_migrate_options'] ) ) {
-			aioseop_mrt_mkarry();
+			aioseop_initialize_options();
 		}
 		// WPML has now attached to filters, read settings again so they can be translated.
 		aioseop_get_options();
@@ -85,13 +85,13 @@ if ( ! function_exists( 'aioseop_update_settings_check' ) ) {
 	}
 }
 
-if ( ! function_exists( 'aioseop_mrt_mkarry' ) ) {
+if ( ! function_exists( 'aioseop_initialize_options' ) ) {
 	/**
-	 * Initialize settings to defaults.
+	 * Initialize settings to defaults. Changed name from the abstruse 'aioseop_mrt_mkarry' to 'aioseop_initialize_options'.
 	 *
 	 * @TODO Should also move.
 	 */
-	function aioseop_mrt_mkarry() {
+	function aioseop_initialize_options() {
 		global $aiosp;
 		global $aioseop_options;
 		$naioseop_options = $aiosp->default_options();
@@ -420,23 +420,27 @@ function aioseop_embed_handler_html( $return, $url, $attr ) {
 	return AIO_ProGeneral::aioseop_embed_handler_html();
 }
 
-function aioseop_ajax_update_oembed() {
-	AIO_ProGeneral::aioseop_ajax_update_oembed();
-}
-
 if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 
 	function aioseop_ajax_save_url() {
 		$valid   = true;
+		$invalid_msg	= null;
 		aioseop_ajax_init();
 		$options = array();
 		parse_str( $_POST['options'], $options );
 		foreach ( $options as $k => $v ) {
 			// all values are mandatory while adding to the sitemap.
 			// this should work in the same way for news and video sitemaps too, but tackling only regular sitemaps for now.
-			if ( 'sitemap_addl_pages' === $_POST['settings'] && empty( $v ) ) {
-				$valid    = false;
-				break;
+			if ( 'sitemap_addl_pages' === $_POST['settings'] ) {
+				if ( empty( $v ) ) {
+					$valid    = false;
+				} elseif ( 'aiosp_sitemap_addl_url' === $k && ! aiosp_common::is_url_valid( $v ) ) {
+					$valid    = false;
+					$invalid_msg	= __( 'Please provide absolute URLs (including http or https).', 'all-in-one-seo-pack' );
+				}
+				if ( ! $valid ) {
+					break;
+				}
 			}
 			$_POST[ $k ] = $v;
 		}
@@ -471,7 +475,11 @@ if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 			$output  = str_replace( "'", "\'", $output );
 			$output  = str_replace( "\n", '\n', $output );
 		} else {
-			$output   = __( 'All values are mandatory.', 'all-in-one-seo-pack' );
+			if ( $invalid_msg ) {
+				$output	= $invalid_msg;
+			} else {
+				$output   = __( 'All values are mandatory.', 'all-in-one-seo-pack' );
+			}
 		}
 		die( sprintf( AIOSEOP_AJAX_MSG_TMPL, $output ) );
 	}
@@ -925,11 +933,11 @@ if ( ! function_exists( 'fnmatch' ) ) {
 }
 
 if ( ! function_exists( 'aiosp_log' ) ) {
-	function aiosp_log( $log ) {
+	function aiosp_log( $log, $force = false ) {
 
 		global $aioseop_options;
 
-		if ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) {
+		if ( ( ! empty( $aioseop_options ) && isset( $aioseop_options['aiosp_do_log'] ) && $aioseop_options['aiosp_do_log'] ) || $force || defined( 'AIOSEOP_DO_LOG' ) ) {
 
 			if ( is_array( $log ) || is_object( $log ) ) {
 				error_log( print_r( $log, true ) );
@@ -1046,5 +1054,28 @@ if ( ! function_exists( 'aiosp_include_images' ) ) {
 		}
 
 		return true;
+	}
+}
+
+
+if ( ! function_exists( 'aioseop_formatted_date' ) ) {
+	/**
+	 * Get formatted date. For custom formatting, the user has 2 options:
+	 * 1. provide the native date_i18n filter.
+	 * 2. provide a custom aioseop_format_date filter.
+	 *
+	 * @param int    $date Date in UNIX timestamp format.
+	 * @param string $format Require date format.
+	 */
+	function aioseop_formatted_date( $date = null, $format = null ) {
+		if ( ! $format ) {
+			$format = get_option( 'date_format' );
+		}
+		if ( ! $date ) {
+			$date = time();
+		}
+
+		$formatted_date = date_i18n( $format, $date );
+		return apply_filters( 'aioseop_format_date', $formatted_date, $date, $format );
 	}
 }

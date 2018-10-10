@@ -326,37 +326,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
-		 * convert xml string to php array - useful to get a serializable value
+		 * Convert html string to php array - useful to get a serializable value.
 		 *
 		 * @param string $xmlstr
 		 *
 		 * @return array
-		 *
-		 * @author Adrien aka Gaarf & contributors
-		 * @see    http://gaarf.info/2009/08/13/xml-string-to-php-array/
 		 */
-		function html_string_to_array( $xmlstr ) {
+		function html_string_to_array( $htmlstr ) {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				return array();
 			} else {
 				$doc = new DOMDocument();
-				$doc->loadHTML( $xmlstr );
-
-				return $this->domnode_to_array( $doc->documentElement );
-			}
-		}
-
-		/**
-		 * @param $xmlstr
-		 *
-		 * @return array|string
-		 */
-		function xml_string_to_array( $xmlstr ) {
-			if ( ! class_exists( 'DOMDocument' ) ) {
-				return array();
-			} else {
-				$doc = new DOMDocument();
-				$doc->loadXML( $xmlstr );
+				$doc->loadXML( $htmlstr );
 
 				return $this->domnode_to_array( $doc->documentElement );
 			}
@@ -443,9 +424,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 						if ( ! empty( $post ) ) {
 							$result = get_post_meta( $post->ID, $matches[1], true );
 						}
-					}
-					if ( empty( $result ) ) {
-						$result = $matches[0];
 					}
 				} else {
 					$result = $matches[0];
@@ -644,7 +622,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				'Python-urllib',
 				'QueryN Metasearch',
 				'RepoMonkey',
-				'SemrushBot',
 				'SISTRIX',
 				'sitecheck.Internetseer.com',
 				'SiteSnagger',
@@ -695,7 +672,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				'Incutio',
 				'lmspider',
 				'memoryBot',
-				'SemrushBot',
 				'serf',
 				'Unknown',
 				'uptime files',
@@ -2043,12 +2019,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					add_action( "load-{$hookname}", array( $this, 'add_page_hooks' ) );
 				} elseif ( $v['type'] === 'metabox' ) {
 					$this->setting_options( $k ); // hack -- make sure this runs anyhow, for now -- pdb
-					add_action( 'edit_post', array( $this, 'save_post_data' ) );
-					add_action( 'publish_post', array( $this, 'save_post_data' ) );
-					add_action( 'add_attachment', array( $this, 'save_post_data' ) );
-					add_action( 'edit_attachment', array( $this, 'save_post_data' ) );
-					add_action( 'save_post', array( $this, 'save_post_data' ) );
-					add_action( 'edit_page_form', array( $this, 'save_post_data' ) );
+					$this->toggle_save_post_hooks( true );
 					if ( isset( $v['display'] ) && ! empty( $v['display'] ) ) {
 						add_action( 'admin_print_scripts', array( $this, 'enqueue_metabox_scripts' ), 5 );
 						if ( $this->tabbed_metaboxes ) {
@@ -2109,36 +2080,54 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
+		 * Adds or removes hooks that could be called while editing a post.
+		 *
+		 * TODO: Review if all these hooks are really required (save_post should be enough vs. edit_post and publish_post).
+		 */
+		private function toggle_save_post_hooks( $add ) {
+			if ( $add ) {
+				add_action( 'edit_post', array( $this, 'save_post_data' ) );
+				add_action( 'publish_post', array( $this, 'save_post_data' ) );
+				add_action( 'add_attachment', array( $this, 'save_post_data' ) );
+				add_action( 'edit_attachment', array( $this, 'save_post_data' ) );
+				add_action( 'save_post', array( $this, 'save_post_data' ) );
+				add_action( 'edit_page_form', array( $this, 'save_post_data' ) );
+			} else {
+				remove_action( 'edit_post', array( $this, 'save_post_data' ) );
+				remove_action( 'publish_post', array( $this, 'save_post_data' ) );
+				remove_action( 'add_attachment', array( $this, 'save_post_data' ) );
+				remove_action( 'edit_attachment', array( $this, 'save_post_data' ) );
+				remove_action( 'save_post', array( $this, 'save_post_data' ) );
+				remove_action( 'edit_page_form', array( $this, 'save_post_data' ) );
+			}
+		}
+
+		/**
 		 * Update postmeta for metabox.
 		 *
 		 * @param $post_id
 		 */
 		function save_post_data( $post_id ) {
-			static $update = false;
-			if ( $update ) {
-				return;
-			}
+			$this->toggle_save_post_hooks( false );
 			if ( $this->locations !== null ) {
 				foreach ( $this->locations as $k => $v ) {
 					if ( isset( $v['type'] ) && ( $v['type'] === 'metabox' ) ) {
 						$opts    = $this->default_options( $k );
 						$options = array();
-						$update  = false;
 						foreach ( $opts as $l => $o ) {
 							if ( isset( $_POST[ $l ] ) ) {
 								$options[ $l ] = stripslashes_deep( $_POST[ $l ] );
 								$options[ $l ] = esc_attr( $options[ $l ] );
-								$update        = true;
 							}
 						}
-						if ( $update ) {
-							$prefix  = $this->get_prefix( $k );
-							$options = apply_filters( $prefix . 'filter_metabox_options', $options, $k, $post_id );
-							update_post_meta( $post_id, '_' . $prefix . $k, $options );
-						}
+						$prefix  = $this->get_prefix( $k );
+						$options = apply_filters( $prefix . 'filter_metabox_options', $options, $k, $post_id );
+						update_post_meta( $post_id, '_' . $prefix . $k, $options );
 					}
 				}
 			}
+
+			$this->toggle_save_post_hooks( true );
 		}
 
 		/**
@@ -2149,9 +2138,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 * @return string
 		 */
 		function do_multi_input( $args ) {
-			// @codingStandardsIgnoreStart
-			extract( $args );
-			// @codingStandardsIgnoreEnd
+			$options = $args['options'];
+			$value = $args['value'];
+			$name = $args['name'];
+			$attr = $args['attr'];
+
 			$buf1 = '';
 			$type = $options['type'];
 
@@ -2228,9 +2219,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 */
 		function get_option_html( $args ) {
 			static $n = 0;
-			// @codingStandardsIgnoreStart
-			extract( $args );
-			// @codingStandardsIgnoreEnd
+
+			$options = $args['options'];
+			$value = $args['value'];
+			$name = $args['name'];
+			$attr = $args['attr'];
+			$prefix = isset( $args['prefix'] ) ? $args['prefix'] : '';
 
 			if ( $options['type'] == 'custom' ) {
 				return apply_filters( "{$prefix}output_option", '', $args );
@@ -2256,8 +2250,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			$onload = '';
 			if ( ! empty( $options['count'] ) ) {
 				$n ++;
-				$attr .= " onKeyDown='if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n)' onKeyUp='if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n)'";
-				$onload = "if (typeof countChars == \"function\") countChars(document.{$this->form}.$name,document.{$this->form}.{$prefix}length$n);";
+				$classes = isset( $options['class'] ) ? $options['class'] : '';
+				$classes .= ' aioseop_count_chars';
+				$attr .= " class='{$classes}' data-length-field='{$prefix}length$n'";
 			}
 			if ( isset( $opts['id'] ) ) {
 				$attr .= " id=\"{$opts['id']}\" ";
@@ -2317,15 +2312,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				} elseif ( isset( $options['rows'] ) && isset( $options['cols'] ) ) {
 					$size = $options['rows'] * $options['cols'];
 				}
-				if ( 'Description' === $options['name'] && isset( $options['name'] ) ) {
-					$size = ( $size - 90 ) . '-' . $size;
-				}
 				if ( isset( $options['count_desc'] ) ) {
 					$count_desc = $options['count_desc'];
 				} else {
 					$count_desc = __( ' characters. Most search engines use a maximum of %1$s chars for the %2$s.', 'all-in-one-seo-pack' );
 				}
-				$buf .= "<br /><input readonly type='text' name='{$prefix}length$n' size='3' maxlength='3' style='width:53px;height:23px;margin:0px;padding:0px 0px 0px 10px;' value='" . $this->strlen( $value ) . "' />"
+				$buf .= "<br /><input readonly tabindex='-1' type='text' name='{$prefix}length$n' size='3' maxlength='3' style='width:53px;height:23px;margin:0px;padding:0px 0px 0px 10px;' value='" . $this->strlen( $value ) . "' />"
 						. sprintf( $count_desc, $size, trim( $this->strtolower( $options['name'] ), ':' ) );
 				if ( ! empty( $onload ) ) {
 					$buf .= "<script>jQuery( document ).ready(function() { {$onload} });</script>";
@@ -2526,6 +2518,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 						case 'filename':
 							$this->options[ $k ] = sanitize_file_name( $this->options[ $k ] );
 							break;
+						case 'url':
+							// fall through.
 						case 'text':
 							$this->options[ $k ] = wp_kses_post( $this->options[ $k ] );
 							// fall through.
