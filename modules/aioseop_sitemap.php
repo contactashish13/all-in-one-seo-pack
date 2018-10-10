@@ -3085,7 +3085,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			if ( isset( $post_thumbnails[ $post->ID ] ) ) {
-				$attachment_url = wp_get_attachment_image_url( $post_thumbnails[ $post->ID ], 'post-thumbnail' );
+				$attachment_url = wp_get_attachment_image_url( $post_thumbnails[ $post->ID ], 'full' );
 				if ( $attachment_url ) {
 					$images[] = $attachment_url;
 				}
