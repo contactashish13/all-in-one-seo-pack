@@ -143,7 +143,6 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		}
 	}
 
-
 	/**
 	 * Switch between user roles
 	 * E.g. administrator, editor, author, contributor, subscriber
@@ -400,5 +399,4 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	}
 
 }
-
 
