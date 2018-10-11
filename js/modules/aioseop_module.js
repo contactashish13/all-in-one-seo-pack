@@ -585,7 +585,7 @@ jQuery( document ).ready(
 		);
 
 
-        jQuery( "div#aiosp_robots_default_metabox" )
+		jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_delete_rule", "click", function( e ) {
 				e.preventDefault();
@@ -601,7 +601,7 @@ jQuery( document ).ready(
 			}
 		);
 
-        jQuery( "div#aiosp_robots_default_metabox" )
+    jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_edit_rule", "click", function( e ) {
 				e.preventDefault();
@@ -613,7 +613,7 @@ jQuery( document ).ready(
 				return false;
 			}
 		);
-
+    
 		jQuery( "a.aiosp_robots_physical" ).on( 'click', function( e ) {
 			e.preventDefault();
 			aioseop_handle_post_url(
