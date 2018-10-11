@@ -284,34 +284,6 @@ jQuery( document ).ready(
 		);
 
         /**
-         * @summary workaround for bug that causes radio inputs to lose settings when meta box is dragged.
-         *
-         * props to commentluv for this fix
-         * @author commentluv.
-         * @link https://core.trac.wordpress.org/ticket/16972
-         * @since 1.0.0
-         */
-        jQuery(document).ready(
-            function () {
-                // listen for drag drop of metaboxes , bind mousedown to .hndle so it only fires when starting to drag
-                jQuery('.hndle').mousedown(
-                    function () {
-
-                        // set live event listener for mouse up on the content .wrap and wait a tick to give the dragged div time to settle before firing the reclick function
-                        jQuery('.wrap').mouseup(
-                            function () {
-                                aiosp_store_radio();
-                                setTimeout(function () {
-                                    aiosp_reclick_radio();
-                                }, 50);
-                            }
-                        );
-                    }
-                );
-            }
-        );
-
-        /**
          * @summary Javascript for using WP media uploader. Indentifies which DOM should use custom uploader plugin.
          *
          * @see http://www.webmaster-source.com/2013/02/06/using-the-wordpress-3-5-media-uploader-in-your-plugin-or-theme/
@@ -629,6 +601,19 @@ jQuery( document ).ready(
 			}
 		);
 
+    jQuery( "div#aiosp_robots_default_metabox" )
+		.delegate(
+			"a.aiosp_robots_edit_rule", "click", function( e ) {
+				e.preventDefault();
+                jQuery('input[name="aiosp_robots_agent"]').val(jQuery(this).attr('data-agent'));
+                jQuery('select[name="aiosp_robots_type"]').val(jQuery(this).attr('data-type'));
+                jQuery('input[name="aiosp_robots_path"]').val(jQuery(this).attr('data-path'));
+                jQuery('input.add-edit-rule').val(jQuery('.aioseop_table').attr('data-edit-label'));
+                jQuery('input.edit-rule-id').val(jQuery(this).attr('data-id'));
+				return false;
+			}
+		);
+    
 		jQuery( "a.aiosp_robots_physical" ).on( 'click', function( e ) {
 			e.preventDefault();
 			aioseop_handle_post_url(
