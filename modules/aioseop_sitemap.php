@@ -372,7 +372,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			wp_register_script( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'js/lib/chosen.jquery.min.js', array( 'jquery' ), AIOSEOP_VERSION );
 			wp_register_style( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'css/lib/chosen.min.css', array(), AIOSEOP_VERSION );
 
-			if ( $current_screen && 'all-in-one-seo_page_all-in-one-seo-pack/modules/aioseop_sitemap' === $current_screen->id ) {
+			if ( $current_screen && strpos( $current_screen->id, '/modules/aioseop_sitemap' ) !== false ) {
 				wp_enqueue_script( 'aioseop-chosen' );
 				wp_enqueue_style( 'aioseop-chosen' );
 				$deps[] = 'aioseop-chosen';
