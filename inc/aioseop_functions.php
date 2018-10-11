@@ -420,23 +420,27 @@ function aioseop_embed_handler_html( $return, $url, $attr ) {
 	return AIO_ProGeneral::aioseop_embed_handler_html();
 }
 
-function aioseop_ajax_update_oembed() {
-	AIO_ProGeneral::aioseop_ajax_update_oembed();
-}
-
 if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 
 	function aioseop_ajax_save_url() {
 		$valid   = true;
+		$invalid_msg	= null;
 		aioseop_ajax_init();
 		$options = array();
 		parse_str( $_POST['options'], $options );
 		foreach ( $options as $k => $v ) {
 			// all values are mandatory while adding to the sitemap.
 			// this should work in the same way for news and video sitemaps too, but tackling only regular sitemaps for now.
-			if ( 'sitemap_addl_pages' === $_POST['settings'] && empty( $v ) ) {
-				$valid    = false;
-				break;
+			if ( 'sitemap_addl_pages' === $_POST['settings'] ) {
+				if ( empty( $v ) ) {
+					$valid    = false;
+				} elseif ( 'aiosp_sitemap_addl_url' === $k && ! aiosp_common::is_url_valid( $v ) ) {
+					$valid    = false;
+					$invalid_msg	= __( 'Please provide absolute URLs (including http or https).', 'all-in-one-seo-pack' );
+				}
+				if ( ! $valid ) {
+					break;
+				}
 			}
 			$_POST[ $k ] = $v;
 		}
@@ -471,7 +475,11 @@ if ( ! function_exists( 'aioseop_ajax_save_url' ) ) {
 			$output  = str_replace( "'", "\'", $output );
 			$output  = str_replace( "\n", '\n', $output );
 		} else {
-			$output   = __( 'All values are mandatory.', 'all-in-one-seo-pack' );
+			if ( $invalid_msg ) {
+				$output	= $invalid_msg;
+			} else {
+				$output   = __( 'All values are mandatory.', 'all-in-one-seo-pack' );
+			}
 		}
 		die( sprintf( AIOSEOP_AJAX_MSG_TMPL, $output ) );
 	}
@@ -868,6 +876,13 @@ if ( ! function_exists( 'aioseop_add_contactmethods' ) ) {
 
 if ( ! function_exists( 'aioseop_localize_script_data' ) ) {
 
+	/**
+	 * AIOSEOP Localize Script Data
+     *
+     * Used by the module base class script enqueue to localize data.
+     *
+     * @since ?
+	 */
 	function aioseop_localize_script_data() {
 		static $loaded = 0;
 		if ( ! $loaded ) {
