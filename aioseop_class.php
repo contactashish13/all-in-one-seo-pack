@@ -2779,9 +2779,19 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 		if ( ! empty( $page ) && $page > 1 ) {
 			if ( $page == get_query_var( 'page' ) ) {
-				$link = trailingslashit( $link ) . "$page";
+				if ( get_query_var( 'p' ) ) {
+					// non-pretty urls.
+					$link = add_query_arg( 'page', $page, $link );
+				} else {
+					$link = trailingslashit( $link ) . "$page";
+				}
 			} else {
-				$link = trailingslashit( $link ) . trailingslashit( $page_name ) . $page;
+				if ( get_query_var( 'p' ) ) {
+					// non-pretty urls.
+					$link = add_query_arg( 'page', $page, trailingslashit( $link ) . $page_name );
+				} else {
+					$link = trailingslashit( $link ) . trailingslashit( $page_name ) . $page;
+				}
 			}
 			$link = user_trailingslashit( $link, 'paged' );
 		}
@@ -4067,6 +4077,9 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			$url = '';
 			if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) && ! is_home() ) {
 				$url = $opts['aiosp_custom_link'];
+				if ( apply_filters( 'aioseop_canonical_url_pagination', $show_page ) ) {
+					$url = $this->get_paged( $url );
+				}
 			}
 			if ( empty( $url ) ) {
 				$url = $this->aiosp_mrt_get_url( $wp_query, $show_page );
