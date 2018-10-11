@@ -1248,7 +1248,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				} else {
 					$img_type = $this->options['aiosp_opengraph_defimg'];
 					if ( ! empty( $post ) ) {
-						// maybe the user wants to customize the type of image per post/post_type.
+						// Customize the type of image per post/post_type.
 						$img_type = apply_filters( $this->prefix . 'default_image_type', $img_type, $post, $type );
 					}
 					switch ( $img_type ) {
@@ -1288,7 +1288,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			if ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) {
 				$thumbnail = $this->options['aiosp_opengraph_dimg'];
 				if ( ! empty( $post ) ) {
-					// maybe the user wants to customize the default image per post/post_type.
+					// Customize the default image per post/post_type.
 					$thumbnail = apply_filters( $this->prefix . 'default_image', $thumbnail, $post, $type );
 				}
 			}
