@@ -2797,7 +2797,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			return null;
 		}
 		// If we are on synthetic pages.
-		if ( ! is_home() && ! is_page() && ! is_single() && ! $this->is_static_front_page() && ! $this->is_static_posts_page() && ! is_archive() && ! is_post_type_archive() && ! is_category() && ! is_tag() && ! is_tax() ) {
+		if ( ! is_home() && ! is_page() && ! is_single() && ! $this->is_static_front_page() && ! $this->is_static_posts_page() && ! is_archive() && ! is_post_type_archive() && ! is_category() && ! is_tag() && ! is_tax() && ! $this->check_singular() ) {
 			return null;
 		}
 		$keywords = array();
