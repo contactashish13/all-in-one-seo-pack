@@ -359,7 +359,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Load resources.
 		 */
-		function admin_enqueue_scripts() {
+		function admin_enqueue_scripts( $hook_suffix ) {
 			$current_screen = get_current_screen();
 			$deps = array();
 			$options = array(
