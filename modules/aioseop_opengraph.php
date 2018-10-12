@@ -197,87 +197,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			add_action( 'edited_term', array( &$this, 'save_tax_data' ), 10, 3 );
 			// Adds special filters
 			add_filter( 'aioseop_opengraph_placeholder', array( &$this, 'filter_placeholder' ) );
-			add_action( 'aiosp_activate_opengraph', array( $this, 'activate_module' ) );
 			// Call to init to generate menus
 			$this->init();
 		}
-
-		/**
-		 * Called when this module is activated.
-		 */
-		public function activate_module() {
-			if ( $this->locations !== null ) {
-				foreach ( $this->locations as $k => $v ) {
-					if ( ! isset( $v['type'] ) || 'metabox' !== $v['type'] ) {
-						continue;
-					}
-					$this->set_virgin_tax_terms( $k );
-				}
-			}
-		}
-
-		/**
-		 * This iterates over all taxonomies that do not have a opengraph setting defined and sets the defaults.
-		 *
-		 * @param string $k The key against which the options will be determined/set.
-		 */
-		private function set_virgin_tax_terms( $k ) {
-			global $aioseop_options;
-			$prefix  = $this->get_prefix( $k );
-			$opts    = $this->default_options( $k );
-			$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
-			$taxonomies = get_taxonomies( array( 'public' => true ), 'object' );
-			if ( ! $taxonomies ) {
-				return;
-			}
-			foreach ( $taxonomies as $name => $tax ) {
-				$terms = get_terms( $name, array(
-					'meta_query' => array(
-						array(
-							'key' => '_' . $prefix . $k,
-							'compare' => 'NOT EXISTS',
-						)
-					),
-					'number' => PHP_INT_MAX,
-					'fields' => 'ids',
-					'hide_empty' => false,
-				) );
-				if ( empty( $terms ) ) {
-					continue;
-				}
-				$category = null;
-				if ( true === $tax->_builtin ) {
-					$category = 'article';
-				} else {
-					// custom taxonomy. Let's get a post against this to determine its post type.
-					$posts = get_posts( array(
-						'numberposts' => 1,
-						'post_type' => 'any',
-						'tax_query' => array(
-							array(
-								'taxonomy' => $name,
-								'field' => 'term_id',
-								'terms' => $terms
-							),
-						),
-					) );
-					if ( $posts ) {
-						$post_type = $posts[0]->post_type;
-						// now let's see what default object type is set for this post type.
-						$object_type = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
-						if ( ! empty( $object_type ) ) {
-							$category = $object_type;
-						}
-					}
-				}
-				if ( $category ) {
-					$opts[ $prefix . $k .'_category' ] = $category;
-					foreach ( $terms as $term_id ) {
-						update_term_meta( $term_id, '_' . $prefix . $k, $opts );
-					}
-				}
-			}
-	}
 
 		/**
 		 * Hook called after WordPress has been loaded.
@@ -1324,7 +1246,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				if ( empty( $this->options['aiosp_opengraph_defimg'] ) ) {
 					$thumbnail = $this->options['aiosp_opengraph_dimg'];
 				} else {
-					switch ( $this->options['aiosp_opengraph_defimg'] ) {
+					$img_type = $this->options['aiosp_opengraph_defimg'];
+					if ( ! empty( $post ) ) {
+						// Customize the type of image per post/post_type.
+						$img_type = apply_filters( $this->prefix . 'default_image_type', $img_type, $post, $type );
+					}
+					switch ( $img_type ) {
 						case 'featured':
 							$thumbnail = $this->get_the_image_by_post_thumbnail();
 							break;
@@ -1358,8 +1285,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 
-			if ( ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) ) {
+			if ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) {
 				$thumbnail = $this->options['aiosp_opengraph_dimg'];
+				if ( ! empty( $post ) ) {
+					// Customize the default image per post/post_type.
+					$thumbnail = apply_filters( $this->prefix . 'default_image', $thumbnail, $post, $type );
+				}
 			}
 
 			if ( ! empty( $thumbnail ) ) {
@@ -1502,7 +1433,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						} else {
 							// For everything else.
 							foreach ( $filtered_value as $f ) {
-								echo '<meta ' . $tags[ $t ]['name'] . '="' . $v . '" ' . $tags[ $t ]['value'] . '="' . $f . '" />' . "\n";
+								// #1363: use esc_attr( $f ) instead of htmlspecialchars_decode( $f, ENT_QUOTES )
+								echo '<meta ' . $tags[ $t ]['name'] . '="' . $v . '" ' . $tags[ $t ]['value'] . '="' . esc_attr( $f ) . '" />' . "\n";
 							}
 						}
 					}
