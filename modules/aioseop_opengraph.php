@@ -1028,12 +1028,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					if ( ! empty( $post->post_content ) || ! empty( $post->post_excerpt ) ) {
 						$description = $aiosp->trim_excerpt_without_filters( $aiosp->internationalize( preg_replace( '/\s+/', ' ', $post->post_excerpt ) ), 1000 );
 
-						if ( 
-							! empty( $this->options['aiosp_opengraph_generate_descriptions'] ) 
-							&& 
-							( ! AIOSEOPPRO || ( AIOSEOPPRO && apply_filters( $this->prefix . 'generate_descriptions_from_content', true, $post ) ) )
-						) {
-							$description = $aiosp->trim_excerpt_without_filters( $aiosp->internationalize( preg_replace( '/\s+/', ' ', $post->post_content ) ), 1000 );
+						if ( ! empty( $this->options['aiosp_opengraph_generate_descriptions'] ) ) {
+							if ( ! AIOSEOPPRO || ( AIOSEOPPRO && apply_filters( $this->prefix . 'generate_descriptions_from_content', true, $post ) ) ) {
+								$description = $aiosp->trim_excerpt_without_filters( $aiosp->internationalize( preg_replace( '/\s+/', ' ', $post->post_content ) ), 1000 );
+							}
 						}
 					}
 				}
@@ -1250,7 +1248,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				if ( empty( $this->options['aiosp_opengraph_defimg'] ) ) {
 					$thumbnail = $this->options['aiosp_opengraph_dimg'];
 				} else {
-					switch ( $this->options['aiosp_opengraph_defimg'] ) {
+					$img_type = $this->options['aiosp_opengraph_defimg'];
+					if ( ! empty( $post ) ) {
+						// Customize the type of image per post/post_type.
+						$img_type = apply_filters( $this->prefix . 'default_image_type', $img_type, $post, $type );
+					}
+					switch ( $img_type ) {
 						case 'featured':
 							$thumbnail = $this->get_the_image_by_post_thumbnail();
 							break;
@@ -1284,8 +1287,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 
-			if ( ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) ) {
+			if ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) {
 				$thumbnail = $this->options['aiosp_opengraph_dimg'];
+				if ( ! empty( $post ) ) {
+					// Customize the default image per post/post_type.
+					$thumbnail = apply_filters( $this->prefix . 'default_image', $thumbnail, $post, $type );
+				}
 			}
 
 			if ( ! empty( $thumbnail ) ) {
