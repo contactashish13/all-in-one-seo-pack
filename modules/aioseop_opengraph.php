@@ -188,7 +188,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			if ( ! is_admin() || defined( 'DOING_AJAX' ) || ( defined( 'AIOSEOP_UNIT_TESTING' ) && AIOSEOP_UNIT_TESTING ) ) {
 				$this->do_opengraph();
 			}
-
 			// Set variables after WordPress load.
 			add_action( 'init', array( &$this, 'init' ), 999999 );
 			add_filter( 'jetpack_enable_open_graph', '__return_false' ); // Avoid having duplicate meta tags
@@ -972,7 +971,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		function add_meta() {
 			global $post, $aiosp, $aioseop_options, $wp_query;
 			$metabox           = $this->get_current_options( array(), 'settings' );
-	
+
 			// we have to introduce this because, for some reason, $this->options is not being populated at all while testing.
 			if ( defined( 'AIOSEOP_UNIT_TESTING' ) && AIOSEOP_UNIT_TESTING ) {
 				$this->options	= $aioseop_options['modules']['aiosp_opengraph_options'];
@@ -1253,7 +1252,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				if ( empty( $this->options['aiosp_opengraph_defimg'] ) ) {
 					$thumbnail = $this->options['aiosp_opengraph_dimg'];
 				} else {
-					switch ( $this->options['aiosp_opengraph_defimg'] ) {
+					$img_type = $this->options['aiosp_opengraph_defimg'];
+					if ( ! empty( $post ) ) {
+						// Customize the type of image per post/post_type.
+						$img_type = apply_filters( $this->prefix . 'default_image_type', $img_type, $post, $type );
+					}
+					switch ( $img_type ) {
 						case 'featured':
 							$thumbnail = $this->get_the_image_by_post_thumbnail();
 							break;
@@ -1287,8 +1291,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 
-			if ( ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) ) {
+			if ( empty( $thumbnail ) && ! empty( $this->options['aiosp_opengraph_fallback'] ) ) {
 				$thumbnail = $this->options['aiosp_opengraph_dimg'];
+				if ( ! empty( $post ) ) {
+					// Customize the default image per post/post_type.
+					$thumbnail = apply_filters( $this->prefix . 'default_image', $thumbnail, $post, $type );
+				}
 			}
 
 			if ( ! empty( $thumbnail ) ) {
