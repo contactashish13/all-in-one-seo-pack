@@ -2527,7 +2527,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 */
 	function get_page_number() {
 		global $post;
-		if ( false === strpos( $post->post_content, '<!--nextpage-->' ) ) {
+		if ( is_singular() && false === strpos( $post->post_content, '<!--nextpage-->' ) ) {
 			return null;
 		}
 		$page = get_query_var( 'page' );
