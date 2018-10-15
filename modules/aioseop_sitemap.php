@@ -3617,8 +3617,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
 				$args['number'] = $this->max_posts;
 				$args['offset'] = $page * $this->max_posts;
-
 			}
+
+			$args = apply_filters( $this->prefix . 'tax_args', $args, $page, $this->options );
 
 			return $args;
 		}
