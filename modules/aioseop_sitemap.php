@@ -1927,8 +1927,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			// terms excluded in the settings.
 			$terms_excluded = $this->options[ $this->prefix . 'excl_categories' ];
-
-			$common	= count( array_intersect( $term_ids, $terms_excluded ) );
+			if ( ! empty( $terms_excluded ) ) {
+				$common	= count( array_intersect( $term_ids, $terms_excluded ) );
+			} else {
+				$common = $term_ids;
+			}
 
 			// the category is excluded if ALL or NONE of its terms have been specified in the exclude terms list.
 			return 0 === $common || $common === count( $term_ids );
