@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Test_Sitemap
+ * Class Test_Meta
  *
  * @package
  */
@@ -11,7 +11,7 @@
 
 require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
-class Test_Opengraph extends AIOSEOP_Test_Base {
+class Test_Meta extends AIOSEOP_Test_Base {
 
 	/**
 	 * Checks the home page's meta tags.
