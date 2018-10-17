@@ -1650,7 +1650,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 
 			$images		= aiosp_common::parse_content_for_images( $post );
 			if ( $images ) {
-				$url = aiosp_common::get_image_src_for_url( $images[0] );
+				$url = aiosp_common::get_image_src_for_url( $images[0], 'full' );
 			}
 
 			return $url;
