@@ -73,6 +73,11 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 		$image_url = $props[ 'og:image' ];
 
 		$this->assertContains( '/large', $image_url, 'Incorrect image found!', true );
+
+		// if we expect a full size image, then the url will not contain an 'x' (e.g. thumbnails might be <image>-150x150.png)
+		if ( ! $use_filter ) {
+			$this->assertNotContains( 'x', basename( $image_url ), 'Incorrect image found!', true );
+		}
 		if ( $str_in_image_url ) {
 			$this->assertContains( $str_in_image_url, $image_url, 'Incorrect image size found!', true );
 		}
