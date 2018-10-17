@@ -277,7 +277,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					}
 				}
 			}
-	}
+		}
 
 		/**
 		 * Hook called after WordPress has been loaded.
