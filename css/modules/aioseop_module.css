@@ -1507,3 +1507,11 @@ textarea.robots-text {
 div#aiosp_sitemap_status_metabox .toggle-indicator {
     display:none;
 }
+
+
+.aioseop-status-button.dashicons-yes {
+	color: #0dc30d;
+}
+ .aioseop-status-button.dashicons-no {
+	color: #ff0000;
+}

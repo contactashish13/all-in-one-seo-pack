@@ -2277,6 +2277,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					'submit',
 					'hidden',
 					'date',
+					'status-button',
 				)
 			) && is_string( $value )
 			) {
@@ -2337,6 +2338,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					break;
 				case 'esc_html':
 					$buf .= '<pre>' . esc_html( $value ) . "</pre>\n";
+					break;
+				case 'status-button':
+					switch ( $value ) {
+						case 'on':
+							$color = 'dashicons-yes';
+							break;
+						default:
+							$color = 'dashicons-no';
+							break;
+					}
+					$buf .= '<span class="dashicons aioseop-status-button ' . $color . '"></span>';
 					break;
 				case 'date':
 					// firefox and IE < 11 do not have support for HTML5 date, so we will fall back to the datepicker.

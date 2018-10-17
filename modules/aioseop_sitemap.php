@@ -51,7 +51,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'author'          => __( 'Include Author Archives in your sitemap.', 'all-in-one-seo-pack' ),
 				'images'          => __( 'Exclude Images in your sitemap.', 'all-in-one-seo-pack' ),
 				'gzipped'         => __( 'Create a compressed sitemap file in .xml.gz format.', 'all-in-one-seo-pack' ),
-				'robots'          => __( 'Places a link to your Sitemap.xml into your virtual Robots.txt file.', 'all-in-one-seo-pack' ),
+				'robots'          => __( 'Indicates if a link to the Sitemap.xml has been placed in your virtual Robots.txt file.', 'all-in-one-seo-pack' ),
 				'rewrite'         => __( 'Dynamically creates the XML sitemap instead of using a static file.', 'all-in-one-seo-pack' ),
 				'addl_url'        => __( 'URL to the page. This field accepts relative URLs or absolute URLs with the protocol specified.', 'all-in-one-seo-pack' ),
 				'addl_prio'       => __( 'The priority of the page.', 'all-in-one-seo-pack' ),
@@ -82,6 +82,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			);
 
 			$this->default_options = array(
+				'robots'     => array(
+					'name'    => __( 'Added to Virtual Robots.txt', 'all-in-one-seo-pack' ),
+					'default' => 'On',						'type'		=> 'status-button',
+					'value' => true === apply_filters( "{$this->prefix}link_to_robots", true ) ? 1 : 0,
+					'save'  => false,
+				),
 				'daily_cron' => array(
 					'name'            => __( 'Schedule Updates', 'all-in-one-seo-pack' ),
 					'type'            => 'select',
@@ -115,10 +121,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'images'     => array( 'name' => __( 'Exclude Images', 'all-in-one-seo-pack' ) ),
 				'gzipped'    => array(
 					'name'    => __( 'Create Compressed Sitemap', 'all-in-one-seo-pack' ),
-					'default' => 'On',
-				),
-				'robots'     => array(
-					'name'    => __( 'Link From Virtual Robots.txt', 'all-in-one-seo-pack' ),
 					'default' => 'On',
 				),
 				'rewrite'    => array(
@@ -466,7 +468,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this->setup_rewrites();
 			}
 
-			if ( $this->option_isset( 'robots' ) ) {
+			if ( apply_filters( "{$this->prefix}link_to_robots", true ) ) {
 				add_action( 'do_robots', array( $this, 'do_robots' ), 100 );
 			}
 
