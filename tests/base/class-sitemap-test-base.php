@@ -148,6 +148,10 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$xml = simplexml_load_file( $file );
 		$ns = $xml->getNamespaces( true );
 
+		if ( $debug ) {
+			echo file_get_contents($file);
+		}
+
 		$urls = array();
 		foreach ( $xml->sitemap as $url ) {
 			$urls[] = (string) $url->loc;

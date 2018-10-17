@@ -1783,9 +1783,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$prio        = $this->get_default_priority( 'post' );
 				$freq        = $this->get_default_frequency( 'post' );
 				$post_counts = $this->get_all_post_counts(
-					array(
-						'post_type'   => $options[ "{$this->prefix}posttypes" ],
-						'post_status' => 'publish',
+					$this->set_post_args(
+						array(
+							'post_type'   => $options[ "{$this->prefix}posttypes" ],
+							'post_status' => 'publish',
+						),
+						true
 					)
 				);
 
@@ -1930,7 +1933,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $terms_excluded ) ) {
 				$common	= count( array_intersect( $term_ids, $terms_excluded ) );
 			} else {
-				$common = $term_ids;
+				$common = count( $term_ids );
 			}
 
 			// the category is excluded if ALL or NONE of its terms have been specified in the exclude terms list.
@@ -3631,7 +3634,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return mixed
 		 */
-		function set_post_args( $args ) {
+		function set_post_args( $args, $only_tax = false ) {
 			$exclude = $this->get_excluded_terms( false );
 			if ( $exclude ) {
 				$tax_query = array();
@@ -3652,10 +3655,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 				$args['tax_query'] = $tax_query;
 			}
-			if ( $this->option_isset( 'excl_pages' ) ) {
-				$args['exclude'] = $this->options[ $this->prefix . 'excl_pages' ];
+			if ( ! $only_tax ) {
+				if ( $this->option_isset( 'excl_pages' ) ) {
+					$args['exclude'] = $this->options[ $this->prefix . 'excl_pages' ];
+				}
 			}
-
 			return $args;
 		}
 
