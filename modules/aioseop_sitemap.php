@@ -3054,6 +3054,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					// Ignore all attachments except images.
 					return null;
 				}
+				$exclude_atts = $this->exclude_attachments();
+				if ( in_array( $post->ID, $exclude_atts ) ) {
+					return null;
+				}
 				$attributes = wp_get_attachment_image_src( $post->ID, 'full' );
 				if ( $attributes ) {
 					$images[] = array(
@@ -3230,9 +3234,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ( 'publish' === $status ) && ( 'attachment' === $include ) ) {
 				$status = 'inherit';
 			}
-			if ( is_array( $include ) && ( ( $pos = array_search( 'attachment', $include ) ) !== false ) ) {
+			if ( is_array( $include ) && ( $pos = array_search( 'attachment', $include ) ) !== false ) {
 				unset( $include[ $pos ] );
-				$att_args = array( 'post_type' => 'attachment', 'post_status' => 'inherit' );
+				$exclude_atts = $this->exclude_attachments();
+				$att_args = array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'exclude' => $exclude_atts );
 				$att_args = array_merge( $att_args, $page_query );
 				$posts    = $this->get_all_post_type_data( $att_args );
 			}
@@ -3244,6 +3249,26 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$links	= $this->get_prio_from_posts( $posts, $this->get_default_priority( 'post', true ), $this->get_default_frequency( 'post', true ) );
 			$links	= array_merge( $links, $this->get_archive_prio_from_posts( $posts ) );
 			return $links;
+		}
+
+		/**
+		 * Filter attachment type posts on various criteria.
+		 * #1835 - If the post/page that this attachment is attached to is in Draft, ignore this attachment.
+		 */
+		private function exclude_attachments() {
+			global $wpdb;
+
+			// 1 query for N posts.
+			static $exclude;
+
+			if ( is_null( $_draft_posts_attachment_ids ) || defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				// get all the 'attachments' whose post_parent is not published.
+				// @codeStandardsIgnoreStart
+				$exclude = $wpdb->get_col( "SELECT p1.ID FROM $wpdb->posts p1, $wpdb->posts p2 WHERE p1.ID <> p2.ID AND p1.post_type = 'attachment' AND p2.ID = p1.post_parent AND p2.post_status <> 'publish'" );
+				// @codeStandardsIgnoreEnd
+			}
+
+			return $exclude;
 		}
 
 		/**
@@ -3504,7 +3529,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return apply_filters( $this->prefix . 'post_filter', array(), $args );
 			}
 			$exclude_slugs = array();
-			if ( ! empty( $args['exclude'] ) ) {
+			if ( ! empty( $args['exclude'] ) && is_string( $args['exclude'] ) ) {
 				$exclude = preg_split( '/[\s,]+/', trim( $args['exclude'] ) );
 				if ( ! empty( $exclude ) ) {
 					foreach ( $exclude as $k => $v ) {

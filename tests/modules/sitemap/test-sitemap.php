@@ -888,5 +888,36 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			),
 		);
 	}
+
+	/**
+	 * Creates posts in draft mode and in published mode and attaches an image to each.
+	 * The attachment attached to the draft post should not appear in the sitemap.
+	 */
+	public function test_attachment_to_draft_post() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
+		$post1	= $this->factory->post->create( array( 'post_status' => 'draft', 'post_title' => 'draft' ) );
+		$post2	= $this->factory->post->create( array( 'post_status' => 'publish', 'post_title' => 'publish' ) );
+
+		$attach1	= $this->create_attachments( 1, $post1 );
+		$attach2	= $this->create_attachments( 1, $post2 );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'attachment' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap(
+			array(
+				get_permalink( $attach1[0] ) => false,
+				get_permalink( $attach2[0] ) => true,
+			),true
+		);
+	}
 }
 
