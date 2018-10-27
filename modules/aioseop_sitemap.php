@@ -3145,11 +3145,21 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		private function get_image_attributes( $url ) {
 			$attributes	= array();
 			global $wpdb;
-			$attachment = $wpdb->get_col( $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $url ) );
-			if ( $attachment && is_array( $attachment ) && is_numeric( $attachment[0] ) ) {
+
+			static $_attachment_map;
+			if ( is_null( $_attachment_map ) || defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				$attachments = $wpdb->get_results( "SELECT ID, guid FROM $wpdb->posts WHERE post_type='attachment';", ARRAY_A );
+				if ( $attachments ) {
+					$_attachment_map = array_combine(
+							wp_list_pluck( $attachments, 'guid' ),
+							wp_list_pluck( $attachments, 'ID' )
+						);
+				}
+			}
+			if ( $_attachment_map && isset( $_attachment_map[ $url ] ) ) {
 				$attributes	= array(
-					'image:caption' => wp_get_attachment_caption( $attachment[0] ),
-					'image:title' => get_the_title( $attachment[0] ),
+					'image:caption' => wp_get_attachment_caption( $_attachment_map[ $url ] ),
+					'image:title' => get_the_title( $_attachment_map[ $url ] ),
 				);
 			}
 			return $attributes;
