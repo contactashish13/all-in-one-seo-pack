@@ -3148,7 +3148,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			static $_attachment_map;
 			if ( is_null( $_attachment_map ) || defined( 'AIOSEOP_UNIT_TESTING' ) ) {
-				$attachments = $wpdb->get_results( "SELECT ID, guid FROM $wpdb->posts WHERE post_type='attachment';", ARRAY_A );
+				$attachments = $wpdb->get_results( "SELECT ID, MD5(guid) AS guid FROM $wpdb->posts WHERE post_type='attachment' AND post_status='inherit' AND post_mime_type LIKE 'image/%';", ARRAY_A );
 				if ( $attachments ) {
 					$_attachment_map = array_combine(
 							wp_list_pluck( $attachments, 'guid' ),
@@ -3156,6 +3156,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						);
 				}
 			}
+			$url = md5( $url );
 			if ( $_attachment_map && isset( $_attachment_map[ $url ] ) ) {
 				$attributes	= array(
 					'image:caption' => wp_get_attachment_caption( $_attachment_map[ $url ] ),
