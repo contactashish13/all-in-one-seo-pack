@@ -198,8 +198,6 @@ class Test_Meta extends AIOSEOP_Test_Base {
 		remove_action( 'wp_head', 'rel_canonical' );
 
 		$aioseop_options['aiosp_can'] = 'on';
-		$aioseop_options['aiosp_enablecpost'] = $enabled ? 'on' : 0;
-		$aioseop_options['aiosp_cpostadvanced'] = $enabled ? 'on' : 0;
 		$aioseop_options['aiosp_cpostactive'] = $enabled ? array( $type ) : array();
 		$aioseop_options['aiosp_description_format'] = '---- desc desc';
 		update_option( 'aioseop_options', $aioseop_options );
