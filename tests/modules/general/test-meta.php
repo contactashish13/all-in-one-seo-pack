@@ -238,6 +238,43 @@ class Test_Meta extends AIOSEOP_Test_Base {
 		
 	}
 
+	/**
+	 * Tests all title formats.
+	 */
+	public function test_title_formats() {
+		$this->markTestIncomplete('Cannot seem to get the correct title in the header');
+
+		global $aioseop_options;
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_title' => 'heyhey' ) );
+		$page_id = $this->factory->post->create( array( 'post_type' => 'page', 'post_title' => 'heyhey' ) );
+		$attachment_ids = $this->create_attachments( 1 );
+
+		// what keyword should each title contain.
+		$ids	= array( 
+			'MEDIA' => $attachment_ids[0],
+			'POST' => $post_id,
+			'PAGE' => $page_id,
+		);
+
+		$aioseop_options['aiosp_attachment_title_format'] = "%post_title% - MEDIA";
+		$aioseop_options['aiosp_post_title_format'] = "%post_title% - POST";
+		$aioseop_options['aiosp_page_title_format'] = "%post_title% - PAGE";
+		$aioseop_options['aiosp_cpostactive'] = array( 'post', 'page', 'attachment' );
+		$aioseop_options['aiosp_redirect_attachement_parent'] = '';
+		$aioseop_options['aiosp_rewrite_titles'] = 'on';
+		update_option( 'aioseop_options', $aioseop_options );
+
+		foreach ( $ids as $contains => $id ) {
+			$link = get_permalink( $id );
+			$title = $this->parse_html( $link, array( 'title' ) );
+
+			// should have one title tag.
+			$this->assertEquals( 1, count( $title ) );
+			$this->assertContains( $contains, $title[0]['#text'] );
+		}
+	}
+
  	/**
 	 * Provides the post types and whether they are enabled/disabled for SEO.
 	 */
