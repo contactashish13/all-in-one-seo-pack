@@ -49,48 +49,6 @@ function toggleVisibility( id ) {
 }
 
 /**
- * @summary Counts characters.
- *
- * @since 1.0.0
- * @param Object $field.
- * @param Object $cntfield.
- * @return Mixed.
- */
-function countChars( field, cntfield ) {
-	var extra = 0;
-	var field_size;
-	if ( ( field.attr('name') == 'aiosp_title' )
-		&& ( typeof aiosp_title_extra !== 'undefined' ) ) {
-		extra = aiosp_title_extra;
-	}
-	cntfield.val(field.val().length + extra);
-	if ( typeof field.attr('size') != 'undefined' ) {
-		field_size = field.attr('size');
-	} else {
-		field_size = field.attr('rows') * field.attr('cols');
-	}
-    field_size = parseInt(field_size, 10);
-	if ( field_size < 10 ) {
-		return;
-    }
-	if ( cntfield.val() > field_size ) {
-        cntfield.removeClass().addClass('aioseop_count_ugly');
-	} else if ( ( 'aiosp_title' === field.attr('name' ) ) || ( 'aiosp_home_title' === field.attr('name') ) ) {
-        if ( cntfield.val() > ( field_size - 6 ) ) {
-            cntfield.removeClass().addClass('aioseop_count_bad');
-        } else {
-            cntfield.removeClass().addClass('aioseop_count_good');
-        }
-    } else {
-        if ( cntfield.val() > ( field_size - 10 ) ) {
-            cntfield.removeClass().addClass('aioseop_count_bad');
-        } else {
-            cntfield.removeClass().addClass('aioseop_count_good');
-        }
-    }
-}
-
-/**
  * @summary Returns the fields value.
  *
  * @since 1.0.0
@@ -282,34 +240,6 @@ jQuery( document ).ready(
 				}
 			}
 		);
-
-        /**
-         * @summary workaround for bug that causes radio inputs to lose settings when meta box is dragged.
-         *
-         * props to commentluv for this fix
-         * @author commentluv.
-         * @link https://core.trac.wordpress.org/ticket/16972
-         * @since 1.0.0
-         */
-        jQuery(document).ready(
-            function () {
-                // listen for drag drop of metaboxes , bind mousedown to .hndle so it only fires when starting to drag
-                jQuery('.hndle').mousedown(
-                    function () {
-
-                        // set live event listener for mouse up on the content .wrap and wait a tick to give the dragged div time to settle before firing the reclick function
-                        jQuery('.wrap').mouseup(
-                            function () {
-                                aiosp_store_radio();
-                                setTimeout(function () {
-                                    aiosp_reclick_radio();
-                                }, 50);
-                            }
-                        );
-                    }
-                );
-            }
-        );
 
         /**
          * @summary Javascript for using WP media uploader. Indentifies which DOM should use custom uploader plugin.
@@ -868,7 +798,6 @@ function aioseop_overflow_border( el ) {
 function aiospinitAll(){
     aiospinitSocialMetaInPosts(jQuery);
     aiospinitCalendar();
-    aiospinitCounting();
 }
 
 function aiospinitCalendar(){
@@ -885,16 +814,5 @@ function aiospinitSocialMetaInPosts($) {
     // clear the radio buttons when the user clicks the upload button.
     $('input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button').on('click', function(e){
         $('input[name="aioseop_opengraph_settings_image"]').attr('checked', false);
-    });
-}
-
-
-function aiospinitCounting(){
-    /* count them characters */
-	jQuery( '.aioseop_count_chars' ).on('keyup keydown', function(){
-        countChars( jQuery(this).eq(0), jQuery(this).parent().find('[name="' + jQuery(this).attr('data-length-field') + '"]').eq(0));
-    });
-	jQuery( '.aioseop_count_chars' ).each(function(){
-        countChars( jQuery(this).eq(0), jQuery(this).parent().find('[name="' + jQuery(this).attr('data-length-field') + '"]').eq(0));
     });
 }

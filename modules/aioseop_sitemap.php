@@ -28,6 +28,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		var $excludes = array();
 
 		/**
+		 * The allowed image extensions.
+		 *
+		 * @var      array $image_extensions The allowed image extensions.
+		 */
+		private static $image_extensions    = array(
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+		);
+
+		/**
 		 * All_in_One_SEO_Pack_Sitemap constructor.
 		 */
 		function __construct() {
@@ -3184,9 +3196,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( $thumbnail_id ) {
 					$image = wp_get_attachment_url( $thumbnail_id );
 					if ( $image ) {
-						$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
 						$images['image:image'] = array(
-							'image:loc' => $image,
+							'image:loc'     => $image,
+							'image:caption' => wp_get_attachment_caption( $thumbnail_id ),
+							'image:title'   => get_the_title( $thumbnail_id ),
 						);
 					}
 				}
@@ -3225,12 +3238,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					// Ignore all attachments except images.
 					return null;
 				}
-				$attributes = wp_get_attachment_image_src( $post->ID, 'full' );
+				$attributes = wp_get_attachment_image_src( $post->ID );
 				if ( $attributes ) {
 					$images[] = array(
-						'image:loc' => aiosp_common::clean_url( $attributes[0] ),
+						'image:loc'     => $this->clean_url( $attributes[0] ),
 						'image:caption' => wp_get_attachment_caption( $post->ID ),
-						'image:title' => get_the_title( $post->ID ),
+						'image:title'   => get_the_title( $post->ID ),
 					);
 				}
 
@@ -3239,6 +3252,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			/**
 			 * Static attachment cache, 1 query vs. n posts.
+			 *
+			 * Concepts like this should be followed; although this could possibly be improved (maybe as a wrapped function) but is still good code.
 			 */
 			static $post_thumbnails;
 
@@ -3265,7 +3280,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$content = '';
 			$content = $post->post_content;
 
-			$images = array_merge( $images, aiosp_common::parse_content_for_images( $post ) );
+			$this->get_gallery_images( $post, $images );
+
+			$content .= $this->get_content_from_galleries( $content );
+			$this->parse_content_for_images( $content, $images );
 
 			if ( $images ) {
 				$tmp = $images;
@@ -3274,14 +3292,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$tmp = array_unique( $images );
 				}
 				// remove any invalid/empty images.
-				$tmp = array_filter( $images, array( 'aiosp_common', 'is_image_valid' ) );
+				$tmp = array_filter( $images, array( $this, 'is_image_valid' ) );
 				$images = array();
 				foreach ( $tmp as $image ) {
-					$image		= aiosp_common::get_image_src_for_url( $image, 'full' ); 
-					$image_attributes	= aiosp_common::get_image_attributes( $image );
+					$image_attributes	= $this->get_image_attributes( $image );
 					$images[] = array_merge(
 							array(
-								'image:loc' => aiosp_common::clean_url( $image ),
+								'image:loc' => $this->clean_url( $image ),
 							),
 							$image_attributes
 					);
@@ -3289,6 +3306,24 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			return $images;
+		}
+
+		/**
+		 * Fetch image attributes such as title and caption given the image URL.
+		 *
+		 * @param string $url The image URL.
+		 */
+		private function get_image_attributes( $url ) {
+			$attributes	= array();
+			global $wpdb;
+			$attachment = $wpdb->get_col( $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE guid='%s';", $url ) );
+			if ( $attachment && is_array( $attachment ) && is_numeric( $attachment[0] ) ) {
+				$attributes	= array(
+					'image:caption' => wp_get_attachment_caption( $attachment[0] ),
+					'image:title' => get_the_title( $attachment[0] ),
+				);
+			}
+			return $attributes;
 		}
 
 		/**
@@ -3434,7 +3469,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 		/**
 		 * Validate the image.
-		 * NOTE: We will use parse_url here instead of wp_parse_url as we will correct the URLs beforehand and 
+		 * NOTE: We will use parse_url here instead of wp_parse_url as we will correct the URLs beforehand and
 		 * this saves us the need to check PHP version support.
 		 *
 		 * @param string $image The image src.
