@@ -3865,7 +3865,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	 */
 	private function is_seo_enabled_for_cpt() {
 		global $aioseop_options;
-		return 'on' === $aioseop_options['aiosp_enablecpost'] && in_array( get_post_type(), $aioseop_options['aiosp_cpostactive'], true );
+		$post_type = get_post_type();
+		return empty( $post_type ) || in_array( $post_type, $aioseop_options['aiosp_cpostactive'], true );
 	}
 
 	/**
