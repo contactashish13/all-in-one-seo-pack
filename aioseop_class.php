@@ -2173,14 +2173,13 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 		if ( ! empty( $aioseop_options['aiosp_cpostactive'] ) ) {
 			$wp_post_types = $aioseop_options['aiosp_cpostactive'];
-			if ( ! empty( $aioseop_options['aiosp_cposttitles'] ) ) {
-				if ( ( ( $title_type == 'archive' ) && is_post_type_archive( $wp_post_types ) && $prefix = "aiosp_{$title_type}_" ) ||
-					 ( ( $title_type == 'post' ) && $this->is_singular( $wp_post_types, $p ) && $prefix = 'aiosp_' )
-				) {
-					$post_type = get_post_type( $p );
-					if ( ! empty( $aioseop_options[ "{$prefix}{$post_type}_title_format" ] ) ) {
-						$title_format = $aioseop_options[ "{$prefix}{$post_type}_title_format" ];
-					}
+			if ( ( ( $title_type == 'archive' ) && is_post_type_archive( $wp_post_types ) && $prefix = "aiosp_{$title_type}_" ) ||
+				 ( ( $title_type == 'post' ) && $this->is_singular( $wp_post_types, $p ) && $prefix = 'aiosp_' )
+			) {
+				$post_type = get_post_type( $p );
+
+				if ( ! empty( $aioseop_options[ "{$prefix}{$post_type}_title_format" ] ) ) {
+					$title_format = $aioseop_options[ "{$prefix}{$post_type}_title_format" ];
 				}
 			}
 		}
