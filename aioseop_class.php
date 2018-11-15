@@ -3114,9 +3114,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 		foreach ( $pt as $p ) {
 			if ( ! empty( $post_objs[ $p ]->label ) ) {
-				if ( $post_objs[ $p ]->_builtin ) {
-					$post_types[ $p ] = $post_objs[ $p ]->label;
-				}
+				$post_types[ $p ] = $post_objs[ $p ]->label;
 			} else {
 				$post_types[ $p ] = $p;
 			}
