@@ -2262,6 +2262,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				echo "\t<sitemap>\r\n";
 				if ( is_array( $url ) ) {
 					foreach ( $url as $k => $v ) {
+						if ( ! in_array( $k, array( 'loc', 'lastmod' ) ) ) {
+							continue;
+						}
 						$v	= aiosp_common::make_xml_safe( $k, $v );
 						echo "\t\t<$k>$v</$k>\r\n";
 					}

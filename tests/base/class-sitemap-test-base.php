@@ -143,6 +143,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		// sitemap will be created in the root of the folder.
 		do_action( 'aiosp_sitemap_settings_update' );
 
+		$types[] = '';
 		foreach ( $types as $type ) {
 			$schema = 'index';
 			if ( ! empty( $type ) ) {
