@@ -2079,13 +2079,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			echo '<rss version="2.0"><channel>';
 			if ( is_multisite() ) {
-				echo '<title>' . esc_html( get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
-				<link>' . esc_url( get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
-				<description>' . esc_html( get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
+				echo '<title>' . aiosp_common::make_xml_safe( 'title', get_blog_option( get_current_blog_id(), 'blogname' ) ) . '</title>
+				<link>' . aiosp_common::make_xml_safe( 'link', get_blog_option( get_current_blog_id(), 'siteurl' ) ) . '</link>
+				<description>' . aiosp_common::make_xml_safe( 'description', get_blog_option( get_current_blog_id(), 'blogdescription' ) ) . '</description>';
 			} else {
-				echo '<title>' . esc_html( get_option( 'blogname' ) ) . '</title>
-				<link>' . esc_url( get_option( 'siteurl' ) ) . '</link>
-				<description>' . esc_html( get_option( 'blogdescription' ) ) . '</description>';
+				echo '<title>' . aiosp_common::make_xml_safe( 'title', get_option( 'blogname' ) ) . '</title>
+				<link>' . aiosp_common::make_xml_safe( 'link', get_option( 'siteurl' ) ) . '</link>
+				<description>' . aiosp_common::make_xml_safe( 'description', get_option( 'blogdescription' ) ) . '</description>';
 			}
 
 			// remove urls that do not have the rss element.
@@ -2100,11 +2100,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			foreach ( $urls as $url ) {
 				echo
 				'<item>
-					<guid>' . esc_url( $url['loc'] ) . '</guid>
-					<title>' . esc_html( $url['rss']['title'] ) . '</title>
-					<link>' . esc_url( $url['loc'] ) . '</link>
+					<guid>' . aiosp_common::make_xml_safe( 'guid', $url['loc'] ) . '</guid>
+					<title>' . aiosp_common::make_xml_safe( 'title', $url['rss']['title'] ) . '</title>
+					<link>' . aiosp_common::make_xml_safe( 'link', $url['loc'] ) . '</link>
 					<description><![CDATA[' . $url['rss']['description'] . ']]></description>
-					<pubDate>' . esc_html( $url['rss']['pubDate'] ) . '</pubDate>
+					<pubDate>' . aiosp_common::make_xml_safe( 'link', $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
 			}
 			echo '</channel></rss>';
@@ -2192,9 +2192,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 					foreach ( $url as $k => $v ) {
 						if ( ! empty( $v ) ) {
-							if ( 'loc' === $k ) {
-								$v = esc_url( $v );
-							}
+							$v	= aiosp_common::make_xml_safe( $k, $v );
 							if ( is_array( $v ) ) {
 								$buf = "\t\t\t<$k>\r\n";
 								foreach ( $v as $ext => $attr ) {
@@ -2205,28 +2203,33 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 											if ( is_array( $nested ) ) {
 												echo "\t\t\t<$a>\r\n";
 												foreach ( $nested as $next => $nattr ) {
-													echo "\t\t\t\t<$next>$nattr</$next>\r\n";
+													$value = aiosp_common::make_xml_safe( $next, $nattr );
+													echo "\t\t\t\t<$next>$value</$next>\r\n";
 												}
 												echo "\t\t\t</$a>\r\n";
 											} else {
-												echo "\t\t\t<$a>$nested</$a>\r\n";
+												$value = aiosp_common::make_xml_safe( $a, $nested );
+												echo "\t\t\t<$a>$value</$a>\r\n";
 											}
 										}
 										echo "\t\t</$k>\r\n";
 									} else {
-										$buf .= "\t\t\t<$ext>$attr</$ext>\r\n";
+										$value = aiosp_common::make_xml_safe( $ext, $attr );
+										$buf .= "\t\t\t<$ext>$value</$ext>\r\n";
 									}
 								}
 								if ( ! empty( $buf ) ) {
 									echo $buf . "\t\t</$k>\r\n";
 								}
 							} else {
-								echo "\t\t<$k>$v</$k>\r\n";
+								$value = aiosp_common::make_xml_safe( $k, $v );
+								echo "\t\t<$k>$value</$k>\r\n";
 							}
 						}
 					}
 				} else {
-					echo "\t\t<loc>" . esc_url( $url ) . "</loc>\r\n";
+					$value = aiosp_common::make_xml_safe( 'loc', $url );
+					echo "\t\t<loc>$value</loc>\r\n";
 				}
 				echo "\t</url>\r\n";
 				if ( $count >= $max_items ) {
@@ -2259,14 +2262,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				echo "\t<sitemap>\r\n";
 				if ( is_array( $url ) ) {
 					foreach ( $url as $k => $v ) {
-						if ( 'loc' === $k ) {
-							echo "\t\t<$k>" . esc_url( $v ) . "</$k>\r\n";
-						} elseif ( 'lastmod' === $k ) {
-							echo "\t\t<$k>$v</$k>\r\n";
-						}
+						$v	= aiosp_common::make_xml_safe( $k, $v );
+						echo "\t\t<$k>$v</$k>\r\n";
 					}
 				} else {
-					echo "\t\t<loc>" . esc_url( $url ) . "</loc>\r\n";
+					$value	= aiosp_common::make_xml_safe( 'loc', $url );
+					echo "\t\t<loc>$value</loc>\r\n";
 				}
 				echo "\t</sitemap>\r\n";
 				$count ++;
