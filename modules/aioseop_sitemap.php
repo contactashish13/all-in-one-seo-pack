@@ -2104,7 +2104,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					<title>' . aiosp_common::make_xml_safe( 'title', $url['rss']['title'] ) . '</title>
 					<link>' . aiosp_common::make_xml_safe( 'link', $url['loc'] ) . '</link>
 					<description><![CDATA[' . $url['rss']['description'] . ']]></description>
-					<pubDate>' . aiosp_common::make_xml_safe( 'link', $url['rss']['pubDate'] ) . '</pubDate>
+					<pubDate>' . aiosp_common::make_xml_safe( 'pubDate', $url['rss']['pubDate'] ) . '</pubDate>
 				</item>';
 			}
 			echo '</channel></rss>';
