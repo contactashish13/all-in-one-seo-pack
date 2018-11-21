@@ -1,4 +1,4 @@
-<?php
+f<?php
 /**
  * Sitemap class.
  *
@@ -48,6 +48,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$this->prefix         = 'aiosp_sitemap_';                          // Option prefix.
 				$this->file           = __FILE__;                                      // The current file.
 				$this->extra_sitemaps = array();
+
+				/**
+				 * Filter to add additional sitemaps.
+				 *
+				 * @param array $extra_sitemaps String array array of sitemap types that need to be added.
+				 */
 				$this->extra_sitemaps = apply_filters( $this->prefix . 'extra', $this->extra_sitemaps );
 			}
 			parent::__construct();
@@ -691,7 +697,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$filename	= 'video-sitemap';
 			}
 			/**
-			 * Filters the filename: aiosp_sitemap_filename OR aiosp_video_sitemap_filename.
+			 * Filter to change the filename of the sitemap.
 			 *
 			 * @param string  $filename	 The file name.
 			 */
@@ -862,7 +868,19 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
+			/**
+			 * Filter to add more URLs to the sitemap. Legacy!
+			 *
+			 * @param array	$siteurls	The string array of URLs.
+			 */
 			$siteurls = apply_filters( $this->prefix . 'sitemap_urls', $siteurls ); // Legacy.
+
+			/**
+			 * Filter to add more URLs to the sitemap.
+			 *
+			 * @param array	$siteurls	The string array of URLs.
+			 */
 			return apply_filters( $this->prefix . 'child_urls', $siteurls );
 		}
 
@@ -1306,6 +1324,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				// Always follow and noindex the sitemap.
 				header( 'X-Robots-Tag: noindex, follow', true );
 
+				/**
+				 * Add additional headers to the response.
+				 *
+				 * @param WP_Query	$query		The query object.
+				 * @param array		$options	The module's options.
+				 */
 				do_action( $this->prefix . 'add_headers', $query, $this->options );
 
 				if ( $gzipped ) {
@@ -1370,13 +1394,28 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$sitemap_data = $this->get_term_priority_data( get_terms( $sitemap_type, $this->get_tax_args( $page ) ) );
 				} else {
 					if ( is_array( $this->extra_sitemaps ) && in_array( $sitemap_type, $this->extra_sitemaps ) ) {
-						$sitemap_data = apply_filters( $this->prefix . 'custom_' . $sitemap_type, $sitemap_data, $page, $this_options );
+						/**
+						 * Filter to update the sitemap data corresponding to the custom sitemaps that were added before.
+						 *
+						 * @param array		$sitemap_data	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+						 * @param int		$page			Page number.
+						 * @param array		$options		The module's options.
+						 */
+						$sitemap_data = apply_filters( $this->prefix . 'custom_' . $sitemap_type, $sitemap_data, $page, $this->options );
 					}
 				}
 			} elseif ( 'root' === $sitemap_type ) {
 				$sitemap_data = $this->get_simple_sitemap();
 			}
 
+			/**
+			 * Filter to update the sitemap data.
+			 *
+			 * @param array		$sitemap_data	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+			 * @param string	$sitemap_type	Name of the sitemap.
+			 * @param int		$page			Page number.
+			 * @param array		$options		The module's options.
+			 */
 			return apply_filters( $this->prefix . 'data', $sitemap_data, $sitemap_type, $page, $this->options );
 		}
 
@@ -1424,8 +1463,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return;
 			}
 
+			/**
+			 * Filter to enable/disable sending sitemaps to search engines.
+			 *
+			 * @param bool		$hardcoded	True (default) to ping search engines, false to disable.
+			 */
 			if ( apply_filters( 'aioseo_sitemap_ping', true ) === false ) {
-				// API filter hook to disable sending sitemaps to search engines.
 				return;
 			}
 
@@ -1434,6 +1477,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'bing'   => 'https://www.bing.com/webmaster/ping.aspx?siteMap=',
 			);
 
+			/**
+			 * Filter to update the sitemap ping URLs.
+			 *
+			 * @param array		$notify_url		The key/value pair of search engine name vs. the URL to ping.
+			 */
 			$notify_url = apply_filters( 'aioseo_sitemap_ping_urls', $notify_url );
 
 			$url = $this->get_sitemap_url();
@@ -1777,6 +1825,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				);
 			}
 
+			/**
+			 * Filter to update the indexed sitemap files.
+			 *
+			 * @param array		$files		An array of arrays, where each array corresponds to the <url> element of the sitemap.
+			 * @param string	$prefix		The filename to prefix each sitemap name.
+			 * @param string	$suffix		The suffix/file extension to use.
+			 */
 			$files  = apply_filters( 'aioseop_sitemap_index_filenames', $files, $prefix, $suffix );
 
 			return $files;
@@ -2014,7 +2069,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( is_array( $this->extra_sitemaps ) ) {
 				foreach ( $this->extra_sitemaps as $sitemap_type ) {
 					$sitemap_data = array();
-					$sitemap_data = apply_filters( $this->prefix . 'custom_' . $sitemap_type, $sitemap_data, $page, $this_options );
+
+					/**
+					 * Filter to update the sitemap data for a specific custom sitemap.
+					 *
+					 * @param array		$sitemap_data	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+					 * @param int		$page			Page number.
+					 * @param array		$options		The module's options.
+					 */
+					$sitemap_data = apply_filters( $this->prefix . 'custom_' . $sitemap_type, $sitemap_data, $page, $this->options );
 					$prio         = array_merge( $prio, $sitemap_data );
 				}
 			}
@@ -2031,6 +2094,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		function do_simple_sitemap( $comment = '' ) {
 			$sitemap_data = $this->get_simple_sitemap();
+
+			/**
+			 * Filter to update the sitemap data for the non-indexed XML sitemap.
+			 *
+			 * @param array		$sitemap_data	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+			 * @param string	$hardcoded		The sitemap type, in this case 'root'.
+			 * @param int		$hardcoded		Page number, in this case 0.
+			 * @param array		$options		The module's options.
+			 */
 			$sitemap_data = apply_filters( $this->prefix . 'data', $sitemap_data, 'root', 0, $this->options );
 
 			return $this->build_sitemap( $sitemap_data, '', $comment );
@@ -2045,6 +2117,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		function do_simple_sitemap_rss( $comment = '' ) {
 			$sitemap_data = $this->get_simple_sitemap();
+
+			/**
+			 * Filter to update the sitemap data for the non-indexed RSS sitemap.
+			 *
+			 * @param array		$sitemap_data	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+			 * @param string	$hardcoded		The sitemap type, in this case 'rss'.
+			 * @param int		$hardcoded		Page number, in this case 0.
+			 * @param array		$options		The module's options.
+			 */
 			$sitemap_data = apply_filters( $this->prefix . 'data', $sitemap_data, 'rss', 0, $this->options );
 
 			return $this->build_sitemap( $sitemap_data, 'rss', $comment );
@@ -2063,7 +2144,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		function get_sitemap_xsl() {
 
-			return esc_url( apply_filters( 'aioseop_sitemap_xsl_url', aioseop_home_url( '/sitemap.xsl' ) ) );
+			/**
+			 * Filter to update URL of the XSL stylesheet.
+			 *
+			 * @param string	$url	The full URL to the stylesheet.
+			 */
+			 return esc_url( apply_filters( 'aioseop_sitemap_xsl_url', aioseop_home_url( '/sitemap.xsl' ) ) );
 		}
 
 		/**
@@ -2094,6 +2180,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( false !== strpos( $sitemap_type, 'latest' ) ) {
 				// let's sort the array in descending order of date.
 				uasort( $urls, array( $this, 'sort_modifed_date_descending' ) );
+
+				/**
+				 * Filter to change how many changes to show in the 'latest' RSS sitemap.
+				 *
+				 * @param int	$count	The limit, defaults to 20.
+				 */
 				$urls = array_slice( $urls, 0, apply_filters( $this->prefix . 'rss_latest_limit', 20 ) );
 			}
 
@@ -2168,6 +2260,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$xml_header = '<?xml-stylesheet type="text/xsl" href="' . $xsl_url . '"?>' . "\r\n"
 						  . '<urlset ';
+
+			/**
+			 * Filter to update the namespaces supported.
+			 *
+			 * @param array	$namespaces	A key/value array where the key indicates the namespace and the value points to the XSD of the namespace.
+			 */
 			$namespaces = apply_filters(
 				$this->prefix . 'xml_namespace', array(
 					'xmlns'       => 'http://www.sitemaps.org/schemas/sitemap/0.9',
@@ -2541,6 +2639,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					);
 				}
 			}
+
+			/**
+			 * Filter to add more pages to the user-specified pages that show up in the additional sitemap.
+			 *
+			 * @param array		$pages			Array of sitemap data containing key/value pairs corresponding to each <url> element.
+			 */
 			$pages = apply_filters( $this->prefix . 'addl_pages_only', $pages );
 
 			return $pages;
@@ -2585,6 +2689,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $posts ) ) {
 				$pages[] = $posts;
 			}
+
+			/**
+			 * Filter to add extra pages besides the user-specified pages and the automatically included home page.
+			 *
+			 * @param array		$pages			Array of sitemap data containing key/value pairs corresponding to each <url> element.
+			 */
 			$pages = apply_filters( $this->prefix . 'addl_pages', $pages );
 
 			return $pages;
@@ -2727,6 +2837,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			$archives	= array();
+
+			/**
+			 * Filter to include additional post type archives in the sitemap.
+			 *
+			 * @param array		$types		Key/value array, where key corresponds to the post type and value to the post object.
+			 */
 			$types		= apply_filters( "{$this->prefix}include_post_types_archives", $types );
 			if ( $types ) {
 				foreach ( $types as $post_type => $p ) {
@@ -2968,6 +3084,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 
 					$pr_info['image:image'] = $is_single ? $this->get_images_from_post( $post ) : null;
+
+					/**
+					 * Filter to update the data for a particular <url> of the sitemap.
+					 *
+					 * @param array		$pr_info	Array of sitemap data containing key/value pairs corresponding to each <url> element.
+					 * @param WP_Post	$post		The post object corresponding to the post being processed.
+					 * @param $array	$args		Key/value array of arguments that signify whether
+					 *								- priority ('prio_override') needs to be overridden (boolean)
+					 *								- frequency ('freq_override') needs to be overridden (boolean)
+					 *								- if any custom function needs to be used to determine the permalink to the post (string)
+					 */
 					$pr_info = apply_filters( $this->prefix . 'prio_item_filter', $pr_info, $post, $args );
 					if ( ! empty( $pr_info ) ) {
 						$prio[] = $pr_info;
@@ -3164,6 +3291,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @since 2.4.2
 		 */
 		private function get_gallery_images( $post, &$images ) {
+			/**
+			 * Filter to enable/disable whether images should be included from the WP gallery shortcode.
+			 *
+			 * @param bool		$harcoded	True (default) to include images, false to disable.
+			 */
 			if ( false === apply_filters( 'aioseo_include_images_in_wp_gallery', true ) ) {
 				return;
 			}
@@ -3218,6 +3350,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		private function get_content_from_galleries( $content ) {
 			// Support for NextGen Gallery.
 			static $gallery_types   = array( 'ngg_images' );
+
+			/**
+			 * Filter to support additional shortcodes that create image galleries and need to be supported.
+			 *
+			 * @param array		$gallery_types	The string array of shortcodes.
+			 */
 			$types                  = apply_filters( 'aioseop_gallery_shortcodes', $gallery_types );
 
 			$gallery_content    = '';
@@ -3293,6 +3431,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$url    = htmlspecialchars( $url );
 			// Make the url absolute, if its relative.
 			$url    = aiosp_common::absolutize_url( $url );
+
+			/**
+			 * Filter to add further cleaning to the URL so that its acceptable in the sitemap.
+			 *
+			 * @param string	$url	The URL.
+			 */
 			return apply_filters( 'aioseop_clean_url', $url );
 		}
 
@@ -3334,6 +3478,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$image      = aiosp_common::absolutize_url( $image );
 
 			$extn       = pathinfo( parse_url( $image, PHP_URL_PATH ), PATHINFO_EXTENSION );
+
+			/**
+			 * Filter to add additional image extensions that need to be allowed in the sitemap.
+			 *
+			 * @param array	$extensions		String array with extensions in lowercase excluding the dot.
+			 */
 			$allowed    = apply_filters( 'aioseop_allowed_image_extensions', self::$image_extensions );
 			// Bail if image does not refer to an image file otherwise google webmaster tools might reject the sitemap.
 			if ( ! in_array( $extn, $allowed, true ) ) {
@@ -3344,8 +3494,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$host       = parse_url( home_url(), PHP_URL_HOST );
 
 			if ( $image_host !== $host ) {
-				// Allowed hosts will be provided in a wildcard format i.e. img.yahoo.* or *.akamai.*.
-				// And we will convert that into a regular expression for matching.
+				/**
+				 * Filter to whitelist additional external hosts from where images will be allowed.
+				 *
+				 * @param array		$hosts		String array with allowed hosts in a wildcard format i.e. img.yahoo.* or *.akamai.*.
+				 */
 				$whitelist  = apply_filters( 'aioseop_images_allowed_from_hosts', array() );
 				$allowed    = false;
 				if ( $whitelist ) {
@@ -3419,6 +3572,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['offset'] = $page * $this->max_posts;
 			}
 
+			/**
+			 * Filter to add additional taxonomy query for searching items to add to the sitemap.
+			 *
+			 * @param array		$args			Arguments to send to WP_Query.
+			 * @param int		$hardcoded		Page number.
+			 * @param array		$options		The module's options.
+			 */
 			$args = apply_filters( $this->prefix . 'tax_args', $args, $page, $this->options );
 
 			return $args;
@@ -3630,6 +3790,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
+			/**
+			 * Filter to list additional taxonomies and their term counts.
+			 *
+			 * @param array		$term_counts	Key/value map where key is the taxonomy name and value is the count of how many terms are in the taxonomy.
+			 * @param array		$args			Arguments to send to WP_Query.
+			 */
 			$term_counts = apply_filters( $this->prefix . 'term_counts', $term_counts, $args );
 
 			return $term_counts;
@@ -3664,6 +3831,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$post_counts[ $post_type ] = $this->get_post_count( $count_args );
 				}
 			}
+
+			/**
+			 * Filter to list additional post types and their post counts.
+			 *
+			 * @param array		$post_counts	Key/value map where key is the post type and value is the count of how many posts are in the post type.
+			 * @param array		$args			Arguments to send to WP_Query.
+			 */
 			$post_counts = apply_filters( $this->prefix . 'post_counts', $post_counts, $args );
 
 			return $post_counts;
@@ -3680,6 +3854,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['suppress_filters'] = false;
 			}
 
+			/**
+			 * Filter to modify the post arguments in case third-party plugins are being used e.g. WPML.
+			 *
+			 * @param array		$args			Arguments to send to WP_Query.
+			 */
 			$args = apply_filters( $this->prefix . 'modify_post_params', $args );
 		}
 
@@ -3728,6 +3907,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Return post data using get_posts().
 		 *
+		 * TODO: consider using WP_Query instead of get_posts to improve efficiency.
+		 *
 		 * @param $args
 		 *
 		 * @return array|mixed|void
@@ -3752,10 +3933,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$this->modify_post_params_for_external_plugins( $defaults );
 
-			/*
+			/**
 			 * Filter to exclude password protected posts.
-			 * TODO: move to its own function and call it from here, returning whatever is appropriate.
+			 *
 			 * @since 2.3.12
+			 * @param bool		$hardcoded			True, by default, includes password protected posts and false does not.
 			 */
 			if ( apply_filters( 'aioseop_sitemap_include_password_posts', true ) === false ) {
 				$defaults['has_password'] = false;
@@ -3763,6 +3945,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$args = wp_parse_args( $args, $defaults );
 			if ( empty( $args['post_type'] ) ) {
+				/**
+				 * Filter to return the posts as an array of WP_Posts if no post type has been provided.
+				 *
+				 * @param array		$empty			Empty array of post data.
+				 * @param array		$args			Arguments to send to WP_Query.
+				 */
 				return apply_filters( $this->prefix . 'post_filter', array(), $args );
 			}
 			$exclude_slugs = array();
@@ -3796,7 +3984,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 			$this->excludes = array_merge( $args['exclude'], $exclude_slugs ); // Add excluded slugs and IDs to class var.
 
-			// TODO: consider using WP_Query instead of get_posts to improve efficiency.
+			/**
+			 * Filter to update the argumens before searching for posts.
+			 *
+			 * @param array		$args			Arguments to send to WP_Query.
+			 */
 			$posts = get_posts( apply_filters( $this->prefix . 'post_query', $args ) );
 			if ( ! empty( $exclude_slugs ) ) {
 				foreach ( $posts as $k => $v ) {
@@ -3805,6 +3997,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
+
+			/**
+			 * Filter to update the posts found.
+			 *
+			 * @param WP_Post[]	$posts			The posts found.
+			 * @param array		$args			Arguments to send to WP_Query.
+			 */
 			$posts = apply_filters( $this->prefix . 'post_filter', $posts, $args );
 
 			return $posts;
