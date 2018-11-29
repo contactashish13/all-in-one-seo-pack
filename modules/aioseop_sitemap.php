@@ -1175,9 +1175,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Build and return our rewrite rules.
 		 *
-		 * @return array
+		 * @param       string  $prefix_removed_rules_with  If rules are being removed, prefix them with this character 
+		 *                      so that they are flushed properly and are not retained.
+		 * @return      array
 		 */
-		function get_rewrite_rules() {
+		function get_rewrite_rules( $prefix_removed_rules_with = null ) {
 			$sitemap_rules_normal = $sitemap_rules_gzipped = array();
 			$sitemap_rules_normal = array(
 				$this->get_filename() . '.xml'            => "index.php?{$this->prefix}path=root",
@@ -1189,6 +1191,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$sitemap_rules_normal += array(
 					$this->get_filename() . '.rss'            => 'index.php?' . $this->prefix . 'path=rss',
 					$this->get_filename() . 'latest.rss'      => 'index.php?' . $this->prefix . 'path=rss_latest',
+				);
+			} else if ( ! empty( $prefix_removed_rules_with ) ) {
+				$sitemap_rules_normal += array(
+					$prefix_removed_rules_with . $this->get_filename() . '.rss'            => 'index.php?' . $this->prefix . 'path=rss',
+					$prefix_removed_rules_with . $this->get_filename() . 'latest.rss'      => 'index.php?' . $this->prefix . 'path=rss_latest',
 				);
 			}
 
@@ -1226,7 +1233,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		function flush_rules_hook() {
 			global $wp_rewrite;
-			$sitemap_rules = $this->get_rewrite_rules( $wp_rewrite );
+			$sitemap_rules = $this->get_rewrite_rules( '|' );
 			if ( ! empty( $sitemap_rules ) ) {
 				$rules = get_option( 'rewrite_rules' );
 				$new_rules = array_keys( $sitemap_rules );
