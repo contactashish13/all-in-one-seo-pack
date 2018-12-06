@@ -153,6 +153,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$custom_options['aiosp_sitemap_indexes'] = '';
 		$custom_options['aiosp_sitemap_images'] = 'on';
 		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_rss_sitemap'] = 'on';
 		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
 
 		$this->_setup_options( 'sitemap', $custom_options );

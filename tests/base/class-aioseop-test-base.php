@@ -164,6 +164,12 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		$this->factory->attachment->create( array( 'file' => $image, 'post_parent' => $id ) );
 		*/
 		$attachment_id = $this->factory->attachment->create_upload_object( $image, $id );
+
+		// add an image caption and title with special characters.
+		kses_remove_filters();
+		wp_update_post( array( 'ID' => $attachment_id, 'post_title' => wp_generate_password( 12, true, true ) . '<tom>&jerry"\'', 'post_excerpt' => wp_generate_password( 12, true, true ) . '<tom>&jerry"\'' ) );
+		kses_init_filters();
+
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}

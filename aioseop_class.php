@@ -104,7 +104,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				__( "%page_author_nicename% - This page's author' nicename", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%page_author_firstname% - This page's author' first name (capitalized)", 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( "%page_author_lastname% - This page's author' last name (capitalized)", 'all-in-one-seo-pack' ) . '</li><li>' .
-				__( '%current_date% - The current date (localized)', 'all-in-one-seo-pack' ) . '</li></ul>',
+				__( '%current_date% - The current date (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
+				__( '%cf_fieldname% - Custom field name', 'all-in-one-seo-pack' ) . '</li></ul>',
 			'page_title_format'           =>
 				__( 'This controls the format of the title tag for Pages.<br />The following macros are supported:', 'all-in-one-seo-pack' )
 				. '<ul><li>' . __( '%blog_title% - Your blog title', 'all-in-one-seo-pack' ) . '</li><li>' .
@@ -117,7 +118,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				__( '%current_date% - The current date (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_date% - The date the page was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_year% - The year the page was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
-				__( '%post_month% - The month the page was published (localized)', 'all-in-one-seo-pack' ) . '</li></ul>',
+				__( '%post_month% - The month the page was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
+				__( '%cf_fieldname% - Custom field name', 'all-in-one-seo-pack' ) . '</li></ul>',
 			'post_title_format'           =>
 				__( 'This controls the format of the title tag for Posts.<br />The following macros are supported:', 'all-in-one-seo-pack' )
 				. '<ul><li>' . __( '%blog_title% - Your blog title', 'all-in-one-seo-pack' ) . '</li><li>' .
@@ -132,7 +134,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				__( '%current_date% - The current date (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_date% - The date the post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 				__( '%post_year% - The year the post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
-				__( '%post_month% - The month the post was published (localized)', 'all-in-one-seo-pack' ) . '</li></ul>',
+				__( '%post_month% - The month the post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
+				__( '%cf_fieldname% - Custom field name', 'all-in-one-seo-pack' ) . '</li></ul>',
 			'category_title_format'       =>
 				__( 'This controls the format of the title tag for Category Archives.<br />The following macros are supported:', 'all-in-one-seo-pack' ) .
 				'<ul><li>' . __( '%blog_title% - Your blog title', 'all-in-one-seo-pack' ) . '</li><li>' .
@@ -176,7 +179,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 											 __( '%current_date% - The current date (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 											 __( '%post_date% - The date the page/post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
 											 __( '%post_year% - The year the page/post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
-											 __( '%post_month% - The month the page/post was published (localized)', 'all-in-one-seo-pack' ) . '</li></ul>',
+											 __( '%post_month% - The month the page/post was published (localized)', 'all-in-one-seo-pack' ) . '</li><li>' .
+											 __( '%cf_fieldname% - Custom field name', 'all-in-one-seo-pack' ) . '</li></ul>',
 			'404_title_format'            => __( 'This controls the format of the title tag for the 404 page.<br />The following macros are supported:', 'all-in-one-seo-pack' ) .
 											 '<ul><li>' . __( '%blog_title% - Your blog title', 'all-in-one-seo-pack' ) . '</li><li>' .
 											 __( '%blog_description% - Your blog description', 'all-in-one-seo-pack' ) . '</li><li>' .
@@ -189,7 +193,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			'cpostactive'                 => __( 'Use these checkboxes to select which Content Types you want to use All in One SEO Pack with.', 'all-in-one-seo-pack' ),
 			'taxactive'                   => __( 'Use these checkboxes to select which Taxonomies you want to use All in One SEO Pack with.', 'all-in-one-seo-pack' ),
 			'posttypecolumns'             => __( 'This lets you select which screens display the SEO Title, SEO Keywords and SEO Description columns.', 'all-in-one-seo-pack' ),
-			'google_verify'               => __( "Enter your verification code here to verify your site with Google Webmaster Tools.<br /><a href='https://semperplugins.com/documentation/google-webmaster-tools-verification/' target='_blank'>Click here for documentation on this setting</a>", 'all-in-one-seo-pack' ),
+			'google_verify'               => __( "Enter your verification code here to verify your site with Google Search Console.<br /><a href='https://semperplugins.com/documentation/google-webmaster-tools-verification/' target='_blank'>Click here for documentation on this setting</a>", 'all-in-one-seo-pack' ),
 			'bing_verify'                 => __( "Enter your verification code here to verify your site with Bing Webmaster Tools.<br /><a href='https://semperplugins.com/documentation/bing-webmaster-verification/' target='_blank'>Click here for documentation on this setting</a>", 'all-in-one-seo-pack' ),
 			'pinterest_verify'            => __( "Enter your verification code here to verify your site with Pinterest.<br /><a href='https://semperplugins.com/documentation/pinterest-site-verification/' target='_blank'>Click here for documentation on this setting</a>", 'all-in-one-seo-pack' ),
 			'google_publisher'            => __( 'Enter your Google+ Profile URL here to add the rel=“author” tag to your site for Google authorship. It is recommended that the URL you enter here should be your personal Google+ profile.  Use the Advanced Authorship Options below if you want greater control over the use of authorship.', 'all-in-one-seo-pack' ),
@@ -530,12 +534,12 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				'default'  => array( 'post', 'page' ),
 			),
 			'google_verify'               => array(
-				'name'    => __( 'Google Webmaster Tools:', 'all-in-one-seo-pack' ),
+				'name'    => __( 'Google Search Console:', 'all-in-one-seo-pack' ),
 				'default' => '',
 				'type'    => 'text',
 			),
 			'bing_verify'                 => array(
-				'name'    => __( 'Bing Webmaster Center:', 'all-in-one-seo-pack' ),
+				'name'    => __( 'Bing Webmaster Tools:', 'all-in-one-seo-pack' ),
 				'default' => '',
 				'type'    => 'text',
 			),
@@ -905,18 +909,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 						'name'    => __( 'Preview Snippet', 'all-in-one-seo-pack' ),
 						'type'    => 'custom',
 						'label'   => 'top',
-						'default' => '
-																									<script>
-																									jQuery(document).ready(function() {
-																										jQuery("#aiosp_title_wrapper").bind("input", function() {
-																										    jQuery("#aiosp_snippet_title").text(jQuery("#aiosp_title_wrapper input").val().replace(/<(?:.|\n)*?>/gm, ""));
-																										});
-																										jQuery("#aiosp_description_wrapper").bind("input", function() {
-																										    jQuery("#aioseop_snippet_description").text(jQuery("#aiosp_description_wrapper textarea").val().replace(/<(?:.|\n)*?>/gm, ""));
-																										});
-																									});
-																									</script>
-																									<div class="preview_snippet"><div id="aioseop_snippet"><h3><a>%s</a></h3><div><div><cite id="aioseop_snippet_link">%s</cite></div><span id="aioseop_snippet_description">%s</span></div></div></div>',
+						'default' => '<div class="preview_snippet"><div id="aioseop_snippet"><h3><a>%s</a></h3><div><div><cite id="aioseop_snippet_link">%s</cite></div><span id="aioseop_snippet_description">%s</span></div></div></div>',
 					),
 					'title'              => array(
 						'name'  => __( 'Title', 'all-in-one-seo-pack' ),
@@ -1167,95 +1160,118 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				156
 			) . '...';
 		}
-		$extra_title_len = 0;
 		if ( empty( $title_format ) ) {
 			$title = '<span id="' . $args['name'] . '_title">' . esc_attr( wp_strip_all_tags( html_entity_decode( $title ) ) ) . '</span>';
 		} else {
-			if ( strpos( $title_format, '%blog_title%' ) !== false ) {
-				$title_format = str_replace( '%blog_title%', get_bloginfo( 'name' ), $title_format );
-			}
-			$title_format  = $this->apply_cf_fields( $title_format );
-			$replace_title = '<span id="' . $args['name'] . '_title">' . esc_attr( wp_strip_all_tags( html_entity_decode( $title ) ) ) . '</span>';
-			if ( strpos( $title_format, '%post_title%' ) !== false ) {
-				$title_format = str_replace( '%post_title%', $replace_title, $title_format );
-			}
-			if ( strpos( $title_format, '%page_title%' ) !== false ) {
-				$title_format = str_replace( '%page_title%', $replace_title, $title_format );
-			}
-			if ( strpos( $title_format, '%current_date%' ) !== false ) {
-				$title_format = str_replace( '%current_date%', aioseop_formatted_date(), $title_format );
-			}
-
-			if ( strpos( $title_format, "%post_date%" ) !== false ){
-				$title_format = str_replace( '%post_date%', aioseop_formatted_date( get_the_time( 'U' ) ), $title_format );
-			}
-			if ( strpos( $title_format, '%post_year%' ) !== false ) {
-				$title_format = str_replace( '%post_year%', get_the_date( 'Y' ), $title_format );
-			}
-			if ( strpos( $title_format, '%post_month%' ) !== false ) {
-				$title_format = str_replace( '%post_month%', get_the_date( 'F' ), $title_format );
-			}
-			if ( $w->is_category || $w->is_tag || $w->is_tax ) {
-				if ( AIOSEOPPRO && ! empty( $_GET ) && ! empty( $_GET['taxonomy'] ) && ! empty( $_GET['tag_ID'] ) && function_exists( 'wp_get_split_terms' ) ) {
-					$term_id   = intval( $_GET['tag_ID'] );
-					$was_split = get_term_meta( $term_id, '_aioseop_term_was_split', true );
-					if ( ! $was_split ) {
-						$split_terms = wp_get_split_terms( $term_id, $_GET['taxonomy'] );
-						if ( ! empty( $split_terms ) ) {
-							foreach ( $split_terms as $new_tax => $new_term ) {
-								$this->split_shared_term( $term_id, $new_term );
-							}
-						}
-					}
-				}
-				if ( strpos( $title_format, '%category_title%' ) !== false ) {
-					$title_format = str_replace( '%category_title%', $replace_title, $title_format );
-				}
-				if ( strpos( $title_format, '%taxonomy_title%' ) !== false ) {
-					$title_format = str_replace( '%taxonomy_title%', $replace_title, $title_format );
-				}
-			} else {
-				if ( strpos( $title_format, '%category%' ) !== false ) {
-					$title_format = str_replace( '%category%', $category, $title_format );
-				}
-				if ( strpos( $title_format, '%category_title%' ) !== false ) {
-					$title_format = str_replace( '%category_title%', $category, $title_format );
-				}
-				if ( strpos( $title_format, '%taxonomy_title%' ) !== false ) {
-					$title_format = str_replace( '%taxonomy_title%', $category, $title_format );
-				}
-				if ( AIOSEOPPRO ) {
-					if ( strpos( $title_format, '%tax_' ) && ! empty( $p ) ) {
-						$taxes = get_object_taxonomies( $p, 'objects' );
-						if ( ! empty( $taxes ) ) {
-							foreach ( $taxes as $t ) {
-								if ( strpos( $title_format, "%tax_{$t->name}%" ) ) {
-									$terms = $this->get_all_terms( $p->ID, $t->name );
-									$term  = '';
-									if ( count( $terms ) > 0 ) {
-										$term = $terms[0];
-									}
-									$title_format = str_replace( "%tax_{$t->name}%", $term, $title_format );
-								}
-							}
-						}
-					}
-				}
-			}
-			if ( strpos( $title_format, '%taxonomy_description%' ) !== false ) {
-				$title_format = str_replace( '%taxonomy_description%', $description, $title_format );
-			}
-
-			$title_format    = preg_replace( '/%([^%]*?)%/', '', $title_format );
+			$title_format    = $this->get_title_format( $args );
 			$title           = $title_format;
-			$extra_title_len = strlen( $this->html_entity_decode( str_replace( $replace_title, '', $title_format ) ) );
 		}
 
 		$args['value']   = sprintf( $args['value'], $title, esc_url( $url ), esc_attr( $description ) );
-		$args['value'] .= '<script>var aiosp_title_extra = ' . (int) $extra_title_len . ';</script>';
 		$buf = $this->get_option_row( $args['name'], $args['options'], $args );
 
 		return $buf;
+	}
+
+	/**
+	 * Get Title Format
+	 *
+	 * Get the title formatted according to AIOSEOP %shortcodes%.
+	 *
+	 * @since 2.4.9
+	 *
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function get_title_format( $args ) {
+		$info         = $this->get_page_snippet_info();
+		$title        = $info['title'];
+		$description  = $info['description'];
+		$keywords     = $info['keywords'];
+		$url          = $info['url'];
+		$title_format = $info['title_format'];
+		$category     = $info['category'];
+		$w            = $info['w'];
+		$p            = $info['p'];
+
+		if ( strpos( $title_format, '%blog_title%' ) !== false ) {
+			$title_format = str_replace( '%blog_title%', get_bloginfo( 'name' ), $title_format );
+		}
+		$title_format  = $this->apply_cf_fields( $title_format );
+		$replace_title = '<span id="' . $args['name'] . '_title">' . esc_attr( wp_strip_all_tags( html_entity_decode( $title ) ) ) . '</span>';
+		if ( strpos( $title_format, '%post_title%' ) !== false ) {
+			$title_format = str_replace( '%post_title%', $replace_title, $title_format );
+		}
+		if ( strpos( $title_format, '%page_title%' ) !== false ) {
+			$title_format = str_replace( '%page_title%', $replace_title, $title_format );
+		}
+		if ( strpos( $title_format, '%current_date%' ) !== false ) {
+			$title_format = str_replace( '%current_date%', aioseop_formatted_date(), $title_format );
+		}
+
+		if ( strpos( $title_format, "%post_date%" ) !== false ){
+			$title_format = str_replace( '%post_date%', aioseop_formatted_date( get_the_time( 'U' ) ), $title_format );
+		}
+		if ( strpos( $title_format, '%post_year%' ) !== false ) {
+			$title_format = str_replace( '%post_year%', get_the_date( 'Y' ), $title_format );
+		}
+		if ( strpos( $title_format, '%post_month%' ) !== false ) {
+			$title_format = str_replace( '%post_month%', get_the_date( 'F' ), $title_format );
+		}
+		if ( $w->is_category || $w->is_tag || $w->is_tax ) {
+			if ( AIOSEOPPRO && ! empty( $_GET ) && ! empty( $_GET['taxonomy'] ) && ! empty( $_GET['tag_ID'] ) && function_exists( 'wp_get_split_terms' ) ) {
+				$term_id   = intval( $_GET['tag_ID'] );
+				$was_split = get_term_meta( $term_id, '_aioseop_term_was_split', true );
+				if ( ! $was_split ) {
+					$split_terms = wp_get_split_terms( $term_id, $_GET['taxonomy'] );
+					if ( ! empty( $split_terms ) ) {
+						foreach ( $split_terms as $new_tax => $new_term ) {
+							$this->split_shared_term( $term_id, $new_term );
+						}
+					}
+				}
+			}
+			if ( strpos( $title_format, '%category_title%' ) !== false ) {
+				$title_format = str_replace( '%category_title%', $replace_title, $title_format );
+			}
+			if ( strpos( $title_format, '%taxonomy_title%' ) !== false ) {
+				$title_format = str_replace( '%taxonomy_title%', $replace_title, $title_format );
+			}
+		} else {
+			if ( strpos( $title_format, '%category%' ) !== false ) {
+				$title_format = str_replace( '%category%', $category, $title_format );
+			}
+			if ( strpos( $title_format, '%category_title%' ) !== false ) {
+				$title_format = str_replace( '%category_title%', $category, $title_format );
+			}
+			if ( strpos( $title_format, '%taxonomy_title%' ) !== false ) {
+				$title_format = str_replace( '%taxonomy_title%', $category, $title_format );
+			}
+			if ( AIOSEOPPRO ) {
+				if ( strpos( $title_format, '%tax_' ) && ! empty( $p ) ) {
+					$taxes = get_object_taxonomies( $p, 'objects' );
+					if ( ! empty( $taxes ) ) {
+						foreach ( $taxes as $t ) {
+							if ( strpos( $title_format, "%tax_{$t->name}%" ) ) {
+								$terms = $this->get_all_terms( $p->ID, $t->name );
+								$term  = '';
+								if ( count( $terms ) > 0 ) {
+									$term = $terms[0];
+								}
+								$title_format = str_replace( "%tax_{$t->name}%", $term, $title_format );
+							}
+						}
+					}
+				}
+			}
+		}
+		if ( strpos( $title_format, '%taxonomy_description%' ) !== false ) {
+			$title_format = str_replace( '%taxonomy_description%', $description, $title_format );
+		}
+
+		$title_format    = preg_replace( '/%([^%]*?)%/', '', $title_format );
+
+		return $title_format;
 	}
 
 	// good candidate for pro dir
@@ -3279,6 +3295,36 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 	public function admin_enqueue_scripts( $hook_suffix ) {
 		add_filter( "{$this->prefix}display_settings", array( $this, 'filter_settings' ), 10, 3 );
 		add_filter( "{$this->prefix}display_options", array( $this, 'filter_options' ), 10, 2 );
+
+		// This ensures different JS files are enqueued only at the intended screens. Preventing unnecessary processes.
+		$extra_title_len = 0;
+		switch ( $hook_suffix ) {
+			// Screens `post.php`, `post-new.php`, & `../aioseop_class.php` share the same `count-char.js`.
+			case 'post.php' :
+			case 'post-new.php' :
+				$info         = $this->get_page_snippet_info();
+				$title        = $info['title'];
+				$title_format = $this->get_title_format( array( 'name' => 'aiosp_snippet' ) );
+
+				if ( ! empty( $title_format ) ) {
+					$replace_title   = '<span id="aiosp_snippet_title">' . esc_attr( wp_strip_all_tags( html_entity_decode( $title ) ) ) . '</span>';
+					$extra_title_len = strlen( $this->html_entity_decode( str_replace( $replace_title, '', $title_format ) ) );
+				}
+			// Fall through.
+			case 'toplevel_page_all-in-one-seo-pack/aioseop_class' :
+				wp_enqueue_script(
+					'aioseop-post-edit-script',
+					AIOSEOP_PLUGIN_URL . 'js/count-chars.js',
+					array(),
+					AIOSEOP_VERSION
+				);
+
+				$localize_post_edit = array(
+					'aiosp_title_extra' => (int) $extra_title_len,
+				);
+				wp_localize_script( 'aioseop-post-edit-script', 'aioseop_count_chars', $localize_post_edit );
+				break;
+		}
 
 		parent::admin_enqueue_scripts( $hook_suffix );
 	}
