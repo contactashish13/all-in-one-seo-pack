@@ -826,7 +826,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return string
 		 */
-		private function get_filename() {
+		protected function get_filename() {
 			$filename = 'sitemap';
 			if ( ! empty( $this->options[ "{$this->prefix}filename" ] ) ) {
 				$filename = $this->options[ "{$this->prefix}filename" ];
