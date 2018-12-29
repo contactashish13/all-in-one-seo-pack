@@ -164,6 +164,12 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		$this->factory->attachment->create( array( 'file' => $image, 'post_parent' => $id ) );
 		*/
 		$attachment_id = $this->factory->attachment->create_upload_object( $image, $id );
+
+		// add an image caption and title with special characters.
+		kses_remove_filters();
+		wp_update_post( array( 'ID' => $attachment_id, 'post_title' => wp_generate_password( 12, true, true ) . '<tom>&jerry"\'', 'post_excerpt' => wp_generate_password( 12, true, true ) . '<tom>&jerry"\'' ) );
+		kses_init_filters();
+
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}
@@ -259,16 +265,24 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Set up posts of specific post type, without/without images. Use this when post attributes such as title, content etc. don't matter.
-	*/
-	protected final function setup_posts( $without_images = 0, $with_images = 0, $type = 'post', $image_name = 'footer-logo.png' ) {
+	 * Setup Posts
+	 *
+	 * Set up posts of specific post type, without/without images. Use this when post attributes such as title,
+	 * content etc. don't matter.
+	 *
+	 * @param int    $without_images
+	 * @param int    $with_images
+	 * @param string $type
+	 * @return array
+	 */
+	final protected function setup_posts( $without_images = 0, $with_images = 0, $type = 'post' ) {
 		if ( $without_images > 0 ) {
 			$this->factory->post->create_many( $without_images, array( 'post_type' => $type, 'post_content' => 'content without image', 'post_title' => 'title without image' ) );
 		}
 		if ( $with_images > 0 ) {
 			$ids	= $this->factory->post->create_many( $with_images, array( 'post_type' => $type, 'post_content' => 'content with image', 'post_title' => 'title with image' ) );
 			foreach ( $ids as $id ) {
-				$this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . "/resources/images/$image_name" ), $id );
+				$this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ), $id );
 			}
 		}
 
@@ -296,33 +310,25 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		// 2 attachments created?
 		$this->assertEquals( $with_images, count( $attachments ) );
 
-		$with = array();
+		$with    = array();
 		$without = array();
-		$with_ids = array();
-		$without_ids = array();
 
 		$featured	= 0;
 		foreach ( $posts as $id ) {
 			if ( has_post_thumbnail( $id ) ) {
 				$featured++;
 				$with[] = get_permalink( $id );
-				$with_ids[] = $id;
 				continue;
 			}
 			$without[] = get_permalink( $id );
-			$without_ids[] = $id;
 		}
 
 		// 2 posts have featured image?
 		$this->assertEquals( $with_images, $featured );
 
 		return array(
-			'with'	=> $with,
-			'without'	=> $without,
-			'ids'	=> array(
-				'with'	=> $with_ids,
-				'without'	=> $without_ids,
-			),
+			'with'    => $with,
+			'without' => $without,
 		);
 	}
 

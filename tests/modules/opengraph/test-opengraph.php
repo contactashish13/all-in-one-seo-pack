@@ -1,16 +1,15 @@
 <?php
 /**
- * Class Test_Sitemap
+ * Class Test_Opengraph
  *
  * @package
  */
 
-/**
- * Sitemap test case.
- */
-
 require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
 
+/**
+ * Opengraph Testcase
+ */
 class Test_Opengraph extends AIOSEOP_Test_Base {
 
 	/**

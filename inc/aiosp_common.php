@@ -15,18 +15,6 @@ class aiosp_common {
 // @codingStandardsIgnoreEnd
 
 	/**
-	 * The allowed image extensions.
-	 *
-	 * @var      array $image_extensions The allowed image extensions.
-	 */
-	private static $image_extensions    = array(
-		'jpg',
-		'jpeg',
-		'png',
-		'gif',
-	);
-
-	/**
 	 * aiosp_common constructor.
 	 *
 	 */
@@ -168,46 +156,6 @@ class aiosp_common {
 				$url	= $scheme . '://' . str_replace( 'http:', '', $url );
 			}
 		}
-		return $url;
-	}
-
-	/**
-	 * Determines if the given image URL is an attachment and, if it is, gets the correct image URL according to the requested size.
-	 *
-	 * @param	string		$url	The url of the image.
-	 * @param	string		$size	The size of the image to return.
-	 *
-	 * @return string
-	 */
-	public static function get_image_src_for_url( $url, $size = 'thumbnail' ) {
-		// let's check if this image is an attachment.
-		$dir = wp_get_upload_dir();
-		$path = $url;
-	 
-		$site_url = parse_url( $dir['url'] );
-		$image_path = parse_url( $path );
-	 
-		//force the protocols to match if needed
-		if ( isset( $image_path['scheme'] ) && ( $image_path['scheme'] !== $site_url['scheme'] ) ) {
-			$path = str_replace( $image_path['scheme'], $site_url['scheme'], $path );
-		}
-	 
-		if ( 0 === strpos( $path, $dir['baseurl'] . '/' ) ) {
-			$path = substr( $path, strlen( $dir['baseurl'] . '/' ) );
-		}
-
-
-		global $wpdb;
-		$attachment_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_wp_attachment_metadata' AND meta_value LIKE %s", '%' . basename( $path ) . '%' ) );
-
-		if ( $attachment_id ) {
-			// if this is a valid attachment, get the correct size.
-			$image = wp_get_attachment_image_src( $attachment_id, $size );
-			if ( $image ) {
-				$url = $image[0];
-			}
-		}
-
 		return $url;
 	}
 
@@ -561,6 +509,18 @@ class aiosp_common {
 	 */
 	public static function is_url_valid( $url ) {
 		return filter_var( filter_var( $url, FILTER_SANITIZE_URL ), FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED ) !== false;
+	}
+
+	/**
+	 * Renders the value XML safe.
+	 */
+	public static function make_xml_safe( $tag, $value ) {
+		if ( in_array( $tag, array( 'guid', 'link', 'loc', 'image:loc' ) ) ) {
+			$value = esc_url( $value );
+		} else if( ! is_array( $value ) ) {
+			$value = htmlspecialchars( $value, ENT_QUOTES );
+		}
+		return $value;
 	}
 
 }
