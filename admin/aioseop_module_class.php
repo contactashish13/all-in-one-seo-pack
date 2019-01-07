@@ -1575,8 +1575,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				return false;
 			}
 
-			$size  = apply_filters( 'post_thumbnail_size', 'large' ); // Check if someone is using built-in WP filter.
-			$size  = apply_filters( 'aioseop_thumbnail_size', $size );
+			// Check if someone is using built-in WP filter.
+			$size  = apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) );
 			$image = wp_get_attachment_image_src( $post_thumbnail_id, $size );
 
 			return $image[0];
@@ -1607,8 +1607,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			);
 
 			if ( empty( $attachments ) && 'attachment' == get_post_type( $post->ID ) ) {
-				$size  = 'large';
-				$size  = apply_filters( 'aioseop_attachment_size', $size );
+				$size  = apply_filters( 'aioseop_attachment_size', 'large' );
 				$image = wp_get_attachment_image_src( $post->ID, $size );
 			}
 
@@ -1623,8 +1622,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			/* Loop through each attachment. Once the $order_of_image (default is '1') is reached, break the loop. */
 			foreach ( $attachments as $id => $attachment ) {
 				if ( ++ $i == 1 ) {
-					$size  = 'large';
-					$size  = apply_filters( 'aioseop_attachment_size', $size );
+					$size  = apply_filters( 'aioseop_attachment_size', 'large' );
 					$image = wp_get_attachment_image_src( $id, $size );
 					$alt   = trim( strip_tags( get_post_field( 'post_excerpt', $id ) ) );
 					break;
@@ -1643,7 +1641,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 * @return bool
 		 */
 		function get_the_image_by_scan( $p = null ) {
-
 			if ( $p === null ) {
 				global $post;
 			} else {
@@ -1660,6 +1657,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 
 			return false;
 		}
+
 
 		/**
 		 * @param        $default_options
@@ -2330,10 +2328,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 							"<input class='aioseop_upload_image_button button-primary' type='button' value='";
 					$buf .= __( 'Upload Image', 'all-in-one-seo-pack' );
 					$buf .= "' style='float:left;' />" .
-							"<input class='aioseop_upload_image_label' name='$name' type='text' $attr value='$value' size=57 style='float:left;clear:left;'>\n";
+							"<input class='aioseop_upload_image_label' name='" . esc_attr( $name ) . "' type='text' " . esc_html( $attr ) . " value='" . esc_attr( $value ) . "' size=57 style='float:left;clear:left;'>\n";
 					break;
 				case 'html':
-					$buf .= $value;
+					$buf .= wp_kses( $value, wp_kses_allowed_html( 'post' ) );
 					break;
 				case 'esc_html':
 					$buf .= '<pre>' . esc_html( $value ) . "</pre>\n";
@@ -2343,7 +2341,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					wp_enqueue_script( 'jquery-ui-datepicker' );
 					// fall through.
 				default:
-					$buf .= "<input name='$name' type='{$options['type']}' $attr value='$value'>\n";
+					$buf .= "<input name='" . esc_attr( $name ) . "' type='" . esc_attr( $options['type'] ) . "' " . wp_kses( $attr, wp_kses_allowed_html( 'data' ) ) . " value='" . esc_attr( $value ) . "'>\n";
 			}
 			if ( ! empty( $options['count'] ) ) {
 				$size = 60;
