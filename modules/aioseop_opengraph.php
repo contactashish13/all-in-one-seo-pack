@@ -216,7 +216,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 		}
-
 		/**
 		 * This iterates over all taxonomies that do not have a opengraph setting defined and sets the defaults.
 		 *
@@ -993,7 +992,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			if ( empty( $type ) ) {
 				$type = 'website';
 			}
-
 			$schema_types = array(
 				'album'      => 'MusicAlbum',
 				'article'    => 'Article',
