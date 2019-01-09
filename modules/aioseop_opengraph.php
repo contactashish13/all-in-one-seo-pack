@@ -198,10 +198,92 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			// Adds special filters
 			add_filter( 'aioseop_opengraph_placeholder', array( &$this, 'filter_placeholder' ) );
 			add_action( 'aiosp_activate_opengraph', array( $this, 'activate_module' ) );
+			add_action( 'created_term', array( $this, 'created_term' ), 10, 3 );
 			// Call to init to generate menus
 			$this->init();
 		}
 
+		/**
+		 * Sets the terms defaults after a new term is created.
+		 *
+		 * @param int    $term_id  Term ID.
+		 * @param int    $tt_id    Term taxonomy ID.
+		 * @param string $taxonomy Taxonomy slug.
+		 */
+		function created_term( $term_id, $tt_id, $taxonomy_name ) {
+			$k = 'settings';
+			$prefix  = $this->get_prefix( $k );
+			$tax = get_taxonomy( $taxonomy_name );
+			$this->set_object_type_for_taxonomy( $prefix, $k, $taxonomy_name, $tax, false, array( $term_id ) );
+		}
+
+		/**
+		 * Sets the defaults for a taxonomy.
+		 *
+		 * @param string    $prefix             The prefix of this module.
+		 * @param string    $k                  The key against which the options will be determined/set.
+		 * @param string    $taxonomy_name      The name of the taxonomy.
+		 * @param Object    $tax                The taxonomy object.
+		 * @param bool      $bail_if_no_terms   Bail if the taxonomy has no terms.
+		 * @param array     $terms              The terms in the taxonomy.
+		 */
+		private function set_object_type_for_taxonomy( $prefix, $k, $taxonomy_name, $tax, $bail_if_no_terms = false, $terms = null ) {
+			$object_type = null;
+			if ( ! $terms ) {
+				$terms = get_terms( $taxonomy_name, array(
+					'meta_query' => array(
+						array(
+							'key' => '_' . $prefix . $k,
+							'compare' => 'NOT EXISTS',
+						)
+					),
+					'number' => PHP_INT_MAX,
+					'fields' => 'ids',
+					'hide_empty' => false,
+				) );
+			}
+
+			if ( empty( $terms ) && $bail_if_no_terms ) {
+				return false;
+			}
+
+			if ( true === $tax->_builtin ) {
+				$object_type = 'article';
+			} else {
+				// custom taxonomy. Let's get a post against this to determine its post type.
+				$posts = get_posts( array(
+					'numberposts' => 1,
+					'post_type' => 'any',
+					'tax_query' => array(
+						array(
+							'taxonomy' => $taxonomy_name,
+							'field' => 'term_id',
+							'terms' => $terms
+						),
+					),
+				) );
+				if ( $posts ) {
+					global $aioseop_options;
+					$post_type = $posts[0]->post_type;
+					$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
+
+					// now let's see what default object type is set for this post type.
+					$object_type_set = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
+					if ( ! empty( $object_type_set ) ) {
+						$object_type = $object_type_set;
+					}
+				}
+			}
+
+			if ( $object_type ) {
+				$opts[ $prefix . $k .'_category' ] = $object_type;
+				foreach ( $terms as $term_id ) {
+					update_term_meta( $term_id, '_' . $prefix . $k, $opts );
+				}
+			}
+
+			return true;
+		 }
 
 		/**
 		 * Called when this module is activated.
@@ -222,60 +304,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		 * @param string $k The key against which the options will be determined/set.
 		 */
 		private function set_virgin_tax_terms( $k ) {
-			global $aioseop_options;
 			$prefix  = $this->get_prefix( $k );
 			$opts    = $this->default_options( $k );
-			$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
 			$taxonomies = get_taxonomies( array( 'public' => true ), 'object' );
 			if ( ! $taxonomies ) {
 				return;
 			}
 			foreach ( $taxonomies as $name => $tax ) {
-				$terms = get_terms( $name, array(
-					'meta_query' => array(
-						array(
-							'key' => '_' . $prefix . $k,
-							'compare' => 'NOT EXISTS',
-						)
-					),
-					'number' => PHP_INT_MAX,
-					'fields' => 'ids',
-					'hide_empty' => false,
-				) );
-				if ( empty( $terms ) ) {
-					continue;
-				}
-				$category = null;
-				if ( true === $tax->_builtin ) {
-					$category = 'article';
-				} else {
-					// custom taxonomy. Let's get a post against this to determine its post type.
-					$posts = get_posts( array(
-						'numberposts' => 1,
-						'post_type' => 'any',
-						'tax_query' => array(
-							array(
-								'taxonomy' => $name,
-								'field' => 'term_id',
-								'terms' => $terms
-							),
-						),
-					) );
-					if ( $posts ) {
-						$post_type = $posts[0]->post_type;
-						// now let's see what default object type is set for this post type.
-						$object_type = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
-						if ( ! empty( $object_type ) ) {
-							$category = $object_type;
-						}
-					}
-				}
-				if ( $category ) {
-					$opts[ $prefix . $k .'_category' ] = $category;
-					foreach ( $terms as $term_id ) {
-						update_term_meta( $term_id, '_' . $prefix . $k, $opts );
-					}
-				}
+				$this->set_object_type_for_taxonomy( $prefix, $k, $name, $tax, true, null );
+
+
 			}
 		}
 
