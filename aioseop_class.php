@@ -3704,6 +3704,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles_all' ) );
 			add_action( 'admin_init', 'aioseop_addmycolumns', 1 );
 			add_action( 'admin_init', 'aioseop_handle_ignore_notice' );
+			add_action( 'shutdown', array( $this, 'check_recently_activated_modules' ), 99 );
 			if ( AIOSEOPPRO ) {
 				if ( current_user_can( 'update_plugins' ) ) {
 					add_action( 'admin_notices', array( $aioseop_update_checker, 'key_warning' ) );
@@ -4860,7 +4861,6 @@ EOF;
 	}
 
 	function admin_menu() {
-		$this->check_recently_activated_modules( $_POST );
 		$file      = plugin_basename( __FILE__ );
 		$menu_name = __( 'All in One SEO', 'all-in-one-seo-pack' );
 
@@ -5237,26 +5237,38 @@ EOF;
 
 	/**
 	 * Checks which module(s) have been (de)activated just now and fires a corresponding action.
-	 *
-	 * @param array $post Duplicate of $_POST.
 	 */
-	private function check_recently_activated_modules( $post ) {
+	function check_recently_activated_modules() {
 		global $aioseop_options;
-		$modules	= array();
+		$options = get_option( 'aioseop_options' );
+		$modules_before	= array();
+		$modules_now	= array();
 		if ( array_key_exists( 'modules', $aioseop_options ) && array_key_exists( 'aiosp_feature_manager_options', $aioseop_options['modules'] ) ) {
-			$modules = array_keys( $aioseop_options['modules']['aiosp_feature_manager_options'] );
+			foreach( $aioseop_options['modules']['aiosp_feature_manager_options'] as $module => $state ) {
+				if ( ! empty( $state ) ) {
+					$modules_before[] = $module;
+				}
+			}
+		}
+		if ( array_key_exists( 'modules', $options ) && array_key_exists( 'aiosp_feature_manager_options', $options['modules'] ) ) {
+			foreach( $options['modules']['aiosp_feature_manager_options'] as $module => $state ) {
+				if ( ! empty( $state ) ) {
+					$modules_now[] = $module;
+				}
+			}
 		}
 
- 		if ( $modules ) {
-			foreach ( $modules as $module ) {
+		$action = 'deactivate';
+		$diff = array_diff( $modules_before, $modules_now );
+		if ( count( $modules_now ) > count( $modules_before ) ) {
+			$action = 'activate';
+			$diff = array_diff( $modules_now, $modules_before );
+		}
+
+ 		if ( $diff ) {
+			foreach ( $diff as $module ) {
 				$name = str_replace( 'aiosp_feature_manager_enable_', '', $module );
-				if ( empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! empty( $post[ $module ] ) ) {
-					// this module was activated.
-					do_action( $this->prefix . 'activate_' . $name );
-				} else if ( ! empty( $aioseop_options['modules']['aiosp_feature_manager_options'][ $module ] ) && ! isset( $post[ $module ] ) ) {
-					// this module was deactivated. This action should be registered NOT in the specific module but elsewhere because that module is not going to be loaded.
-					do_action( $this->prefix . 'deactivate_' . $name );
-				}
+				do_action( $this->prefix . $action . '_' . $name );
 			}
 		}
 	}
