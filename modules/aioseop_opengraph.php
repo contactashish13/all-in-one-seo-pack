@@ -1098,6 +1098,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			$title             = $description = $image = $video = '';
 			$type              = $this->type;
 			$sitename          = $this->options['aiosp_opengraph_sitename'];
+			$og_options        = $aioseop_options['modules'][ $this->prefix . 'options' ];
 
 			$appid = isset( $this->options['aiosp_opengraph_appid'] ) ? $this->options['aiosp_opengraph_appid'] : '';
 
@@ -1297,8 +1298,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					if ( AIOSEOPPRO && ( is_category() || is_tag() || is_tax() ) ) {
 						$current_post_type = get_post_type();
 						// check if the post type's object type is set.
-						if ( isset( $aioseop_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ) ) {
-							$type = $aioseop_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ];
+						if ( isset( $og_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ) ) {
+							$type = $og_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ];
 						} elseif ( in_array( $current_post_type, array( 'post', 'page' ) ) ) {
 							$type = 'article';
 						}
