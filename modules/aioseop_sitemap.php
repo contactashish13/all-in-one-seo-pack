@@ -3407,6 +3407,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$this->get_gallery_images( $post, $images );
 
 			$content .= $this->get_content_from_galleries( $content );
+
+			$shortcodes = apply_filters( 'aioseop_image_shortcodes', '', $post->ID );
+			if ( ! empty( $shortcodes ) ) {
+				$content    .= do_shortcode( $shortcodes );
+			}
+
 			$this->parse_content_for_images( $content, $images );
 
 			if ( $images ) {

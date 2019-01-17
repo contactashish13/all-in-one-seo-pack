@@ -699,7 +699,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	 * @dataProvider shortcodeProvider
 	 */
 	public function test_filter_aioseop_image_shortcodes( $code ) {
-		$this->markTestSkipped( 'Skip this till the changes that were rolled back in v2.9 are addressed.' );
 		global $__shortcode, $__post_ids;
 		$__shortcode = "[$code]";
 
