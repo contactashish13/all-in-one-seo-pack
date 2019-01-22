@@ -265,12 +265,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				if ( $posts ) {
 					global $aioseop_options;
 					$post_type = $posts[0]->post_type;
-					$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
+					if ( isset( $aioseop_options['modules'] ) && isset( $aioseop_options['modules'][ $this->prefix . 'options' ] ) ) {
+						$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
 
-					// now let's see what default object type is set for this post type.
-					$object_type_set = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
-					if ( ! empty( $object_type_set ) ) {
-						$object_type = $object_type_set;
+						// now let's see what default object type is set for this post type.
+						$object_type_set = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
+						if ( ! empty( $object_type_set ) ) {
+							$object_type = $object_type_set;
+						}
 					}
 				}
 			}
@@ -1098,7 +1100,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			$title             = $description = $image = $video = '';
 			$type              = $this->type;
 			$sitename          = $this->options['aiosp_opengraph_sitename'];
-			$og_options        = $aioseop_options['modules'][ $this->prefix . 'options' ];
 
 			$appid = isset( $this->options['aiosp_opengraph_appid'] ) ? $this->options['aiosp_opengraph_appid'] : '';
 
@@ -1296,6 +1297,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				if ( empty( $type ) ) {
 					# https://github.com/semperfiwebdesign/aioseop-pro/issues/321
 					if ( AIOSEOPPRO && ( is_category() || is_tag() || is_tax() ) ) {
+						$og_options        = $aioseop_options['modules'][ $this->prefix . 'options' ];
 						$current_post_type = get_post_type();
 						// check if the post type's object type is set.
 						if ( isset( $og_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ) ) {
