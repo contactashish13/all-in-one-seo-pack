@@ -445,6 +445,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_filter( $this->prefix . 'output_option', array( $this, 'display_custom_options' ), 10, 2 );
 			add_action( $this->prefix . 'daily_update_cron', array( $this, 'daily_update' ) );
 			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
+
+			// TODO is this required for dynamic sitemap?
 			add_action( 'transition_post_status', array( $this, 'update_sitemap_from_posts' ), 10, 3 );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
 			add_action( 'all_admin_notices', array( $this, 'sitemap_notices' ) );
@@ -523,6 +525,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param $post
 		 */
 		public function update_sitemap_from_posts( $new_status, $old_status, $post ) {
+			// ignore WP API requests.
+			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+				return;
+			}
 
 			if ( $this->option_isset( 'rewrite' ) ) {
 				// TODO if dynamic, delete transient (we currently don't do transients).
