@@ -33,6 +33,10 @@
         <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
         <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" />
         <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
+        <exclude name="Squiz.Commenting.BlockComment" />
+        <exclude name="Generic.Commenting.DocComment.LongNotCapital" />
+        <exclude name="Squiz.Commenting.BlockComment.CloserSameLine" />
+        <exclude name="Squiz.Commenting.InlineComment.NotCapital" />
 
 		<!-- these can be removed once the initial part of #1003 is closed -->
 		<exclude name="Generic.Commenting.DocComment" />
@@ -42,7 +46,6 @@
 		<exclude name="Squiz.Commenting.VariableComment" />
         <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
         <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
-        <exclude name="Squiz.Commenting.InlineComment.NotCapital" />
 
 	</rule>
     <rule ref="WordPress-Docs">
