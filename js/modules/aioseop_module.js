@@ -241,62 +241,62 @@ jQuery( document ).ready(
 			}
 		);
 
-        /**
-         * @summary Javascript for using WP media uploader. Indentifies which DOM should use custom uploader plugin.
-         *
-         * @see http://www.webmaster-source.com/2013/02/06/using-the-wordpress-3-5-media-uploader-in-your-plugin-or-theme/
-         * @since ?
-         * @since 2.3.11.2 Use WP 3.5 new media uploader
-         * @since 2.3.13 Fixed issue #[740](https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/740)
-         *
-         */
-        jQuery(document).ready(
-            function ($) {
-                jQuery('.aioseop_upload_image_button').each(
-                    function () {
-                        jQuery(this).aioseopImageUploader(
-                            {
-                                success: function (url, el) {
-                                    // Update checker
-                                    if (jQuery(el).prev().length > 0) {
-                                        jQuery(el).prev().val(1);
-                                    }
-                                },
-                            }
-                        );
-                    }
-                );
-            }
-        );
+		/**
+		 * @summary Javascript for using WP media uploader. Indentifies which DOM should use custom uploader plugin.
+		 *
+		 * @see http://www.webmaster-source.com/2013/02/06/using-the-wordpress-3-5-media-uploader-in-your-plugin-or-theme/
+		 * @since ?
+		 * @since 2.3.11.2 Use WP 3.5 new media uploader
+		 * @since 2.3.13 Fixed issue #[740](https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/740)
+		 *
+		 */
+		jQuery( document ).ready(
+			function ($) {
+				jQuery( '.aioseop_upload_image_button' ).each(
+					function () {
+						jQuery( this ).aioseopImageUploader(
+							{
+								success: function (url, el) {
+									// Update checker
+									if (jQuery( el ).prev().length > 0) {
+										jQuery( el ).prev().val( 1 );
+									}
+								},
+							}
+						);
+					}
+				);
+			}
+		);
 
-        jQuery(document).ready(
-            function () {
-                jQuery("#poststuff .aioseop_radio_type input[type='radio']").on(
-                    'click', function () {
-                        var previousValue = jQuery(this).attr('previousValue');
-                        var name = jQuery(this).attr('name');
-                        if (typeof previousValue == 'undefined') {
-                            if (jQuery(this).prop("checked")) {
-                                jQuery(this).prop('checked', true);
-                                jQuery(this).attr('previousValue', 'checked');
-                            } else {
-                                jQuery(this).prop('checked', false);
-                                jQuery(this).attr('previousValue', false);
-                            }
-                            return;
-                        }
-                        if (previousValue == 'checked') {
-                            jQuery(this).prop('checked', false);
-                            jQuery(this).attr('previousValue', false);
-                        } else {
-                            jQuery("input[name=" + name + "]:radio")
-                                .attr('previousValue', false);
-                            jQuery(this).attr('previousValue', 'checked');
-                        }
-                    }
-                );
-            }
-        );
+		jQuery( document ).ready(
+			function () {
+				jQuery( "#poststuff .aioseop_radio_type input[type='radio']" ).on(
+					'click', function () {
+						var previousValue = jQuery( this ).attr( 'previousValue' );
+						var name = jQuery( this ).attr( 'name' );
+						if (typeof previousValue == 'undefined') {
+							if (jQuery( this ).prop( "checked" )) {
+								jQuery( this ).prop( 'checked', true );
+								jQuery( this ).attr( 'previousValue', 'checked' );
+							} else {
+								jQuery( this ).prop( 'checked', false );
+								jQuery( this ).attr( 'previousValue', false );
+							}
+							return;
+						}
+						if (previousValue == 'checked') {
+							jQuery( this ).prop( 'checked', false );
+							jQuery( this ).attr( 'previousValue', false );
+						} else {
+							jQuery( "input[name=" + name + "]:radio" )
+								.attr( 'previousValue', false );
+							jQuery( this ).attr( 'previousValue', 'checked' );
+						}
+					}
+				);
+			}
+		);
 		if ( typeof aiosp_data.pointers != 'undefined' ) {
 
 			/**
@@ -542,7 +542,6 @@ jQuery( document ).ready(
 			}
 		);
 
-
 		jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_delete_rule", "click", function( e ) {
@@ -550,46 +549,48 @@ jQuery( document ).ready(
 				aioseop_handle_post_url(
 					'aioseop_ajax_delete_rule',
 					'robots_rules',
-                    jQuery( this ).attr( "data-id" ),
+					jQuery( this ).attr( "data-id" ),
 					function() {
-                        window.location.reload();
-                    }
+						window.location.reload();
+					}
 				);
 				return false;
 			}
 		);
 
-    jQuery( "div#aiosp_robots_default_metabox" )
+		jQuery( "div#aiosp_robots_default_metabox" )
 		.delegate(
 			"a.aiosp_robots_edit_rule", "click", function( e ) {
 				e.preventDefault();
-                jQuery('input[name="aiosp_robots_agent"]').val(jQuery(this).attr('data-agent'));
-                jQuery('select[name="aiosp_robots_type"]').val(jQuery(this).attr('data-type'));
-                jQuery('input[name="aiosp_robots_path"]').val(jQuery(this).attr('data-path'));
-                jQuery('input.add-edit-rule').val(jQuery('.aioseop_table').attr('data-edit-label'));
-                jQuery('input.edit-rule-id').val(jQuery(this).attr('data-id'));
+				jQuery( 'input[name="aiosp_robots_agent"]' ).val( jQuery( this ).attr( 'data-agent' ) );
+				jQuery( 'select[name="aiosp_robots_type"]' ).val( jQuery( this ).attr( 'data-type' ) );
+				jQuery( 'input[name="aiosp_robots_path"]' ).val( jQuery( this ).attr( 'data-path' ) );
+				jQuery( 'input.add-edit-rule' ).val( jQuery( '.aioseop_table' ).attr( 'data-edit-label' ) );
+				jQuery( 'input.edit-rule-id' ).val( jQuery( this ).attr( 'data-id' ) );
 				return false;
 			}
 		);
-    
-		jQuery( "a.aiosp_robots_physical" ).on( 'click', function( e ) {
-			e.preventDefault();
-			aioseop_handle_post_url(
-				'aioseop_ajax_robots_physical',
-				'robots_physical_import_delete',//'robots_metabox', // No element of the ID existed, and unsure which element its intended for.
-				jQuery( this ).attr( "data-action" ),
-				function( data ) {
-					if ( data.data && data.data.message ) {
-						alert( data.data.message );
-					}
-					window.location.reload();
-				},
-				true
-			);
-			return false;
-		});
 
-        aiospinitAll();
+		jQuery( "a.aiosp_robots_physical" ).on(
+			'click', function( e ) {
+				e.preventDefault();
+				aioseop_handle_post_url(
+					'aioseop_ajax_robots_physical',
+					'robots_physical_import_delete',// 'robots_metabox', // No element of the ID existed, and unsure which element its intended for.
+					jQuery( this ).attr( "data-action" ),
+					function( data ) {
+						if ( data.data && data.data.message ) {
+							alert( data.data.message );
+						}
+						window.location.reload();
+					},
+					true
+				);
+				return false;
+			}
+		);
+
+		aiospinitAll();
 	}
 );
 
@@ -606,7 +607,7 @@ jQuery.fn.aioseopImageUploader = function( options ) {
 	// Keep reference to this.
 	var self = this;
 
-  // Options
+	// Options
 	self.options = jQuery.extend(
 		{
 			success: undefined,
@@ -742,27 +743,29 @@ function aioseop_handle_post_url( action, settings, options, success_function, u
 			var loading = '<label class="aioseop_loading aioseop_' + settings + '_loading"></label> Please wait...';
 			jQuery( "div#aiosp_" + settings ).fadeIn(
 				'fast', function() {
-                    if(use_native) {
-                        jQuery.ajax({
-                            url     : ajaxurl,
-                            method  : 'POST',
-                            dataType: 'json',
-                            data    : {
-                                'action'    : action,
-                                'options'   : options,
-                                'settings'  : settings,
-                                'nonce-aioseop': jQuery( 'input[name="nonce-aioseop"]' ).val(),
-                                'nonce-aioseop-edit': jQuery( 'input[name="nonce-aioseop-edit"]' ).val()
-                            },
-                            success : function(data){
-                                if(success_function){
-                                    success_function(data);
-                                }
-                            }
-                        });
-                    }else{
-					    aioseop_handle_ajax_call( action, settings, options, success_function );
-                    }
+					if (use_native) {
+						jQuery.ajax(
+							{
+								url     : ajaxurl,
+								method  : 'POST',
+								dataType: 'json',
+								data    : {
+									'action'    : action,
+									'options'   : options,
+									'settings'  : settings,
+									'nonce-aioseop': jQuery( 'input[name="nonce-aioseop"]' ).val(),
+									'nonce-aioseop-edit': jQuery( 'input[name="nonce-aioseop-edit"]' ).val()
+								},
+								success : function(data){
+									if (success_function) {
+										success_function( data );
+									}
+								}
+							}
+						);
+					} else {
+						aioseop_handle_ajax_call( action, settings, options, success_function );
+					}
 				}
 			);
 			jQuery( "div#aiosp_" + settings ).html( loading );
@@ -796,13 +799,13 @@ function aioseop_overflow_border( el ) {
 }
 
 function aiospinitAll(){
-    aiospinitSocialMetaInPosts(jQuery);
-    aiospinitCalendar();
+	aiospinitSocialMetaInPosts( jQuery );
+	aiospinitCalendar();
 }
 
 function aiospinitCalendar(){
-    if ( jQuery( '.aiseop-date' ).length > 0 && jQuery( '.aiseop-date' ).eq( 0 ).prop( 'type' ).toLowerCase() === 'text' ) {
-	  jQuery( '.aiseop-date' ).datepicker(
+	if ( jQuery( '.aiseop-date' ).length > 0 && jQuery( '.aiseop-date' ).eq( 0 ).prop( 'type' ).toLowerCase() === 'text' ) {
+		jQuery( '.aiseop-date' ).datepicker(
 			{
 				dateFormat: "yy-mm-dd"
 			}
@@ -811,8 +814,10 @@ function aiospinitCalendar(){
 }
 
 function aiospinitSocialMetaInPosts($) {
-    // clear the radio buttons when the user clicks the upload button.
-    $('input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button').on('click', function(e){
-        $('input[name="aioseop_opengraph_settings_image"]').attr('checked', false);
-    });
+	// clear the radio buttons when the user clicks the upload button.
+	$( 'input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button' ).on(
+		'click', function(e){
+			$( 'input[name="aioseop_opengraph_settings_image"]' ).attr( 'checked', false );
+		}
+	);
 }

@@ -28,6 +28,13 @@
         <exclude name="Squiz.PHP.CommentedOutCode" />
         <exclude name="WordPress.WP.I18n.MissingTranslatorsComment" />
 		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid" />
+        <exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
+        <exclude name="Generic.Files.LineEndings.InvalidEOLChar" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase" />
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase" />
+
+		<!-- these can be removed once the initial part of #1003 is closed -->
 		<exclude name="Generic.Commenting.DocComment" />
 		<exclude name="Squiz.Commenting.FunctionComment" />
 		<exclude name="Squiz.Commenting.FileComment" />
