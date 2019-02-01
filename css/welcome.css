@@ -55,7 +55,7 @@ section:first-child {
 }
 
 .welcome-panel {
-    overflow-x: hidden;
+	overflow-x: hidden;
 }
 
 .welcome-panel > p {
@@ -63,14 +63,14 @@ section:first-child {
 }
 
 .welcome-panel-content {
-    display: inline-block;
+	display: inline-block;
 }
 
 .welcome-panel-column {
-    width: 30% !important;
-    margin-right: 3%;
-    display: inline-block;
-    vertical-align: top;
+	width: 30% !important;
+	margin-right: 3%;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .welcome-panel-column:last-child {
