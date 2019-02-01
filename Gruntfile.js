@@ -22,7 +22,8 @@ module.exports = function(grunt) {
 			'!js/vendor/*.js',
 			'!public/js/vendor/*.js',
 			'!node_modules/**',
-			'!logs/**'
+			'!logs/**',
+			'!Gruntfile.js'
 			],
 			mkdir: {
 				logs: {
