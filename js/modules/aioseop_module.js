@@ -540,8 +540,8 @@ jQuery( document ).ready( function() {
         return false;
     } );
 
-		aiospinitAll();
-} ;
+    aiospinitAll();
+} );
 
 /**
  * @summary Custom jQuery plugin that enables image uploader in wordpress.
@@ -557,8 +557,7 @@ jQuery.fn.aioseopImageUploader = function( options ) {
 	var self = this;
 
 	// Options
-	self.options = jQuery.extend(
-		{
+	self.options = jQuery.extend( {
 			success: undefined,
 		}, options
 	);
