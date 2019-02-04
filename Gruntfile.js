@@ -45,6 +45,8 @@ module.exports = function(grunt) {
 			phpcbf: {
 				options: {
 					standard: 'phpcs.xml',
+					noPatch:false,
+					extensions: 'php'
 				},
 				src: [
 				'<%= files_php %>'
