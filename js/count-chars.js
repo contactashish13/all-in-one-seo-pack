@@ -14,11 +14,9 @@
 
 var aiosp_title_extra = parseInt( aioseop_count_chars.aiosp_title_extra );
 
-jQuery( document ).ready(
-	function() {
-			aioseopInitCounting();
-	}
-);
+jQuery( document ).ready( function() {
+    aioseopInitCounting();
+} );
 
 /**
  * Preview Snippet
@@ -26,20 +24,14 @@ jQuery( document ).ready(
  * @since ?
  * @since 2.9.2 Move from PHP value to JS file
  */
-jQuery( document ).ready(
-	function() {
-			jQuery( "#aiosp_title_wrapper" ).bind(
-				"input", function() {
-					jQuery( "#aiosp_snippet_title" ).text( jQuery( "#aiosp_title_wrapper input" ).val().replace( /<(?:.|\n)*?>/gm, "" ) );
-				}
-			);
-			jQuery( "#aiosp_description_wrapper" ).bind(
-				"input", function() {
-					jQuery( "#aioseop_snippet_description" ).text( jQuery( "#aiosp_description_wrapper textarea" ).val().replace( /<(?:.|\n)*?>/gm, "" ) );
-				}
-			);
-	}
-);
+jQuery( document ).ready( function() {
+        jQuery( "#aiosp_title_wrapper" ).bind( "input", function() {
+                jQuery( "#aiosp_snippet_title" ).text( jQuery( "#aiosp_title_wrapper input" ).val().replace( /<(?:.|\n)*?>/gm, "" ) );
+        } );
+        jQuery( "#aiosp_description_wrapper" ).bind( "input", function() {
+            jQuery( "#aioseop_snippet_description" ).text( jQuery( "#aiosp_description_wrapper textarea" ).val().replace( /<(?:.|\n)*?>/gm, "" ) );
+        } );
+} );
 
 /**
  * AIOSEOP Init Counting
@@ -48,16 +40,12 @@ jQuery( document ).ready(
  */
 function aioseopInitCounting(){
 	/* count them characters */
-	jQuery( '.aioseop_count_chars' ).on(
-		'keyup keydown', function(){
-			aioseopCountChars( jQuery( this ).eq( 0 ), jQuery( this ).parent().find( '[name="' + jQuery( this ).attr( 'data-length-field' ) + '"]' ).eq( 0 ) );
-		}
-	);
-	jQuery( '.aioseop_count_chars' ).each(
-		function(){
-			aioseopCountChars( jQuery( this ).eq( 0 ), jQuery( this ).parent().find( '[name="' + jQuery( this ).attr( 'data-length-field' ) + '"]' ).eq( 0 ) );
-		}
-	);
+	jQuery( '.aioseop_count_chars' ).on( 'keyup keydown', function(){
+        aioseopCountChars( jQuery( this ).eq( 0 ), jQuery( this ).parent().find( '[name="' + jQuery( this ).attr( 'data-length-field' ) + '"]' ).eq( 0 ) );
+	} );
+	jQuery( '.aioseop_count_chars' ).each( function(){
+        aioseopCountChars( jQuery( this ).eq( 0 ), jQuery( this ).parent().find( '[name="' + jQuery( this ).attr( 'data-length-field' ) + '"]' ).eq( 0 ) );
+    } );
 }
 
 /**
