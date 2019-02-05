@@ -3991,8 +3991,10 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				}
 			}
 
-			// Sitelinks search.
-			if ( ! empty( $aioseop_options['aiosp_google_sitelinks_search'] ) || ! empty( $aioseop_options['aiosp_google_set_site_name'] ) ) {
+			// Sitelinks search. Only show if "use schema.org markup is checked".
+			if ( ! empty( $aioseop_options['aiosp_schema_markup'] ) && ( 
+					! empty( $aioseop_options['aiosp_google_sitelinks_search'] ) || ! empty( $aioseop_options['aiosp_google_set_site_name'] ) )
+			) {
 				$meta_string .= $this->sitelinks_search_box() . "\n";
 			}
 		}
