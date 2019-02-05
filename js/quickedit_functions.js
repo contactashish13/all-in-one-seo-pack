@@ -2,47 +2,39 @@
 /* global sack */
 
 jQuery( document ).on( 'click', '.visibility-notice', function() {
-    jQuery.ajax(
-        {
-            url: ajaxurl,
-            data: {
-                action: 'aioseo_dismiss_visibility_notice'
-            }
+    jQuery.ajax( {
+        url: ajaxurl,
+        data: {
+            action: 'aioseo_dismiss_visibility_notice'
         }
-    );
+    } );
 } );
 
 jQuery( document ).on( 'click', '.yst_notice', function() {
-    jQuery.ajax(
-        {
-            url: ajaxurl,
-            data: {
-                action: 'aioseo_dismiss_yst_notice'
-            }
+    jQuery.ajax( {
+        url: ajaxurl,
+        data: {
+            action: 'aioseo_dismiss_yst_notice'
         }
-    );
+    } );
 } );
 
 jQuery( document ).on( 'click', '.woo-upgrade-notice', function() {
-    jQuery.ajax(
-        {
-            url: ajaxurl,
-            data: {
-                action: 'aioseo_dismiss_woo_upgrade_notice'
-            }
+    jQuery.ajax( {
+        url: ajaxurl,
+        data: {
+            action: 'aioseo_dismiss_woo_upgrade_notice'
         }
-    );
+    } );
 } );
 
 jQuery( document ).on( 'click', '.sitemap_max_urls_notice', function() {
-    jQuery.ajax(
-        {
-            url: ajaxurl,
-            data: {
-                action: 'aioseo_dismiss_sitemap_max_url_notice'
-            }
+    jQuery.ajax( {
+        url: ajaxurl,
+        data: {
+            action: 'aioseo_dismiss_sitemap_max_url_notice'
         }
-    );
+    } );
 } );
 
 

@@ -12,7 +12,7 @@
 
  /* global aioseop_count_chars */
 
-var aiosp_title_extra = parseInt( aioseop_count_chars.aiosp_title_extra );
+var aiosp_title_extra = parseInt( aioseop_count_chars.aiosp_title_extra, 10 );
 
 jQuery( document ).ready( function() {
     aioseopInitCounting();

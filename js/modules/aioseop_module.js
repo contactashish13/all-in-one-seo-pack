@@ -253,7 +253,7 @@ jQuery( document ).ready( function() {
                         if (jQuery( el ).prev().length > 0) {
                             jQuery( el ).prev().val( 1 );
                         }
-                    },
+                    }
                 }
             );
         } );
@@ -498,8 +498,7 @@ jQuery( document ).ready( function() {
         return false;
     } );
 
-    jQuery( "div#aiosp_robots_default_metabox" )
-    .delegate( "a.aiosp_robots_delete_rule", "click", function( e ) {
+    jQuery( "div#aiosp_robots_default_metabox" ).delegate( "a.aiosp_robots_delete_rule", "click", function( e ) {
         e.preventDefault();
         aioseop_handle_post_url(
             'aioseop_ajax_delete_rule',
@@ -512,8 +511,7 @@ jQuery( document ).ready( function() {
         return false;
     } );
 
-    jQuery( "div#aiosp_robots_default_metabox" )
-    .delegate( "a.aiosp_robots_edit_rule", "click", function( e ) {
+    jQuery( "div#aiosp_robots_default_metabox" ).delegate( "a.aiosp_robots_edit_rule", "click", function( e ) {
         e.preventDefault();
         jQuery( 'input[name="aiosp_robots_agent"]' ).val( jQuery( this ).attr( 'data-agent' ) );
         jQuery( 'select[name="aiosp_robots_type"]' ).val( jQuery( this ).attr( 'data-type' ) );
@@ -558,7 +556,7 @@ jQuery.fn.aioseopImageUploader = function( options ) {
 
 	// Options
 	self.options = jQuery.extend( {
-			success: undefined,
+			success: undefined
 		}, options
 	);
 
@@ -688,8 +686,7 @@ function aioseop_handle_post_url( action, settings, options, success_function, u
         var loading = '<label class="aioseop_loading aioseop_' + settings + '_loading"></label> Please wait...';
         jQuery( "div#aiosp_" + settings ).fadeIn( 'fast', function() {
             if (use_native) {
-                jQuery.ajax(
-                    {
+                jQuery.ajax( {
                         url     : ajaxurl,
                         method  : 'POST',
                         dataType: 'json',
@@ -705,8 +702,7 @@ function aioseop_handle_post_url( action, settings, options, success_function, u
                                 success_function( data );
                             }
                         }
-                    }
-                );
+                } );
             } else {
                 aioseop_handle_ajax_call( action, settings, options, success_function );
             }
