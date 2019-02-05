@@ -82,7 +82,15 @@ module.exports = function(grunt) {
 						}
 					}]
 				}
-			}
+			},
+			eslint: {
+				options: {
+					outputFile:'logs/eslint.log'
+				},
+				target: [
+				'<%= files_js %>'
+				]
+			},
 		}
 	);
 
@@ -93,8 +101,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks( 'grunt-phplint' );
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+	grunt.loadNpmTasks( 'grunt-eslint' );
 
 	// Default task(s).
-	grunt.registerTask( 'default', ['mkdir', 'phpcbf', 'phpcs', 'phplint', 'jshint', 'uglify'] );
+	grunt.registerTask( 'default', ['mkdir', 'phpcbf', 'phpcs', 'phplint', 'jshint', 'uglify', 'eslint'] );
 
 };
