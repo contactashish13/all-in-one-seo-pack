@@ -192,15 +192,10 @@ class aiosp_common {
 		} else {
 			// some tags contain sanitized to some extent but they do not encode < and >.
 			if ( ! in_array( $tag, array( 'image:title' ), true ) ) {
-				// use the WP core functions if they exist.
-				if ( function_exists( 'convert_chars' ) && function_exists( 'wptexturize' ) ) {
-					$value = convert_chars( wptexturize( $value ) );
-				} else {
-					$value = htmlspecialchars( $value, ENT_QUOTES );
-				}
+				$value = convert_chars( wptexturize( $value ) );
 			}
 		}
-		return esc_html( $value );
+		return ent2ncr( esc_html( $value ) );
 	}
 
 	/**

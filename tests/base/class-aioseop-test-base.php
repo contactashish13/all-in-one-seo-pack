@@ -50,7 +50,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	 * A sentence that contains the list of special characters that can be used.
 	 * @var type
 	 */
-	protected $_spl_chars = '<tom> - tom&jerry \'cause today\'s effort makes it worth tomorrow\'s "holiday" > <';
+	protected $_spl_chars = '<tom> - tom&jerry \'cause today\'s effort makes it worth tomorrow\'s "holiday" &raquo; &laquo; &rsaquo; &lsaquo; &rdquo; &ldquo; &rsquo; &lsquo; > <';
 
 	public function ajaxSetUp() {
 		parent::setUp();
