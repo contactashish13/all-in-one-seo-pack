@@ -154,7 +154,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 			$default = $this->do_robots();
 			$lines = explode( "\n", $default );
 			$rules = $this->extract_rules( $lines );
-			aiosp_log("adding default rules: " . print_r($rules,true));
+			do_action( 'aiosp_log', sprintf( 'adding default rules: %s', print_r($rules,true) ), 'debug', __FILE__, __LINE__ );
 
 			global $aioseop_options;
 			$aioseop_options['modules']["{$this->prefix}options"]['default'] = $rules;
@@ -201,7 +201,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 			}
 
 			$rules = $this->extract_rules( $lines );
-			aiosp_log("importing rules: " . print_r($rules,true));
+			do_action( 'aiosp_log', sprintf( 'importing rules: %s', print_r($rules,true) ), 'debug', __FILE__, __LINE__ );
 
 			global $aioseop_options;
 			$aioseop_options['modules']["{$this->prefix}options"]["{$this->prefix}rules"] = $rules;
@@ -220,7 +220,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 				}
 				$array = array_map( 'trim', explode( ':', $line ) );
 				if ( $array && count( $array ) !== 2 ) {
-					aiosp_log( "Ignoring $line from robots.txt" );
+					do_action( 'aiosp_log', "Ignoring $line from robots.txt", 'error', __FILE__, __LINE__ );
 					continue;
 				}
 				$operand = $array[0];
@@ -458,7 +458,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 			if ( is_array( $rules ) ) {
 				$ids = wp_list_pluck( $rules, 'id' );
 				if ( in_array( $id, $ids ) ) {
-					aiosp_log("rejected: same rule id exists - " . print_r($new_rule,true) . " vs. " . print_r($rules,true));
+					do_action( 'aiosp_log', sprintf( 'rejected: same rule id exists - %s vs %s', print_r($new_rule,true), print_r($rules,true) ), 'warn', __FILE__, __LINE__ );
 					return new WP_Error('duplicate', sprintf( __( 'Identical rule exists: %s', 'all-in-one-seo-pack' ), $new_rule[ 'path' ] ) );
 				}
 			}
@@ -472,14 +472,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 				// the same rule cannot be duplicated by the Admin.
 				$agent_path =  $new_rule[ 'agent' ] . $path;
 				if ( in_array( $agent_path, $nw_agent_paths ) ) {
-					aiosp_log("rejected: same agent/path being overridden - " . print_r($new_rule,true) . " vs. " . print_r($rules,true));
+					do_action( 'aiosp_log', sprintf( 'rejected: same agent/path being overridden - %s vs %s', print_r($new_rule,true), print_r($rules,true) ), 'warn', __FILE__, __LINE__ );
 					return new WP_Error('duplicate', sprintf( __( 'Rule cannot be overridden: %s', 'all-in-one-seo-pack' ), $new_rule[ 'path' ] ) );
 				}
 
 				// an identical path as specified by Network Admin cannot be overriden by Admin.
 				$nw_paths = wp_list_pluck( $network, 'path' );
 				if ( in_array( $path, $nw_paths ) ) {
-					aiosp_log("rejected: same path being overridden - " . print_r($new_rule,true) . " vs. " . print_r($rules,true));
+					do_action( 'aiosp_log', sprintf( 'rejected: same path being overridden - %s vs %s', print_r($new_rule,true), print_r($rules,true) ), 'warn', __FILE__, __LINE__ );
 					return new WP_Error('duplicate', sprintf( __( 'Path cannot be overridden: %s', 'all-in-one-seo-pack' ), $new_rule[ 'path' ] ) );
 				}
 
@@ -501,7 +501,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Robots' ) ) {
 					$matches = array();
 					preg_match( "/{$pattern}/", $nw_path, $matches );
 					if ( ! empty( $matches ) && count( $matches ) >= 2 && ! empty( $matches[1] ) ) {
-						aiosp_log("rejected: wild card path being overridden - " . print_r($new_rule,true) . " vs. " . print_r($rules,true));
+						do_action( 'aiosp_log', sprintf( 'rejected: wild card path being overridden - %s vs %s', print_r($new_rule,true), print_r($rules,true) ), 'warn', __FILE__, __LINE__ );
 						return new WP_Error('conflict', sprintf( __( 'Wild-card path cannot be overridden: %s', 'all-in-one-seo-pack' ), $new_rule[ 'path' ] ) );
 					}
 				}
