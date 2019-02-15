@@ -2336,6 +2336,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				case 'esc_html':
 					$buf .= '<pre>' . esc_html( $value ) . "</pre>\n";
 					break;
+				case 'template':
+					$file = AIOSEOP_PLUGIN_DIR . 'inc/templates/' . $options['template'] . '.php';
+					ob_start();
+					include_once $file;
+					$buf .= ob_get_clean();
+					break;
 				case 'date':
 					// firefox and IE < 11 do not have support for HTML5 date, so we will fall back to the datepicker.
 					wp_enqueue_script( 'jquery-ui-datepicker' );

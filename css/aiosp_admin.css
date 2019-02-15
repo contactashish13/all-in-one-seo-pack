@@ -132,3 +132,93 @@ li#wp-admin-bar-aioseop-pro-upgrade a.ab-item {
 	color: #d54e21;
 	font-size: 105%;
 }
+
+
+/* logging */
+#aiosp-log-console .aiosp-log {
+	overflow: hidden;
+}
+
+#aiosp-log-console .aiosp-log .aiosp-log-type {
+	font-weight: bold;
+}
+
+#aiosp-log-actions input {
+	margin-left: 10px;
+}
+
+.aiosp-log-info {
+	background: #52c4ef;
+}
+
+#aiosp-log-actions {
+	padding: 5px;
+	line-height: 29px;
+}
+
+#aiosp-logs #aiosp-log-actions label {
+	color: #ffffff;
+}
+
+#aiosp-logs #aiosp-log-actions label[for="aiosp-log-all"] {
+	background: #000000;
+}
+
+#aiosp-logs #aiosp-log-actions label[for="aiosp-log-error"] {
+	background: #ff0000;
+}
+
+#aiosp-logs #aiosp-log-actions label[for="aiosp-log-warn"] {
+	background: #ffbf00;
+}
+
+#aiosp-logs #aiosp-log-actions label[for="aiosp-log-info"] {
+	background: #50b9b9;
+}
+
+#aiosp-logs #aiosp-log-actions label[for="aiosp-log-debug"] {
+	background: #f0f0f0;
+	color: #000000;
+}
+
+#aiosp-logs .aiosp-log.aiosp-log-warn {
+	background: #ffbf00;
+}
+
+#aiosp-logs .aiosp-log.aiosp-log-error {
+	background: #ff0000;
+}
+
+#aiosp-logs .aiosp-log-timestamp {
+	font-style: italic;
+}
+
+#aiosp-logs .aiosp-log.aiosp-log-info {
+	background: #50b9b9;
+}
+
+#aiosp-logs .aiosp-log.aiosp-log-debug {
+	color: #000000;
+	background: #f0f0f0;
+}
+
+#aiosp-logs .aiosp-log {
+	margin-top: 2px;
+	padding: 3px 6px;
+	border-radius: 3px;
+	color: #fff;
+}
+
+#aiosp-logs label {
+	padding: 0 10px;
+	padding-bottom: 2px;
+	border-radius: 4px;
+	color: #fff;
+	vertical-align: baseline;
+}
+
+#aiosp-logs {
+	width: 95%;
+	margin: auto;
+	margin-top: 10px;
+}

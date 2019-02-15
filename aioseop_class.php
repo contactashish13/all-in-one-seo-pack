@@ -849,8 +849,16 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 				'sanitize' => 'default',
 			),
 			'do_log'                      => array(
-				'name'    => __( 'Log important events:', 'all-in-one-seo-pack' ),
+				'name'    => __( 'Log events:', 'all-in-one-seo-pack' ),
 				'default' => null,
+			),
+			'logging'                      => array(
+				'name'    => __( 'Saved Log:', 'all-in-one-seo-pack' ),
+				'label'   => 'none',
+				'default' => null,
+				'type'    => 'template',
+				'template' => 'logging',
+				'condshow' => array( 'aiosp_do_log' => 'on' ),
 			),
 		);
 

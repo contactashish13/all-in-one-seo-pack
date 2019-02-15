@@ -798,6 +798,7 @@ function aioseop_overflow_border( el ) {
 function aiospinitAll(){
     aiospinitSocialMetaInPosts(jQuery);
     aiospinitCalendar();
+    aiospInitLogging(jQuery);
 }
 
 function aiospinitCalendar(){
@@ -815,4 +816,19 @@ function aiospinitSocialMetaInPosts($) {
     $('input[name="aioseop_opengraph_settings_customimg_checker"] ~ .aioseop_upload_image_button').on('click', function(e){
         $('input[name="aioseop_opengraph_settings_image"]').attr('checked', false);
     });
+}
+
+function aiospInitLogging($) {
+    $( "input[name='aiosp-log-type'], #aiosp-log-actions label" ).on(
+        "click", function(e){
+            var radio = $( this ).prop( "tagName" ) == "LABEL" ? $( this ).parent() : $( this );
+            var type  = radio.val();
+            if (type !== "all") {
+                $( "#aiosp-log-console .aiosp-log" ).hide();
+                $( "#aiosp-log-console .aiosp-log-" + type ).show();
+            } else {
+                $( "#aiosp-log-console .aiosp-log" ).show();
+            }
+        }
+    );
 }
