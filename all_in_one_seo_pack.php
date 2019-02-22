@@ -511,3 +511,27 @@ if ( ! function_exists( 'disable_all_in_one_free' ) ) {
 		}
 	}
 }
+
+spl_autoload_register( 'aioseop_autoloader' );
+/**
+ * Automatically loads classes for the plugin. Checks a namespace and loads only approved classes.
+ * Classes load from the /classes/ folder and need to be of the format 'aioseop_<name>.php'.
+ *
+ * @param string $class The class name to autoload.
+ *
+ * @return boolean Returns TRUE if the class is located. Otherwise FALSE.
+ */
+function aioseop_autoloader( $class ) {
+	$namespaces = array( 'aioseop' );
+	foreach ( $namespaces as $namespace ) {
+		if ( substr( $class, 0, strlen( $namespace ) ) == $namespace ) {
+			$filename = sprintf( '%s/classes/%s.php', dirname( __FILE__ ), $class );
+			if ( is_readable( $filename ) ) {
+				require $filename;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
