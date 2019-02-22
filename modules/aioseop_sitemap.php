@@ -1342,7 +1342,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param $msg
 		 */
 		public function debug_message( $msg ) {
-			aiosp_log( $msg );
+			do_action( 'aiosp_log', $msg, 'debug', __FILE__, __LINE__ );
 		}
 
 		/**
