@@ -1,1 +1,3 @@
-<?php aiosp_log_show() ;?>
+<?php 
+	aioseop_logging::show();
+?>
