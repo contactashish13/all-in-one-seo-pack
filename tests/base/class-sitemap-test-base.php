@@ -48,20 +48,46 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$file = $this->create_sitemap();
 
 		if ( $debug ) {
-			echo file_get_contents( $file );
+			error_log( file_get_contents( $file ) );
 		}
+
+		// validate file according to schema.
+		$this->validate_sitemap_schema( $file, 'combined' );
+
 		$xml = simplexml_load_file( $file );
 		$ns = $xml->getNamespaces( true );
 
 		$sitemap = array();
 		foreach ( $xml->url as $url ) {
+			// this array will contain an array of arrays, each element corresponding to one "image:*".
+			// Each item will have its corresponding array of values.
 			$element = array();
 			if ( array_key_exists( 'image', $ns ) && count( $url->children( $ns['image'] ) ) > 0 ) {
 				$images = array();
 				foreach ( $url->children( $ns['image'] ) as $image ) {
-					$images[] = (string) $image->loc;
+					$images['loc'][] = (string) $image->loc;
+					if ( property_exists( $image, 'title' ) ) {
+						$images['title'][] = (string) $image->title;
+					}
+					if ( property_exists( $image, 'caption' ) ) {
+						$images['caption'][] = (string) $image->caption;
+					}
 				}
-				$element['image'] = $images;
+				$element['image'] = $images['loc'];
+				if ( array_key_exists( 'title', $images ) ) {
+					$element['image:title'] = $images['title'];
+					if ( is_array( $images['title'] ) ) {
+						// TODO: this does not work because wptexturize mangles the single and double quotes into the typewriter equivalents ' to ‘ or ’ and " to “ or ”.
+						// $this->assertContains( strip_tags( $this->_spl_chars ), $images['title'][0] );
+					}
+				}
+				if ( array_key_exists( 'caption', $images ) ) {
+					$element['image:caption'] = $images['caption'];
+					if ( is_array( $images['caption'] ) ) {
+						// TODO: this does not work because wptexturize mangles the single and double quotes into the typewriter equivalents ' to ‘ or ’ and " to “ or ”.
+						// $this->assertContains( strip_tags( $this->_spl_chars ), $images['caption'][0] );
+					}
+				}
 			}
 			$sitemap[ (string) $url->loc ] = $element;
 		}
@@ -104,9 +130,57 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 			}
 		}
 
+		$contents = file_get_contents( $file );
+
 		// @codingStandardsIgnoreStart
 		@unlink( $file );
 		// @codingStandardsIgnoreEnd
+
+		return $contents;
+	}
+
+	/**
+	 * Check whether the sitemap index is valid.
+	 *
+	 * @param array $types All the types of sitemaps that should exist besides the regular one.
+	 */
+	protected final function validate_sitemap_index( $types = array(), $debug = false ) {
+		add_filter( 'aioseo_sitemap_ping', '__return_false' );
+		update_option( 'blog_public', 0 );
+
+		// sitemap will be created in the root of the folder.
+		do_action( 'aiosp_sitemap_settings_update' );
+
+		$types[] = '';
+		foreach ( $types as $type ) {
+			$schema = 'index';
+			if ( ! empty( $type ) ) {
+				$type = "_{$type}";
+				$schema = 'combined';
+			}
+			$file = ABSPATH . "/sitemap{$type}.xml";
+
+			$this->assertFileExists( $file );
+			if ( $debug ) {
+				echo file_get_contents( $file );
+			}
+			$this->validate_sitemap_schema( $file, $schema );
+		}
+	}
+
+	/**
+	 * Check whether the sitemap is valid according to its schema.
+	 *
+	 * @param string $file The path of the file.
+	 * @param string $schema The schema type.
+	 */
+	protected final function validate_sitemap_schema( $file, $schema ) {
+		// validate file according to schema.
+		libxml_use_internal_errors( true );
+		$dom = new DOMDocument();
+		$dom->load( $file );
+
+		$this->assertTrue( $dom->schemaValidate( AIOSEOP_UNIT_TESTING_DIR . "/resources/xsd/{$schema}.xsd" ) );
 	}
 
 	/**
@@ -129,5 +203,6 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		// @codingStandardsIgnoreEnd
 
 		return $map;
+
 	}
 }
