@@ -206,11 +206,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		/**
 		 * Handle specific meta tags.
 		 *
-		 * @param mixed $value The value of the meta tag.
-		 * @param string $t The type of network.
-		 * @param string $k The name of the meta tag.
+		 * @since 3.0
 		 *
-		 * @return mixed
+		 * @param string $value The value of the meta tag.
+		 * @param string $t     The type of network.
+		 * @param string $k     The name of the meta tag.
+		 * @return string
 		 */
 		function handle_meta_tag( $value, $t, $k ) {
 			switch ( $k ) {
