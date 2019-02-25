@@ -78,9 +78,9 @@ class aioseop_logging {
 		?>
 <div id="aiosp-logs">
 	<div id="aiosp-log-actions">
-		<input type="radio" name="aiosp-log-type" value="all" id="aiosp-log-all"><label for="aiosp-log-all"><?php _e( 'All', 'all-in-one-seo-pack' ); ?></label>
+		<input type="radio" name="aiosp-log-type" value="all" id="aiosp-log-all"><label for="aiosp-log-all" aria-label="all"><?php _e( 'All', 'all-in-one-seo-pack' ); ?></label>
 		<?php foreach ( self::$log_types as $type ) { ?>
-		<input type="radio" name="aiosp-log-type" value="<?php echo $type; ?>" id="aiosp-log-<?php echo $type; ?>" <?php echo $type === 'info' ? 'checked' : ''; ?>><label for="aiosp-log-<?php echo $type; ?>"><?php echo ucwords( $type ); ?></label>
+		<input type="radio" name="aiosp-log-type" value="<?php echo $type; ?>" id="aiosp-log-<?php echo $type; ?>" <?php echo $type === 'info' ? 'checked' : ''; ?>><label for="aiosp-log-<?php echo $type; ?>" aria-label="<?php echo $type; ?>"><?php echo ucwords( $type ); ?></label>
 		<?php } ?>
 	</div>
 	<div id="aiosp-log-console">
