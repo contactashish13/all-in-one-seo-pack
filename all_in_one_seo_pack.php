@@ -524,7 +524,7 @@ spl_autoload_register( 'aioseop_autoloader' );
 function aioseop_autoloader( $class ) {
 	$namespaces = array( 'aioseop' );
 	foreach ( $namespaces as $namespace ) {
-		if ( substr( $class, 0, strlen( $namespace ) ) == $namespace ) {
+		if ( substr( $class, 0, strlen( $namespace ) ) === $namespace ) {
 			$filename = sprintf( '%s/classes/%s.php', dirname( __FILE__ ), $class );
 			if ( is_readable( $filename ) ) {
 				require $filename;

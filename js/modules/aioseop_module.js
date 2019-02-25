@@ -819,6 +819,7 @@ function aiospinitSocialMetaInPosts($) {
 }
 
 function aiospInitLogging($) {
+    // this is for the general settings page.
     $( "input[name='aiosp-log-type'], #aiosp-log-actions label" ).on(
         "click", function(e){
             var radio = $( this ).prop( "tagName" ) == "LABEL" ? $( this ).parent() : $( this );
