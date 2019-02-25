@@ -76,7 +76,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				),
 				'Websites'                   => array(
 					'article' => __( 'Article', 'all-in-one-seo-pack' ),
-					'blog'    => __( 'Blog', 'all-in-one-seo-pack' ),
 					'website' => __( 'Website', 'all-in-one-seo-pack' ),
 				),
 			);
@@ -191,6 +190,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			// Set variables after WordPress load.
 			add_action( 'init', array( &$this, 'init' ), 999999 );
 			add_filter( 'jetpack_enable_open_graph', '__return_false' ); // Avoid having duplicate meta tags
+			add_filter( $this->prefix . 'meta', array( $this, 'handle_meta_tag' ), 10, 3 );
 			// Force refresh of Facebook cache.
 			add_action( 'post_updated', array( &$this, 'force_fb_refresh_update' ), 10, 3 );
 			add_action( 'transition_post_status', array( &$this, 'force_fb_refresh_transition' ), 10, 3 );
@@ -201,6 +201,27 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			add_action( 'created_term', array( $this, 'created_term' ), 10, 3 );
 			// Call to init to generate menus
 			$this->init();
+		}
+
+		/**
+		 * Handle specific meta tags.
+		 *
+		 * @param mixed $value The value of the meta tag.
+		 * @param string $t The type of network.
+		 * @param string $k The name of the meta tag.
+		 *
+		 * @return mixed
+		 */
+		function handle_meta_tag( $value, $t, $k ) {
+			switch ( $k ) {
+				case 'type':
+					// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+					if ( 'blog' === $value ) {
+						$value = 'website';
+					}
+					break;
+			}
+			return $value;
 		}
 
 		/**
@@ -871,10 +892,16 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 								$flat_type_list[ $k ] = $v;
 							}
 						}
+						$default_fb_type = $this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ];
+						// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+						// if 'blog' is the selected type but because it is no longer a schema type, we use 'website' instead.
+						if ( 'blog' === $default_fb_type ) {
+							$default_fb_type = 'website';
+						}
+						$default_fb_type = $flat_type_list[ $default_fb_type ];
 						$settings[ $prefix . 'category' ]['initial_options'] = array_merge(
 							array(
-								$this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] => __( 'Default ', 'all-in-one-seo-pack' ) . ' - '
-																										 . $flat_type_list[ $this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ],
+								$this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] => __( 'Default ', 'all-in-one-seo-pack' ) . ' - ' . $default_fb_type,
 							),
 							$settings[ $prefix . 'category' ]['initial_options']
 						);
@@ -979,6 +1006,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 			$options = wp_parse_args( $options, $opts );
+
+			// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+			$post_types = $this->get_post_type_titles();
+			foreach ( $post_types as $slug => $name ) {
+				$field = 'aiosp_opengraph_' . $slug . '_fb_object_type';
+				if ( isset( $options[ $field ] ) && 'blog' === $options[ $field ] ) {
+					$options[ $field ] = 'website';
+				}
+			}
 
 			return $options;
 		}
