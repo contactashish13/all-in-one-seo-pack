@@ -899,7 +899,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						if ( 'blog' === $default_fb_type ) {
 							$default_fb_type = 'website';
 						}
-						$default_fb_type = $flat_type_list[ $default_fb_type ];
+						if ( isset( $flat_type_list[ $default_fb_type ] ) ) {
+							$default_fb_type = $flat_type_list[ $default_fb_type ];
+						}
 						$settings[ $prefix . 'category' ]['initial_options'] = array_merge(
 							array(
 								$this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] => __( 'Default ', 'all-in-one-seo-pack' ) . ' - ' . $default_fb_type,
