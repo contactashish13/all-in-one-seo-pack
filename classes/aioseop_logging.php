@@ -32,12 +32,10 @@ class aioseop_logging {
 	}
 
 	function update() {
-		error_log("shutdown");
 		$__log = self::$__log;
 		if ( count( $__log ) > $this->log_length ) {
 			$__log = array_slice( $__log, 0 - $this->log_length );
 		}
-		error_log("log " . print_r($__log,true));
 
 		set_transient( 'aiosp_event_log', $__log, $this->log_expiry * MINUTE_IN_SECONDS );
 	}
@@ -77,7 +75,7 @@ class aioseop_logging {
 
 	public static function show() {
 		$logs = get_transient( 'aiosp_event_log' );
-?>
+		?>
 <div id="aiosp-logs">
 	<div id="aiosp-log-actions">
 		<input type="radio" name="aiosp-log-type" value="all" id="aiosp-log-all"><label for="aiosp-log-all"><?php _e( 'All', 'all-in-one-seo-pack' ); ?></label>
@@ -86,25 +84,25 @@ class aioseop_logging {
 		<?php } ?>
 	</div>
 	<div id="aiosp-log-console">
-<?php
+		<?php
 		if ( $logs ) {
 			foreach ( $logs as $log ) {
 				$style = 'info' !== $log['type'] ? 'display:none' : '';
-	?>
+				?>
 		<div class="aiosp-log aiosp-log-<?php echo $log['type']; ?>" style="<?php echo $style; ?>">
 			<span class="aiosp-log-timestamp"><?php echo $log['time']; ?></span>
 			<span class="aiosp-log-type"><?php echo ucwords( $log['type'] ); ?></span>
 			<span class="aiosp-log-msg"><?php echo basename( $log['file'] ); ?>:<?php echo $log['line']; ?> - <?php echo esc_html( $log['msg'] ); ?></span>
 		</div>
-	<?php
+				<?php
 			}
 		} else {
 			_e( 'No logs found', 'all-in-one-seo-pack' );
 		}
-	?>
+		?>
 	</div>
 </div>
-<?php
+		<?php
 	}
 }
 
