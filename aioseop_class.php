@@ -2599,6 +2599,8 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 						$content = do_shortcode( $content );
 					}
 					$description = $this->trim_text_without_filters_full_length( $this->internationalize( $content ) );
+				}else{
+					$description = $this->trim_text_without_filters_full_length( $this->internationalize( $post->post_excerpt ) );
 				}
 			}
 		}
