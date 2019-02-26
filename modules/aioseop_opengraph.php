@@ -1274,8 +1274,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					$description = $post->post_excerpt;
 
 					if ( $this->options['aiosp_opengraph_generate_descriptions'] || empty( $description ) ) {
-						$description = $post->post_content;
-					}
+						if ( ! AIOSEOPPRO || ( AIOSEOPPRO && apply_filters( $this->prefix . 'generate_descriptions_from_content', true, $post ) ) ) {
+							$description = $post->post_content;
+						}
+						else {
+							$description = $post->post_excerpt;
+						}
+					}	
 				}
 				if ( empty( $type ) ) {
 					$type = 'article';
