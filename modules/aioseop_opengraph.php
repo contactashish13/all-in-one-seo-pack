@@ -76,7 +76,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				),
 				'Websites'                   => array(
 					'article' => __( 'Article', 'all-in-one-seo-pack' ),
-					'blog'    => __( 'Blog', 'all-in-one-seo-pack' ),
 					'website' => __( 'Website', 'all-in-one-seo-pack' ),
 				),
 			);
@@ -185,20 +184,164 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				add_action( 'wp', array( $this, 'type_setup' ) );
 			}
 
-			if ( ! is_admin() || defined( 'DOING_AJAX' ) || ( defined( 'AIOSEOP_UNIT_TESTING' ) && AIOSEOP_UNIT_TESTING ) ) {
+			if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 				$this->do_opengraph();
 			}
 			// Set variables after WordPress load.
 			add_action( 'init', array( &$this, 'init' ), 999999 );
 			add_filter( 'jetpack_enable_open_graph', '__return_false' ); // Avoid having duplicate meta tags
+			add_filter( $this->prefix . 'meta', array( $this, 'handle_meta_tag' ), 10, 3 );
 			// Force refresh of Facebook cache.
 			add_action( 'post_updated', array( &$this, 'force_fb_refresh_update' ), 10, 3 );
 			add_action( 'transition_post_status', array( &$this, 'force_fb_refresh_transition' ), 10, 3 );
 			add_action( 'edited_term', array( &$this, 'save_tax_data' ), 10, 3 );
 			// Adds special filters
 			add_filter( 'aioseop_opengraph_placeholder', array( &$this, 'filter_placeholder' ) );
+			add_action( 'aiosp_activate_opengraph', array( $this, 'activate_module' ) );
+			add_action( 'created_term', array( $this, 'created_term' ), 10, 3 );
 			// Call to init to generate menus
 			$this->init();
+		}
+
+		/**
+		 * Handle specific meta tags.
+		 *
+		 * @since 3.0
+		 *
+		 * @param string $value The value of the meta tag.
+		 * @param string $t     The type of network.
+		 * @param string $k     The name of the meta tag.
+		 * @return string
+		 */
+		function handle_meta_tag( $value, $t, $k ) {
+			switch ( $k ) {
+				case 'type':
+					// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+					if ( 'blog' === $value ) {
+						$value = 'website';
+					}
+					break;
+			}
+			return $value;
+		}
+
+		/**
+		 * Sets the terms defaults after a new term is created.
+		 *
+		 * @param int    $term_id  Term ID.
+		 * @param int    $tt_id    Term taxonomy ID.
+		 * @param string $taxonomy Taxonomy slug.
+		 */
+		function created_term( $term_id, $tt_id, $taxonomy_name ) {
+			$k = 'settings';
+			$prefix  = $this->get_prefix( $k );
+			$tax = get_taxonomy( $taxonomy_name );
+			$this->set_object_type_for_taxonomy( $prefix, $k, $taxonomy_name, $tax, false, array( $term_id ) );
+		}
+
+		/**
+		 * Sets the defaults for a taxonomy.
+		 *
+		 * @param string    $prefix             The prefix of this module.
+		 * @param string    $k                  The key against which the options will be determined/set.
+		 * @param string    $taxonomy_name      The name of the taxonomy.
+		 * @param Object    $tax                The taxonomy object.
+		 * @param bool      $bail_if_no_terms   Bail if the taxonomy has no terms.
+		 * @param array     $terms              The terms in the taxonomy.
+		 */
+		private function set_object_type_for_taxonomy( $prefix, $k, $taxonomy_name, $tax, $bail_if_no_terms = false, $terms = null ) {
+			$object_type = null;
+			if ( ! $terms ) {
+				$terms = get_terms(
+					$taxonomy_name, array(
+						'meta_query' => array(
+							array(
+								'key' => '_' . $prefix . $k,
+								'compare' => 'NOT EXISTS',
+							),
+						),
+						'number' => PHP_INT_MAX,
+						'fields' => 'ids',
+						'hide_empty' => false,
+					)
+				);
+			}
+
+			if ( empty( $terms ) && $bail_if_no_terms ) {
+				return false;
+			}
+
+			if ( true === $tax->_builtin ) {
+				$object_type = 'article';
+			} else {
+				// custom taxonomy. Let's get a post against this to determine its post type.
+				$posts = get_posts(
+					array(
+						'numberposts' => 1,
+						'post_type' => 'any',
+						'tax_query' => array(
+							array(
+								'taxonomy' => $taxonomy_name,
+								'field' => 'term_id',
+								'terms' => $terms,
+							),
+						),
+					)
+				);
+				if ( $posts ) {
+					global $aioseop_options;
+					$post_type = $posts[0]->post_type;
+					if ( isset( $aioseop_options['modules'] ) && isset( $aioseop_options['modules'][ $this->prefix . 'options' ] ) ) {
+						$og_options = $aioseop_options['modules'][ $this->prefix . 'options' ];
+
+						// now let's see what default object type is set for this post type.
+						$object_type_set = $og_options[ $this->prefix . $post_type . '_fb_object_type' ];
+						if ( ! empty( $object_type_set ) ) {
+							$object_type = $object_type_set;
+						}
+					}
+				}
+			}
+
+			if ( $object_type ) {
+				$opts[ $prefix . $k . '_category' ] = $object_type;
+				foreach ( $terms as $term_id ) {
+					update_term_meta( $term_id, '_' . $prefix . $k, $opts );
+				}
+			}
+
+			return true;
+		}
+
+		/**
+		 * Called when this module is activated.
+		 */
+		public function activate_module() {
+			if ( $this->locations !== null ) {
+				foreach ( $this->locations as $k => $v ) {
+					if ( ! isset( $v['type'] ) || 'metabox' !== $v['type'] ) {
+						continue;
+					}
+					$this->set_virgin_tax_terms( $k );
+				}
+			}
+		}
+		/**
+		 * This iterates over all taxonomies that do not have a opengraph setting defined and sets the defaults.
+		 *
+		 * @param string $k The key against which the options will be determined/set.
+		 */
+		private function set_virgin_tax_terms( $k ) {
+			$prefix  = $this->get_prefix( $k );
+			$opts    = $this->default_options( $k );
+			$taxonomies = get_taxonomies( array( 'public' => true ), 'object' );
+			if ( ! $taxonomies ) {
+				return;
+			}
+			foreach ( $taxonomies as $name => $tax ) {
+				$this->set_object_type_for_taxonomy( $prefix, $k, $name, $tax, true, null );
+
+			}
 		}
 
 		/**
@@ -454,7 +597,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					'name'    => __( 'Facebook Debug', 'all-in-one-seo-pack' ),
 					'type'    => 'html',
 					'save'    => false,
-					'default' => $this->get_facebook_debug(),
+					'default' => '<a 
+						name="aioseop_opengraph_settings_facebook_debug"
+						id="aioseop_opengraph_settings_facebook_debug"
+						class="button-primary"
+						href=""
+						target="_blank">' . __( 'Debug This Post', 'all-in-one-seo-pack' ) . '</a>',
 				),
 				'section'                => array(
 					'name'     => __( 'Article Section', 'all-in-one-seo-pack' ),
@@ -694,8 +842,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			if ( $location == 'settings' ) {
 				$prefix = $this->get_prefix( $location ) . $location . '_';
 				list( $legacy, $images ) = $this->get_all_images( $options );
-				if ( isset( $options ) && isset( $options["{$prefix}image"] ) ) {
-					$thumbnail = $options["{$prefix}image"];
+				if ( isset( $options ) && isset( $options[ "{$prefix}image" ] ) ) {
+					$thumbnail = $options[ "{$prefix}image" ];
 					if ( ctype_digit( (string) $thumbnail ) || ( $thumbnail == 'post' ) ) {
 						if ( $thumbnail == 'post' ) {
 							$thumbnail = $images['post1'];
@@ -703,7 +851,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 							$thumbnail = $legacy[ $thumbnail ];
 						}
 					}
-					$options["{$prefix}image"] = $thumbnail;
+					$options[ "{$prefix}image" ] = $thumbnail;
 				}
 				if ( empty( $options[ $prefix . 'image' ] ) ) {
 					$img = array_keys( $images );
@@ -745,10 +893,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 								$flat_type_list[ $k ] = $v;
 							}
 						}
+						$default_fb_type = $this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ];
+						// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+						// if 'blog' is the selected type but because it is no longer a schema type, we use 'website' instead.
+						if ( 'blog' === $default_fb_type ) {
+							$default_fb_type = 'website';
+						}
+						if ( isset( $flat_type_list[ $default_fb_type ] ) ) {
+							$default_fb_type = $flat_type_list[ $default_fb_type ];
+						}
 						$settings[ $prefix . 'category' ]['initial_options'] = array_merge(
 							array(
-								$this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] => __( 'Default ', 'all-in-one-seo-pack' ) . ' - '
-																										 . $flat_type_list[ $this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ],
+								$this->options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] => __( 'Default ', 'all-in-one-seo-pack' ) . ' - ' . $default_fb_type,
 							),
 							$settings[ $prefix . 'category' ]['initial_options']
 						);
@@ -845,7 +1001,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 								$options[ $prefix . 'category' ] =
 									$aioseop_options['modules']['aiosp_opengraph_options'][ 'aiosp_opengraph_' . $type . '_fb_object_type' ];
 							}
-							continue;
 						}
 						break;
 				}
@@ -854,6 +1009,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				}
 			}
 			$options = wp_parse_args( $options, $opts );
+
+			// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
+			$post_types = $this->get_post_type_titles();
+			foreach ( $post_types as $slug => $name ) {
+				$field = 'aiosp_opengraph_' . $slug . '_fb_object_type';
+				if ( isset( $options[ $field ] ) && 'blog' === $options[ $field ] ) {
+					$options[ $field ] = 'website';
+				}
+			}
 
 			return $options;
 		}
@@ -909,7 +1073,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			if ( empty( $type ) ) {
 				$type = 'website';
 			}
-
 			$schema_types = array(
 				'album'      => 'MusicAlbum',
 				'article'    => 'Article',
@@ -971,12 +1134,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		function add_meta() {
 			global $post, $aiosp, $aioseop_options, $wp_query;
 			$metabox           = $this->get_current_options( array(), 'settings' );
-
-			// we have to introduce this because, for some reason, $this->options is not being populated at all while testing.
-			if ( defined( 'AIOSEOP_UNIT_TESTING' ) && AIOSEOP_UNIT_TESTING ) {
-				$this->options	= $aioseop_options['modules']['aiosp_opengraph_options'];
-			}
-
+			$key               = $this->options['aiosp_opengraph_key'];
 			$key               = $this->options['aiosp_opengraph_key'];
 			$dimg              = $this->options['aiosp_opengraph_dimg'];
 			$current_post_type = get_post_type();
@@ -1178,7 +1336,19 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					$description = get_queried_object()->description;
 				}
 				if ( empty( $type ) ) {
-					$type = 'website';
+					// https://github.com/semperfiwebdesign/aioseop-pro/issues/321
+					if ( AIOSEOPPRO && ( is_category() || is_tag() || is_tax() ) ) {
+						$og_options        = $aioseop_options['modules'][ $this->prefix . 'options' ];
+						$current_post_type = get_post_type();
+						// check if the post type's object type is set.
+						if ( isset( $og_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ] ) ) {
+							$type = $og_options[ "aiosp_opengraph_{$current_post_type}_fb_object_type" ];
+						} elseif ( in_array( $current_post_type, array( 'post', 'page' ) ) ) {
+							$type = 'article';
+						}
+					} else {
+						$type = 'website';
+					}
 				}
 			} elseif ( is_home() && ! is_front_page() ) {
 				// This is the blog page but not the homepage.
@@ -1472,7 +1642,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 
 END;
 			}
-			echo apply_filters( 'aiosp_opengraph_social_link_schema', $social_link_schema );
+
+			// Only show if "use schema.org markup is checked".
+			if ( ! empty( $aioseop_options['aiosp_schema_markup'] ) ) {
+				echo apply_filters( 'aiosp_opengraph_social_link_schema', $social_link_schema );
+			}
 		}
 
 		/**
@@ -1529,21 +1703,23 @@ END;
 		function admin_init() {
 			add_filter( $this->prefix . 'display_settings', array( &$this, 'filter_settings' ), 10, 3 );
 			add_filter( $this->prefix . 'override_options', array( &$this, 'override_options' ), 10, 3 );
-			add_filter( $this->get_prefix( 'settings' ) . 'default_options', array(
-				&$this,
-				'filter_default_options',
-			), 10, 2 );
+			add_filter(
+				$this->get_prefix( 'settings' ) . 'default_options', array(
+					&$this,
+					'filter_default_options',
+				), 10, 2
+			);
 			add_filter(
 				$this->get_prefix( 'settings' ) . 'filter_metabox_options', array(
-				&$this,
-				'filter_metabox_options',
-			), 10, 3
+					&$this,
+					'filter_metabox_options',
+				), 10, 3
 			);
 			add_filter(
 				$this->get_prefix( 'settings' ) . 'filter_term_metabox_options', array(
-				&$this,
-				'filter_metabox_options',
-			), 10, 3
+					&$this,
+					'filter_metabox_options',
+				), 10, 3
 			);
 			$post_types                                        = $this->get_post_type_titles();
 			$rempost                                           = array(
@@ -1647,6 +1823,33 @@ END;
 		}
 
 		/**
+		 * Admin Enqueue Scripts
+		 *
+		 * Add hook in \All_in_One_SEO_Pack_Module::enqueue_metabox_scripts - Bails adding hook if not on target valid screen.
+		 * Add hook in \All_in_One_SEO_Pack_Module::add_page_hooks - Function itself is hooked based on the screen_id/page.
+		 *
+		 * @since 2.9.2
+		 *
+		 * @see 'admin_enqueue_scripts' hook
+		 * @link https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
+		 *
+		 * @param string $hook_suffix
+		 */
+		public function admin_enqueue_scripts( $hook_suffix ) {
+			wp_enqueue_script(
+				'aioseop-opengraph-script',
+				AIOSEOP_PLUGIN_URL . 'js/modules/aioseop_opengraph.js',
+				array(),
+				AIOSEOP_VERSION
+			);
+
+			// Dev note: If certain JS files need to be restricted to select screens, then follow concept
+			// used in `All_in_One_SEO_Pack::admin_enqueue_scripts()` (v2.9.1); which uses the `$hook_suffix`
+			// and a switch-case. This also helps prevent unnessecarily processing localized data when it isn't needed.
+			parent::admin_enqueue_scripts( $hook_suffix );
+		}
+
+		/**
 		 * Enqueue our file upload scripts and styles.
 		 * @param $hook
 		 */
@@ -1722,37 +1925,6 @@ END;
 				$options[ $prefix . 'customimg_checker' ] = 0;
 			}
 			return $options;
-		}
-
-		/**
-		 * Returns facebook debug script and link.
-		 * @since 2.4.14
-		 *
-		 * @return string
-		 */
-		private function get_facebook_debug() {
-			ob_start();
-			?>
-            <script>
-                jQuery(document).ready(function () {
-                    var snippet = jQuery("#aioseop_snippet_link");
-                    if (snippet.length === 0) {
-                        jQuery("#aioseop_opengraph_settings_facebook_debug_wrapper").hide();
-                    } else {
-                        snippet = snippet.html();
-                        jQuery("#aioseop_opengraph_settings_facebook_debug")
-                            .attr("href", "https://developers.facebook.com/tools/debug/sharing/?q=" + snippet);
-                    }
-                });
-            </script>
-            <a name="aioseop_opengraph_settings_facebook_debug"
-               id="aioseop_opengraph_settings_facebook_debug"
-               class="button-primary"
-               href=""
-               target="_blank"
-            ><?php echo __( 'Debug This Post', 'all-in-one-seo-pack' ); ?></a>
-			<?php
-			return ob_get_clean();
 		}
 	}
 }
