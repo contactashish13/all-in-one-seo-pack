@@ -1196,7 +1196,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
               if ( ! AIOSEOPPRO || ( AIOSEOPPRO && apply_filters( $this->prefix . 'generate_descriptions_from_content', true, $post ) ) ) {
 							  $description = $aiosp->trim_excerpt_without_filters( $aiosp->internationalize( preg_replace( '/\s+/', ' ', $post->post_content ) ), 1000 );
 						  }
-            }
+            }else{
+							$description = $this->trim_text_without_filters_full_length( $this->internationalize( $post->post_excerpt ) );
+						}
 					}
 				}
 
