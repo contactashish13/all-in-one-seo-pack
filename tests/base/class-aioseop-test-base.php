@@ -7,9 +7,9 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	public function _setUp() {
 		parent::setUp();
 
- 		// avoids error - readfile(/src/wp-includes/js/wp-emoji-loader.js): failed to open stream: No such file or directory
-		remove_action('wp_head', 'print_emoji_detection_script', 7);
-		
+		// avoids error - readfile(/src/wp-includes/js/wp-emoji-loader.js): failed to open stream: No such file or directory
+		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+
 		// reset global options.
 		delete_option( 'aioseop_options' );
 		aioseop_initialize_options();
@@ -45,6 +45,12 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 		'save-widget', 'set-post-thumbnail', 'date_format', 'time_format', 'wp-fullscreen-save-post',
 		'wp-remove-post-lock', 'dismiss-wp-pointer', 'nopriv_autosave',
 	);
+
+	/**
+	 * A sentence that contains the list of special characters that can be used.
+	 * @var type
+	 */
+	protected $_spl_chars = '<tom> - tom&jerry \'cause today\'s effort makes it worth tomorrow\'s "holiday" &raquo; &laquo; &rsaquo; &lsaquo; &rdquo; &ldquo; &rsquo; &lsquo; > <';
 
 	public function ajaxSetUp() {
 		parent::setUp();
@@ -104,6 +110,10 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	 * <code>
 	 * $this->setExpectedException( 'WPAjaxDieContinueException', 'something contained in $message' );
 	 * </code>
+	 *
+	 * @throws WPAjaxDieStopException
+	 * @throws WPAjaxDieContinueException
+	 *
 	 * @param string $message
 	 */
 	public function dieHandler( $message ) {
@@ -158,12 +168,19 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 	/**
 	 * Upload an image and, optionally, attach to the post.
-	*/
+	 */
 	protected final function upload_image_and_maybe_attach( $image, $id = 0 ) {
 		/* this factory method has a bug so we have to be a little clever.
 		$this->factory->attachment->create( array( 'file' => $image, 'post_parent' => $id ) );
 		*/
 		$attachment_id = $this->factory->attachment->create_upload_object( $image, $id );
+
+		// add an image caption and title with special characters.
+		kses_remove_filters();
+		$spl = wp_generate_password( 12, true, true ) . $this->_spl_chars;
+		wp_update_post( array( 'ID' => $attachment_id, 'post_title' => $spl, 'post_excerpt' => $spl ) );
+		kses_init_filters();
+
 		if ( 0 !== $id ) {
 			update_post_meta( $id, '_thumbnail_id', $attachment_id );
 		}
@@ -172,11 +189,11 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 	/**
 	 * Create attachments, and, optionally, attach to a post.
-	*/
+	 */
 	protected final function create_attachments( $num, $id = 0 ) {
 		$image = str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' );
 		$ids = array();
-		for( $x = 0; $x < $num; $x++ ) {
+		for ( $x = 0; $x < $num; $x++ ) {
 			$ids[] = $this->factory->attachment->create_upload_object( $image, $id );
 		}
 		return $ids;
@@ -191,14 +208,15 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 	/**
 	 * Clean up the flotsam and jetsam before starting.
-	*/
+	 */
 	protected final function clean() {
-		$posts	= get_posts(
+		$posts  = get_posts(
 			array(
 				'post_type' => 'any',
-				'fields'	=> 'ids',
+				'fields'    => 'ids',
 				'numberposts' => -1,
-		) );
+			)
+		);
 
 		foreach ( $posts as $post ) {
 			wp_delete_post( $post, true );
@@ -207,7 +225,7 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 	/**
 	 * Set up the options for the particular module.
-	*/
+	 */
 	protected final function _setup_options( $module, $custom_options ) {
 		// so that is_admin returns true.
 		set_current_screen( 'edit-post' );
@@ -217,23 +235,23 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 		// activate the sitemap module.
 		$aioseop_options['modules'] = array(
-			'aiosp_feature_manager_options'	=> array(
-				"aiosp_feature_manager_enable_$module"	=> 'on'
+			'aiosp_feature_manager_options' => array(
+				"aiosp_feature_manager_enable_$module"  => 'on',
 			),
 		);
 		update_option( 'aioseop_options', $aioseop_options );
 
 		set_current_screen( 'edit-post' );
 
-		$nonce		= wp_create_nonce( 'aioseop-nonce' );
-		$class		= 'All_in_One_SEO_Pack_' . ucwords( $module );
-		$_POST		= array(
-			'action'				=> 'aiosp_update_module',
-			'Submit_All_Default'	=> 'blah',
-			'Submit'				=> 'blah',
-			'nonce-aioseop'			=> $nonce,
-			'settings'				=> ' ',
-			'options'				=> "aiosp_feature_manager_enable_{$module}=true&page=" . trailingslashit( AIOSEOP_PLUGIN_DIRNAME ) . "modules/aioseop_feature_manager.php&Submit=testing!&module={$class}&nonce-aioseop=" . $nonce,
+		$nonce      = wp_create_nonce( 'aioseop-nonce' );
+		$class      = 'All_in_One_SEO_Pack_' . ucwords( $module );
+		$_POST      = array(
+			'action'                => 'aiosp_update_module',
+			'Submit_All_Default'    => 'blah',
+			'Submit'                => 'blah',
+			'nonce-aioseop'         => $nonce,
+			'settings'              => ' ',
+			'options'               => "aiosp_feature_manager_enable_{$module}=true&page=" . trailingslashit( AIOSEOP_PLUGIN_DIRNAME ) . "modules/aioseop_feature_manager.php&Submit=testing!&module={$class}&nonce-aioseop=" . $nonce,
 		);
 
 		// so that is_admin returns true.
@@ -247,37 +265,46 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 
 		$aioseop_options = get_option( 'aioseop_options' );
 
-		$module_options = $aioseop_options['modules']["aiosp_{$module}_options"];
+		$module_options = $aioseop_options['modules'][ "aiosp_{$module}_options" ];
 		$module_options = array_merge( $module_options, $custom_options );
 
-		$aioseop_options['modules']["aiosp_{$module}_options"] = $module_options;
+		$aioseop_options['modules'][ "aiosp_{$module}_options" ] = $module_options;
 
 		update_option( 'aioseop_options', $aioseop_options );
 
 		$aioseop_options = get_option( 'aioseop_options' );
-		//error_log("aioseop_options " . print_r($aioseop_options,true));
+		// error_log("aioseop_options " . print_r($aioseop_options,true));
 	}
 
 	/**
-	 * Set up posts of specific post type, without/without images. Use this when post attributes such as title, content etc. don't matter.
-	*/
-	protected final function setup_posts( $without_images = 0, $with_images = 0, $type = 'post', $image_name = 'footer-logo.png' ) {
+	 * Setup Posts
+	 *
+	 * Set up posts of specific post type, without/without images. Use this when post attributes such as title,
+	 * content etc. don't matter.
+	 *
+	 * @param int    $without_images
+	 * @param int    $with_images
+	 * @param string $type
+	 * @return array
+	 */
+	final protected function setup_posts( $without_images = 0, $with_images = 0, $type = 'post' ) {
 		if ( $without_images > 0 ) {
 			$this->factory->post->create_many( $without_images, array( 'post_type' => $type, 'post_content' => 'content without image', 'post_title' => 'title without image' ) );
 		}
 		if ( $with_images > 0 ) {
-			$ids	= $this->factory->post->create_many( $with_images, array( 'post_type' => $type, 'post_content' => 'content with image', 'post_title' => 'title with image' ) );
+			$ids    = $this->factory->post->create_many( $with_images, array( 'post_type' => $type, 'post_content' => 'content with image', 'post_title' => 'title with image' ) );
 			foreach ( $ids as $id ) {
-				$this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . "/resources/images/$image_name" ), $id );
+				$this->upload_image_and_maybe_attach( str_replace( '\\', '/', AIOSEOP_UNIT_TESTING_DIR . '/resources/images/footer-logo.png' ), $id );
 			}
 		}
 
-		$posts	= get_posts(
+		$posts  = get_posts(
 			array(
 				'post_type' => $type,
-				'fields'	=> 'ids',
+				'fields'    => 'ids',
 				'numberposts' => -1,
-		) );
+			)
+		);
 
 		// 4 posts created?
 		$this->assertEquals( $without_images + $with_images, count( $posts ) );
@@ -286,44 +313,83 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 			get_permalink( $id );
 		}
 
-		$attachments	= get_posts(
+		$attachments    = get_posts(
 			array(
 				'post_type' => 'attachment',
-				'fields'	=> 'ids',
+				'fields'    => 'ids',
 				'numberposts' => -1,
-		) );
+			)
+		);
 
 		// 2 attachments created?
 		$this->assertEquals( $with_images, count( $attachments ) );
 
-		$with = array();
+		$with    = array();
 		$without = array();
-		$with_ids = array();
-		$without_ids = array();
 
-		$featured	= 0;
+		$featured   = 0;
 		foreach ( $posts as $id ) {
 			if ( has_post_thumbnail( $id ) ) {
 				$featured++;
 				$with[] = get_permalink( $id );
-				$with_ids[] = $id;
 				continue;
 			}
 			$without[] = get_permalink( $id );
-			$without_ids[] = $id;
 		}
 
 		// 2 posts have featured image?
 		$this->assertEquals( $with_images, $featured );
 
 		return array(
-			'with'	=> $with,
-			'without'	=> $without,
-			'ids'	=> array(
-				'with'	=> $with_ids,
-				'without'	=> $without_ids,
-			),
+			'with'    => $with,
+			'without' => $without,
 		);
+	}
+
+	/**
+	 * (Barebone) Setup Posts and return IDs
+	 *
+	 * @param int   $amount
+	 * @param array $args
+	 * @return array {
+	 *     @type int $post_ID ID of the post inserted.
+	 * }
+	 */
+	protected function setup_posts_return_IDs( $amount, $args = array() ) {
+		if ( 1 > $amount ) {
+			return array();
+		}
+		$default_args = array(
+			'post_type'    => 'post',
+			'post_title'   => 'Post Title',
+			'post_content' => 'Post Content - Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+		);
+
+		$args = wp_parse_args( $args, $default_args );
+
+		$ids = $this->factory->post->create_many( $amount, $args );
+
+		$posts = get_posts(
+			array(
+				'post_type'   => $args['post_type'],
+				'fields'      => 'OBJECT',
+				'numberposts' => -1,
+			)
+		);
+
+		$this->assertEquals( $amount, count( $posts ) );
+
+		foreach ( $posts as $v1_post ) {
+
+			foreach ( $args as $k2_args_index => $v2_args ) {
+				$this->assertNotNull( $v1_post->$k2_args_index );
+				if ( isset( $v1_post->$k2_args_index ) ) {
+					$this->assertSame( $v2_args, $v1_post->$k2_args_index );
+				}
+			}
+		}
+
+		return $ids;
 	}
 
 	/*
@@ -395,8 +461,8 @@ class AIOSEOP_Test_Base extends WP_UnitTestCase {
 	/*
 	 * An empty test is required otherwise tests won't run.
 	 */
-	public function test_dont_remove_this_method(){
-		$this->assertTrue(true);
+	public function test_dont_remove_this_method() {
+		$this->assertTrue( true );
 	}
 
 }

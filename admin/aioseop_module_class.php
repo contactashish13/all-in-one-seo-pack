@@ -1575,8 +1575,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				return false;
 			}
 
-			$size  = apply_filters( 'post_thumbnail_size', 'large' ); // Check if someone is using built-in WP filter.
-			$size  = apply_filters( 'aioseop_thumbnail_size', $size );
+			// Check if someone is using built-in WP filter.
+			$size  = apply_filters( 'aioseop_thumbnail_size', apply_filters( 'post_thumbnail_size', 'large' ) );
 			$image = wp_get_attachment_image_src( $post_thumbnail_id, $size );
 
 			return $image[0];
@@ -1607,8 +1607,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			);
 
 			if ( empty( $attachments ) && 'attachment' == get_post_type( $post->ID ) ) {
-				$size  = 'large';
-				$size  = apply_filters( 'aioseop_attachment_size', $size );
+				$size  = apply_filters( 'aioseop_attachment_size', 'large' );
 				$image = wp_get_attachment_image_src( $post->ID, $size );
 			}
 
@@ -1623,8 +1622,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			/* Loop through each attachment. Once the $order_of_image (default is '1') is reached, break the loop. */
 			foreach ( $attachments as $id => $attachment ) {
 				if ( ++ $i == 1 ) {
-					$size  = 'large';
-					$size  = apply_filters( 'aioseop_attachment_size', $size );
+					$size  = apply_filters( 'aioseop_attachment_size', 'large' );
 					$image = wp_get_attachment_image_src( $id, $size );
 					$alt   = trim( strip_tags( get_post_field( 'post_excerpt', $id ) ) );
 					break;
@@ -1643,7 +1641,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 * @return bool
 		 */
 		function get_the_image_by_scan( $p = null ) {
-
 			if ( $p === null ) {
 				global $post;
 			} else {
@@ -1660,6 +1657,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 
 			return false;
 		}
+
 
 		/**
 		 * @param        $default_options
@@ -2247,10 +2245,34 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
+		 * Get Option HTML
+		 *
 		 * Outputs a setting item for settings pages and metaboxes.
 		 *
-		 * @param $args
+		 * @since ?
+		 * @since 2.12 Add 'input' to allowed tags with 'html'. #2157
 		 *
+		 * @param array $args {
+		 *     Contains the admin option element values and attributes for rendering.
+		 *
+		 *     @type string $attr   The HTML element's attributes to render within the element.
+		 *     @type string $name   THE HTML element's name attribute. Used with form input elements.
+		 *     @type string $prefix Optional. The AIOSEOP Module prefix.
+		 *     @type string $value  The HTML element's value attribute.
+		 *     @type array  $options {
+		 *         Arguments used for this function/method operations and rendering.
+		 *
+		 *         @type string  $class      Optional. The HTML element's class attribute. This is used if
+		 *                                   `$options['count']` is not empty.
+		 *         @type int     $cols       Optional. Character count length of column.
+		 *         @type boolean $count      Optional. Determines whether to add the character count for SEO.
+		 *         @type string  $count_desc Optional. The description/help text to rend to the admin.
+		 *         @type string  $name       Optional. Used within the description/help text when it's for character count.
+		 *         @type boolean $required   Optional. Determines whether to require a value in the input element.
+		 *         @type int     $rows       Optional. Number of rows to multiply with cols.
+		 *         @type string  $type       Which Switch Case (HTML element) to use.
+		 *     }
+		 * }
 		 * @return string
 		 */
 		function get_option_html( $args ) {
@@ -2321,7 +2343,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 				case 'textarea':
 					// #1363: prevent characters like ampersand in title and description (in social meta module) from getting changed to &amp;
 					if ( in_array( $name, array( 'aiosp_opengraph_hometitle', 'aiosp_opengraph_description' ), true ) ) {
-						$value	= htmlspecialchars_decode( $value, ENT_QUOTES );
+						$value  = htmlspecialchars_decode( $value, ENT_QUOTES );
 					}
 					$buf .= "<textarea name='$name' $attr>$value</textarea>";
 					break;
@@ -2330,10 +2352,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 							"<input class='aioseop_upload_image_button button-primary' type='button' value='";
 					$buf .= __( 'Upload Image', 'all-in-one-seo-pack' );
 					$buf .= "' style='float:left;' />" .
-							"<input class='aioseop_upload_image_label' name='$name' type='text' $attr value='$value' size=57 style='float:left;clear:left;'>\n";
+							"<input class='aioseop_upload_image_label' name='" . esc_attr( $name ) . "' type='text' " . esc_html( $attr ) . " value='" . esc_attr( $value ) . "' size=57 style='float:left;clear:left;'>\n";
 					break;
 				case 'html':
-					$buf .= $value;
+					$allowed_tags          = wp_kses_allowed_html( 'post' );
+					$allowed_tags['input'] = array(
+						'name'        => true,
+						'type'        => true,
+						'value'       => true,
+						'class'       => true,
+						'placeholder' => true,
+					);
+					$buf .= wp_kses( $value, $allowed_tags );
 					break;
 				case 'esc_html':
 					$buf .= '<pre>' . esc_html( $value ) . "</pre>\n";
@@ -2343,8 +2373,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					wp_enqueue_script( 'jquery-ui-datepicker' );
 					// fall through.
 				default:
-					$buf .= "<input name='$name' type='{$options['type']}' $attr value='$value'>\n";
+					$buf .= "<input name='" . esc_attr( $name ) . "' type='" . esc_attr( $options['type'] ) . "' " . wp_kses( $attr, wp_kses_allowed_html( 'data' ) ) . " value='" . esc_attr( $value ) . "'>\n";
 			}
+
+			// TODO Maybe Change/Add a function for SEO character count.
 			if ( ! empty( $options['count'] ) ) {
 				$size = 60;
 				if ( isset( $options['size'] ) ) {
@@ -2684,7 +2716,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 					if ( ! empty( $message ) && empty( $errors ) ) {
 						echo "<div id=\"message\" class=\"updated fade\"><p>$message</p></div>";
 					}
-?>
+					?>
 					<div id="icon-aioseop" class="icon32"><br></div>
 					<h2><?php echo $name; ?></h2>
 					<div id="dropmessage" class="updated" style="display:none;"></div>
