@@ -1276,8 +1276,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					if ( $this->options['aiosp_opengraph_generate_descriptions'] || empty( $description ) ) {
 						if ( ! AIOSEOPPRO || ( AIOSEOPPRO && apply_filters( $this->prefix . 'generate_descriptions_from_content', true, $post ) ) ) {
 							$description = $post->post_content;
-						}
-						else {
+						} else {
 							$description = $post->post_excerpt;
 						}
 					}	
