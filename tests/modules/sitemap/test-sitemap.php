@@ -58,6 +58,37 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
+	 * Creates pages, marks some as NOINDEX and tests whether only the non-NOINDEX pages are being shown in the sitemap.
+	 */
+	public function test_noindex_pages() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
+		$pages = $this->setup_posts( 2, 0, 'page' );
+		$new_page_id = $this->factory->post->create( array( 'post_type' => 'page' ) );
+		$new_page = get_permalink( $new_page_id );
+
+		update_post_meta( $new_page_id, '_aioseop_noindex', 'on' );
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'page' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap(
+			array(
+				$pages['without'][0] => true,
+				$pages['without'][1] => true,
+				$new_page => false,
+			)
+		);
+	}
+
+	/**
 	 * @requires PHPUnit 5.7
 	 * Creates posts with and without featured images and tests whether the sitemap
 	 * 1) contains the image tag in the posts that have images attached.

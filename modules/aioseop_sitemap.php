@@ -443,11 +443,37 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_filter( $this->prefix . 'display_options', array( $this, 'filter_display_options' ) );
 			add_filter( $this->prefix . 'update_options', array( $this, 'filter_options' ) );
 			add_filter( $this->prefix . 'output_option', array( $this, 'display_custom_options' ), 10, 2 );
+			add_filter( $this->prefix . 'post_query', array( $this, 'filter_posts' ), 10, 1 );
+
 			add_action( $this->prefix . 'daily_update_cron', array( $this, 'daily_update' ) );
 			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
 			add_action( 'transition_post_status', array( $this, 'update_sitemap_from_posts' ), 10, 3 );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
 			add_action( 'all_admin_notices', array( $this, 'sitemap_notices' ) );
+		}
+
+		/**
+		 * Adds additional arguments before posts are fetched.
+		 *
+		 * @param array $args Arguments needed by get_posts/WP_Query.
+		 *
+		 * @return array
+		 */
+		function filter_posts( $args ) {
+			// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1382
+			$query = array(
+				array(
+					'key'	=> '_aioseop_noindex',
+					'compare'	=> 'NOT EXISTS',
+			) );
+			$meta_query = $query;
+			if ( array_key_exists( 'meta_query', $args ) && ! empty( $args['meta_query'] ) ) {
+				$meta_query = $args['meta_query'];
+				$meta_query = array_merge( $meta_query, $query );
+			}
+
+			$args['meta_query'] = $meta_query;
+			return $args;
 		}
 
 		/**
