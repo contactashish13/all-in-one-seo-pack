@@ -463,9 +463,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1382
 			$query = array(
 				array(
-					'key'	=> '_aioseop_noindex',
-					'compare'	=> 'NOT EXISTS',
-			) );
+					'key'   => '_aioseop_noindex',
+					'compare'   => 'NOT EXISTS',
+				), );
 			$meta_query = $query;
 			if ( array_key_exists( 'meta_query', $args ) && ! empty( $args['meta_query'] ) ) {
 				$meta_query = $args['meta_query'];
