@@ -465,7 +465,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				array(
 					'key'   => '_aioseop_noindex',
 					'compare'   => 'NOT EXISTS',
-				), );
+				),
+			);
 			$meta_query = $query;
 			if ( array_key_exists( 'meta_query', $args ) && ! empty( $args['meta_query'] ) ) {
 				$meta_query = $args['meta_query'];
