@@ -4186,7 +4186,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'offset'        => 0,
 				'category'      => 0,
 				'orderby'       => 'post_date',
-				'order'         => 'DESC',
+				'order'         => 'ASC',
 				'include'       => array(),
 				'exclude'       => array(),
 				'post_type'     => 'any',
