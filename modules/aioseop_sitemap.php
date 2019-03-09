@@ -1027,9 +1027,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 								$siteurl = get_home_url( $blog_id );
 							}
 							$url = $siteurl . '/' . $this->get_filename() . '.xml';
-							if ( $sitemap_options[ "{$this->prefix}gzipped" ] ) {
-								$url .= '.gz';
-							}
 							$siteurls[] = $url;
 						}
 					}
@@ -1104,11 +1101,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$filename = $this->get_filename();
 			if ( ! empty( $filename ) ) {
 				$scan1 = get_home_path() . $filename . '*.xml';
-				if ( ! empty( $this->options[ "{$this->prefix}gzipped" ] ) ) {
-					$scan2 .= get_home_path() . $filename . '*.xml.gz';
-				}
 
-				if ( empty( $scan1 ) && empty( $scan2 ) ) {
+				if ( empty( $scan1 ) ) {
 					return $files;
 				}
 				$home_path = get_home_path();
@@ -1120,9 +1114,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 							$f       = $this->whitelist_static_sitemaps( $f );
 							$files[] = $home_path . $f;
 							continue;
-						}
-						if ( ! empty( $scan2 ) && fnmatch( $scan2, $home_path . $f ) ) {
-							$files[] = $home_path . $f;
 						}
 					}
 				}
@@ -1384,13 +1375,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				);
 			}
 
-			if ( $this->options[ "{$this->prefix}gzipped" ] ) {
-				$sitemap_rules_gzipped = array(
-					$this->get_filename() . '.xml.gz'            => 'index.php?' . $this->prefix . 'gzipped=1&' . $this->prefix . 'path=root.gz',
-					$this->get_filename() . '_(.+)_(\d+).xml.gz' => 'index.php?' . $this->prefix . 'path=$matches[1].gz&' . $this->prefix . 'page=$matches[2]',
-					$this->get_filename() . '_(.+).xml.gz'       => 'index.php?' . $this->prefix . 'path=$matches[1].gz',
-				);
-			}
+			$sitemap_rules_gzipped = array(
+				$this->get_filename() . '.xml.gz'            => 'index.php?' . $this->prefix . 'gzipped=1&' . $this->prefix . 'path=root.gz',
+				$this->get_filename() . '_(.+)_(\d+).xml.gz' => 'index.php?' . $this->prefix . 'path=$matches[1].gz&' . $this->prefix . 'page=$matches[2]',
+				$this->get_filename() . '_(.+).xml.gz'       => 'index.php?' . $this->prefix . 'path=$matches[1].gz',
+			);
+
 			$sitemap_rules = $sitemap_rules_gzipped + $sitemap_rules_normal;
 
 			return $sitemap_rules;
@@ -1499,7 +1489,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$sitemap_type = $this->substr( $sitemap_type, 0, - 3 );
 				}
 				$blog_charset = get_option( 'blog_charset' );
-				if ( $this->options[ "{$this->prefix}gzipped" ] && $gzipped ) {
+				if ( $gzipped ) {
 					header( "Content-Type: application/x-gzip; charset=$blog_charset", true );
 				} else {
 					$gzipped = false;
@@ -1610,15 +1600,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return string
 		 */
-		public function get_sitemap_url() {
-
-			$gz = '';
-			if ( $this->options[ "{$this->prefix}gzipped" ] ) {
-				$gz .= '.gz';
-			}
-
+		public function get_sitemap_url( $gz = '' ) {
 			$url = aioseop_home_url( '/' . $this->get_filename() . ".xml$gz" );
-
 			return $url;
 		}
 
@@ -1668,7 +1651,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Add Sitemap parameter to virtual robots.txt file.
 		 */
 		public function do_robots() {
-			$url = $this->get_sitemap_url();
+			$url = $this->get_sitemap_url( '.gz' );
 			// TODO Add esc_* or wp_kses function.
 			echo "\nSitemap: $url\n";
 		}
@@ -1709,8 +1692,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 						$rss = $this->do_simple_sitemap_rss( $comment );
 						$this->write_sitemaps( $this->get_filename(), $rss, '.rss' );
 					}
-
-					$this->log_stats( 'root', $this->options[ "{$this->prefix}gzipped" ], false );
 				}
 			} else {
 				delete_transient( "{$this->prefix}rules_flushed" );
@@ -1746,9 +1727,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		public function write_sitemaps( $filename, $contents, $extn = '.xml' ) {
 			$this->write_sitemap( $filename . $extn, $contents );
-			if ( $this->options[ "{$this->prefix}gzipped" ] ) {
-				$this->write_sitemap( $filename . $extn . '.gz', $contents, true );
-			}
 		}
 
 		/**
@@ -1888,9 +1866,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$prefix  = $this->get_filename();
 			$suffix  = '.xml';
 
-			if ( $options[ "{$this->prefix}gzipped" ] ) {
-				$suffix .= '.gz';
-			}
 			if ( empty( $options[ "{$this->prefix}posttypes" ] ) ) {
 				$options[ "{$this->prefix}posttypes" ] = array();
 			}
@@ -2128,7 +2103,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					}
 				}
 			}
-			$this->log_stats( 'indexed', $options[ "{$this->prefix}gzipped" ], false );
 		}
 
 		public function remove_posts_page( $postspageid ) {
