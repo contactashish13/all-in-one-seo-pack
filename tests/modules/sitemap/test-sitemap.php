@@ -58,7 +58,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
-	 * Creates pages, marks some as NOINDEX and tests whether only the non-NOINDEX pages are being shown in the sitemap.
+	 * Test pages.
+	 *
+	 * Function: Creates pages, marks some as NOINDEX and tests whether only the non-NOINDEX pages are being shown in the sitemap
+	 * Expected: Pages that are not marked as NOIDEX should be shown in the sitemap. Pages that are marked as NOINDEX should not be shown.
+	 *           should be able to update without effecting the active notices.
+	 * Actual: As expected; no current issue.
+	 * Result: Inserts pages and generates the sitemap successfully.
 	 */
 	public function test_noindex_pages() {
 		if ( is_multisite() ) {
