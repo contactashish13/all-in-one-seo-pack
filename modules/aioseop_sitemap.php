@@ -1493,6 +1493,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 				$this->start_memory_usage = memory_get_peak_usage();
 				$sitemap_type             = $query->query_vars[ "{$this->prefix}path" ];
+
 				$gzipped                  = false;
 				if ( $this->substr( $sitemap_type, - 3 ) === '.gz' ) {
 					$gzipped      = true;
@@ -1514,7 +1515,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( $gzipped ) {
 					ob_start();
 				}
-				$this->do_rewrite_sitemap( $sitemap_type, $page );
+
+				$content = $this->do_rewrite_sitemap( $sitemap_type, $page );
+
+				// if the sitemap has no content, it's probabaly invalid and is being called directly.
+				// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2190
+				if ( empty( $content ) ) {
+					$query->set_404();
+					status_header( 404 );
+					header( "Content-Type: text/html; charset=$blog_charset", true );
+					nocache_headers();
+					include( get_404_template() );
+					exit();
+				}
+
+				echo $content;
+
 				if ( $gzipped ) {
 					// TODO Add esc_* function.
 					echo gzencode( ob_get_clean() );
@@ -1599,7 +1615,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$this->add_post_types();
 			$comment = 'dynamically';
 			// TODO Add esc_* or wp_kses function.
-			echo $this->do_build_sitemap( $sitemap_type, $page, '', $comment );
+			return $this->do_build_sitemap( $sitemap_type, $page, '', $comment );
 		}
 
 		/**
@@ -2033,6 +2049,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ( 'root' === $sitemap_type ) && ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
 				return $this->build_sitemap_index( $sitemap_data, sprintf( $comment, $filename ) );
 			} else {
+				if ( empty( $sitemap_data ) ) {
+					return;
+				}
 				return $this->build_sitemap( $sitemap_data, $sitemap_type, sprintf( $comment, $filename ) );
 			}
 		}
