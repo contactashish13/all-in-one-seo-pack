@@ -557,8 +557,8 @@ jQuery( document ).ready(
 		jQuery( "a.aioseop_header_tab" ).click(
 			function() {
 				var stringref = jQuery( this ).attr( "href" ).split( '#' )[1];
-				jQuery( '.aioseop_tab:not(#' + stringref + ')' ).hide( 'slow' );
-				jQuery( '.aioseop_tab#' + stringref ).show( 'slow' );
+				jQuery( '.aioseop_tab:not(#' + stringref + ')' ).fadeOut( 'slow' );
+				jQuery( '.aioseop_tab#' + stringref ).fadeIn( 'slow' );
 				jQuery( '.aioseop_header_tab[href!="#' + stringref + '"]' ).removeClass( 'active' );
 				jQuery( '.aioseop_header_tab[href="#' + stringref + '"]' ).addClass( 'active' );
 				return false;
