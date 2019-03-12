@@ -490,7 +490,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$post_type  = $args['post_type'];
 
 			// Ignore the case where the multiple post types are being processed  because of the above potential bug.
-			if ( 'any' === $post_type || ( is_array( $post_type ) && ( in_array( 'any', $post_type, true ) && count( $post_type ) > 1 ) ) ) {
+			if ( 'any' === $post_type || ( is_array( $post_type ) && ( in_array( 'any', $post_type, true ) || count( $post_type ) > 1 ) ) ) {
 				return $args;
 			}
 
