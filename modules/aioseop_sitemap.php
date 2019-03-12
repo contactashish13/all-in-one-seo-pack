@@ -443,7 +443,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_filter( $this->prefix . 'display_options', array( $this, 'filter_display_options' ) );
 			add_filter( $this->prefix . 'update_options', array( $this, 'filter_options' ) );
 			add_filter( $this->prefix . 'output_option', array( $this, 'display_custom_options' ), 10, 2 );
-			add_filter( $this->prefix . 'post_query', array( $this, 'filter_posts' ), 10, 1 );
+			add_filter( $this->prefix . 'post_query', array( $this, 'filter_posts_noindex' ), 10, 1 );
 
 			add_action( $this->prefix . 'daily_update_cron', array( $this, 'daily_update' ) );
 			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
@@ -456,18 +456,60 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * Adds additional arguments before posts are fetched.
 		 * NOTE: This will affect post counts as well.
 		 *
+		 * @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1382
+		 *
 		 * @param array $args Arguments needed by get_posts/WP_Query.
+		 *					  Note: Only in one case does post_type have an array, otherwise its always a single post type.
 		 * 
+		 * @since 3.0
 		 * @return array
 		 */
-		function filter_posts( $args ) {
-			// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1382
-			$query = array(
-				array(
-					'key'   => '_aioseop_noindex',
-					'compare'   => 'NOT EXISTS',
-				),
-			);
+		function filter_posts_noindex( $args ) {
+			global $aioseop_options;
+
+			/*
+
+				Here is the truth table of this behavior: 
+
+				NOINDEX (general)	|	NOINDEX (post)	|	value of _aioseop_noindex	|	Expected Behavior
+				unchecked				checked				on								exclude
+				unchecked				unchecked			does not exist					include
+				checked					default				does not exist					exclude				
+				checked					index				off								include
+				checked					noindex				on								exclude
+
+				The conflict is that when the value of _aioseop_noindex does not exist, it can mean both include and exclude.
+				The actual context can only be determined by knowing what the value is in NOINDEX (general).
+
+				The confusion becomes manifold when multiple post types are being queried e.g.
+				POST, NOINDEX (general), INDEX(post), value of _aioseop_noindex = off
+				PAGE, INDEX (general), INDEX(post), value of _aioseop_noindex = does not exist
+				but the meta_query is run on all the post_types included. This, fortunately, happens in only one case and we will filter that out.
+			*/
+
+			$post_type	= $args['post_type'];
+			// Ignore the case where the multiple post types are being processed because of the above potential bug.
+			if ( is_array( $post_type ) || 'any' === $post_type ) {
+				return $args;
+			}
+
+			// let's find out the correct context so that we know the value _aioseop_noindex should take on the basis of the truth table above.
+			if ( ! empty( $aioseop_options['aiosp_cpostnoindex'] )  && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) ) {
+				$query = array(
+					array(
+						'key'   => '_aioseop_noindex',
+						'value'   => 'off',
+					),
+				);
+			} else {
+				$query = array(
+					array(
+						'key'   => '_aioseop_noindex',
+						'compare'   => 'NOT EXISTS',
+					),
+				);
+			}
+
 			$meta_query = $query;
 			if ( array_key_exists( 'meta_query', $args ) && ! empty( $args['meta_query'] ) ) {
 				$meta_query = $args['meta_query'];
@@ -475,6 +517,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			}
 
 			$args['meta_query'] = $meta_query;
+
 			return $args;
 		}
 
@@ -3982,6 +4025,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 		/**
 		 * Return a list of all permalinks.
+		 * TODO: THIS IN UNUSED AND CAN BE REMOVED LATER.
 		 *
 		 * @param string $include
 		 * @param string $status
