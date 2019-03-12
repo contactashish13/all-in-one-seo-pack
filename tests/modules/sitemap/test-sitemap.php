@@ -158,9 +158,9 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->_setup_options( 'sitemap', $custom_options );
 
-		$aioseop_options = get_option( 'aioseop_options' );
-		$aioseop_options['aiosp_cpostnoindex'] = array( 'page' );
-		update_option( 'aioseop_options', $aioseop_options );
+		$options = get_option( 'aioseop_options' );
+		$options['aiosp_cpostnoindex'] = array( 'page' );
+		update_option( 'aioseop_options', $options );
 
 		$this->validate_sitemap(
 			array(
