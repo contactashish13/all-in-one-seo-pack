@@ -139,8 +139,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			$this->markTestSkipped( 'Only for single site' );
 		}
 
-		//do_action( 'admin_menu' );
-
 		// mark pages as NOINDEX
 		$pages = array();
 		$page_ids = $this->factory->post->create_many( 3, array( 'post_type' => 'page' ) );
@@ -151,7 +149,6 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		delete_post_meta( $page_ids[0], '_aioseop_noindex' ); // mark as default
 		update_post_meta( $page_ids[1], '_aioseop_noindex', 'off' ); // mark as INDEX
 		update_post_meta( $page_ids[2], '_aioseop_noindex', 'on' ); // mark as NOINDEX
-
 
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
