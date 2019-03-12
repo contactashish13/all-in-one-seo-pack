@@ -143,8 +143,9 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 	 * Check whether the sitemap index is valid.
 	 *
 	 * @param array $types All the types of sitemaps that should exist besides the regular one.
+	 * @param array $notypes All the types of sitemaps that should NOT exist.
 	 */
-	protected final function validate_sitemap_index( $types = array(), $debug = false ) {
+	protected final function validate_sitemap_index( $types = array(), $notypes = array(), $debug = false ) {
 		add_filter( 'aioseo_sitemap_ping', '__return_false' );
 		update_option( 'blog_public', 0 );
 
@@ -165,6 +166,19 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 				echo file_get_contents( $file );
 			}
 			$this->validate_sitemap_schema( $file, $schema );
+		}
+
+		if ( $notypes ) {
+			foreach ( $notypes as $type ) {
+				$schema = 'index';
+				if ( ! empty( $type ) ) {
+					$type = "_{$type}";
+					$schema = 'combined';
+				}
+				$file = ABSPATH . "/sitemap{$type}.xml";
+
+				$this->assertFileNotExists( $file );
+			}
 		}
 	}
 
