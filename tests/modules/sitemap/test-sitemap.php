@@ -58,13 +58,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 	}
 
 	/**
-	 * Test pages.
+	 * Test noindex pages assuming NOINDEX in General Settings is unchecked.
 	 *
 	 * Function: Creates pages, marks some as NOINDEX and tests whether only the non-NOINDEX pages are being shown in the sitemap
 	 * Expected: Pages that are not marked as NOIDEX should be shown in the sitemap. Pages that are marked as NOINDEX should not be shown.
 	 *           should be able to update without effecting the active notices.
 	 * Actual: As expected; no current issue.
-	 * Result: Inserts pages and generates the sitemap successfully.
+	 * Result: Inserts pages, marks them as NOINDEX and generates the sitemap successfully.
 	 */
 	public function test_noindex_pages() {
 		if ( is_multisite() ) {
@@ -90,6 +90,86 @@ class Test_Sitemap extends Sitemap_Test_Base {
 				$pages['without'][0] => true,
 				$pages['without'][1] => true,
 				$new_page => false,
+			)
+		);
+	}
+
+	/**
+	 * Test noindex pages assuming NOINDEX in General Settings is unchecked and indexes are on.
+	 *
+	 * Function: Creates 2 pages, marks both as NOINDEX and tests that the sitemap_page.xml is not created.
+	 * Expected: All other sitemaps should be shown.
+	 * Actual: As expected; no current issue.
+	 * Result: Inserts pages, marks all as NOINDEX and generates the sitemap successfully.
+	 */
+	public function test_noindex_pages_indexed() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
+		$this->factory->post->create_many( 2, array( 'post_type' => 'post' ) );
+
+		$page_ids = $this->factory->post->create_many( 2, array( 'post_type' => 'page' ) );
+		foreach ( $page_ids as $page_id ) {
+			update_post_meta( $page_id, '_aioseop_noindex', 'on' );
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = 'on';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'page', 'post' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap_index( array( 'post' ), array( 'page' ) );
+	}
+
+	/**
+	 * Test noindex pages assuming NOINDEX in General Settings is checked.
+	 *
+	 * Function: Creates 3 pages, marks one as NOINDEX, one as INDEX and another as default and tests whether only the non-NOINDEX pages are being shown in the sitemap
+	 * Expected: Pages that are not marked as NOIDEX should be shown in the sitemap. Pages that are marked as NOINDEX/default should not be shown.
+	 *           should be able to update without effecting the active notices.
+	 * Actual: As expected; no current issue.
+	 * Result: Inserts pages, marks some as NOINDEX/INDEX/default and generates the sitemap successfully.
+	 */
+	public function test_noindex_pages_general_settings_noindex() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
+		//do_action( 'admin_menu' );
+
+		// mark pages as NOINDEX
+		$pages = array();
+		$page_ids = $this->factory->post->create_many( 3, array( 'post_type' => 'page' ) );
+		foreach ( $page_ids as $page_id ) {
+			$pages[] = get_permalink( $page_id );
+		}
+
+		delete_post_meta( $page_ids[0], '_aioseop_noindex' ); // mark as default
+		update_post_meta( $page_ids[1], '_aioseop_noindex', 'off' ); // mark as INDEX
+		update_post_meta( $page_ids[2], '_aioseop_noindex', 'on' ); // mark as NOINDEX
+
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_indexes'] = '';
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'page' );
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$aioseop_options = get_option( 'aioseop_options' );
+		$aioseop_options['aiosp_cpostnoindex'] = array( 'page' );
+		update_option( 'aioseop_options', $aioseop_options );
+
+		$this->validate_sitemap(
+			array(
+				$pages[0] => false,
+				$pages[1] => true,
+				$pages[2] => false,
 			)
 		);
 	}
