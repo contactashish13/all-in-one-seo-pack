@@ -459,8 +459,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1382
 		 *
 		 * @param array $args Arguments needed by get_posts/WP_Query.
-		 *					  Note: Only in one case does post_type have an array, otherwise its always a single post type.
-		 * 
+		 *                    Note: Only in one case does post_type have an array, otherwise its always a single post type.
+		 *
 		 * @since 3.0
 		 * @return array
 		 */
@@ -469,12 +469,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			/*
 
-				Here is the truth table of this behavior: 
+				Here is the truth table of this behavior:
 
 				NOINDEX (general)	|	NOINDEX (post)	|	value of _aioseop_noindex	|	Expected Behavior
 				unchecked				checked				on								exclude
 				unchecked				unchecked			does not exist					include
-				checked					default				does not exist					exclude				
+				checked                 default             does not exist                  exclude
 				checked					index				off								include
 				checked					noindex				on								exclude
 
@@ -487,14 +487,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				but the meta_query is run on all the post_types included. This, fortunately, happens in only one case and we will filter that out.
 			*/
 
-			$post_type	= $args['post_type'];
+			$post_type  = $args['post_type'];
 			// Ignore the case where the multiple post types are being processed because of the above potential bug.
 			if ( is_array( $post_type ) || 'any' === $post_type ) {
 				return $args;
 			}
 
 			// let's find out the correct context so that we know the value _aioseop_noindex should take on the basis of the truth table above.
-			if ( ! empty( $aioseop_options['aiosp_cpostnoindex'] )  && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) ) {
+			if ( ! empty( $aioseop_options['aiosp_cpostnoindex'] ) && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) ) {
 				$query = array(
 					array(
 						'key'   => '_aioseop_noindex',
