@@ -454,9 +454,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 		/**
 		 * Adds additional arguments before posts are fetched.
+		 * NOTE: This will affect post counts as well.
 		 *
 		 * @param array $args Arguments needed by get_posts/WP_Query.
-		 *
+		 * 
 		 * @return array
 		 */
 		function filter_posts( $args ) {
@@ -4174,7 +4175,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$args['fields']                 = 'ids';
 			$args['update_post_meta_cache'] = false;
 			$args['update_post_term_cache'] = false;
-			$query                          = new WP_Query( $args );
+			$query                          = new WP_Query( apply_filters( $this->prefix . 'post_query', $args ) );
 			if ( $query->have_posts() ) {
 				return $query->post_count;
 			}
