@@ -39,6 +39,12 @@ class Test_Sitemap extends Sitemap_Test_Base {
 		$posts = $this->setup_posts( 2 );
 		$pages = $this->setup_posts( 2, 0, 'page' );
 
+		// create a new page with a delay so that we can test if the sitemap is created in ASCENDING order.
+		// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2217
+		sleep( 1 );
+		$new_page_id = $this->factory->post->create( array( 'post_type' => 'page' ) );
+		$new_page = get_permalink( $new_page_id );
+
 		$custom_options = array();
 		$custom_options['aiosp_sitemap_indexes'] = '';
 		$custom_options['aiosp_sitemap_images'] = '';
@@ -47,14 +53,23 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 		$this->_setup_options( 'sitemap', $custom_options );
 
-		$this->validate_sitemap(
+		$file = $this->validate_sitemap(
 			array(
 				$pages['without'][0] => true,
 				$pages['without'][1] => true,
 				$posts['without'][0] => false,
 				$posts['without'][1] => false,
+				$new_page => true,
 			)
 		);
+
+		// in an ASCENDING order, the index of the urls will always lie in ascending order.
+		$index1 = strpos( $file, $pages['without'][0] );
+		$index2 = strpos( $file, $pages['without'][1] );
+		$index3 = strpos( $file, $new_page );
+
+		$this->assertGreaterThan( $index1, $index3, 'Sitemap is not in ascending order' );
+		$this->assertGreaterThan( $index2, $index3, 'Sitemap is not in ascending order' );
 	}
 
 	/**
