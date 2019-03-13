@@ -1979,7 +1979,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param string $filename
 		 * @param string $comment
 		 *
-		 * @return string
+		 * @return string|null
 		 */
 		public function do_build_sitemap( $sitemap_type, $page = 0, $filename = '', $comment = '' ) {
 			if ( empty( $filename ) ) {
