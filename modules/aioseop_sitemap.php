@@ -2050,7 +2050,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				return $this->build_sitemap_index( $sitemap_data, sprintf( $comment, $filename ) );
 			} else {
 				if ( empty( $sitemap_data ) ) {
-					return;
+					return null;
 				}
 				return $this->build_sitemap( $sitemap_data, $sitemap_type, sprintf( $comment, $filename ) );
 			}
