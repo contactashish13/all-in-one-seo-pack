@@ -1196,60 +1196,23 @@ div.aioseop_notice a.aioseop_dismiss_link {
 	width: 98%;
 }
 
-.aioseop_tabs {
-	padding-top: 6px;
-}
-
-.aioseop_tabs.hide,
-.aioseop_header_tabs.hide {
-	display: block !important;
-}
-
-.aioseop_header_tabs li {
-	display: inline;
-	padding: 0;
-	margin: 0;
-}
-
-.aioseop_header_tabs {
-	margin: 0;
-}
-
-.aioseop_header_nav {
-	margin: 0;
-}
-
 .aioseop_header_tabs li a.aioseop_header_tab.active {
-	background-color: rgb(255, 255, 255);
-	border-bottom-color: rgba(255, 255, 255, 0.5);
-	font-weight: bold;
 }
 
 .aioseop_header_tabs li a.aioseop_header_tab {
 	font-size: 14px;
 	line-height: 37px;
 	text-decoration: none;
-	margin: 5px 5px 0 0;
-	padding: 10px;
 	cursor: pointer;
 	-webkit-border-top-right-radius: 3px;
 	-webkit-border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	border-top-left-radius: 3px;
-	background-color: #e5e5e5;
 	border: 1px solid #ccc;
 	color: #5F5F5F;
 }
 
-.aioseop_header_tabs li:first-child a.aioseop_header_tab {
-	border-left: solid 1px #CCC;
-	margin-left: 5px;
-}
-
 .aioseop_tab {
-	border: solid 1px #CCC;
-	background-color: rgb(255, 255, 255);
-	background-color: rgba(255, 255, 255, 0.5);
 	padding: 10px;
 }
 
@@ -1261,6 +1224,19 @@ div.aioseop_notice a.aioseop_dismiss_link {
 	margin: 0;
 	padding: 0;
 	vertical-align: bottom;
+}
+
+.aioseop_tabs.ui-widget-content {
+	color: #5F5F5F !important;
+	background: none !important;
+}
+
+.aioseop_tabs.ui-widget-content a {
+	color: #5F5F5F !important;
+}
+
+.aioseop_tabs.ui-widget {
+	font-size: 13px !important;
 }
 
 .aiosp_delete {

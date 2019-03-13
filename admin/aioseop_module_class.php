@@ -1786,6 +1786,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			if ( function_exists( 'is_rtl' ) && is_rtl() ) {
 				wp_enqueue_style( 'aioseop-module-style-rtl', AIOSEOP_PLUGIN_URL . 'css/modules/aioseop_module-rtl.css', array( 'aioseop-module-style' ), AIOSEOP_VERSION );
 			}
+
+			if ( ! wp_style_is( 'jquery-ui', 'registered' ) && ! wp_style_is( 'jquery-ui', 'enqueued' ) ) {
+				// determine the currently included jquery-ui version and get the theme for that version.
+				$jquery_ver = $GLOBALS['wp_scripts']->registered['jquery-ui-core']->ver;
+				wp_enqueue_style( 'jquery-ui', "//cdnjs.cloudflare.com/ajax/libs/jqueryui/$jquery_ver/themes/smoothness/jquery-ui.min.css", array(), AIOSEOP_VERSION );
+			}
 		}
 
 		/**
@@ -1809,6 +1815,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		public function admin_enqueue_scripts( $hook_suffix ) {
 			wp_enqueue_script( 'sack' );
 			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'jquery-ui-tabs' );
 			wp_enqueue_script( 'media-upload' );
 			wp_enqueue_script( 'thickbox' );
 			wp_enqueue_script( 'common' );
