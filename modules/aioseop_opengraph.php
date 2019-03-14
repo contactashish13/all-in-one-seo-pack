@@ -191,6 +191,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			// Set variables after WordPress load.
 			add_action( 'init', array( &$this, 'init' ), 999999 );
 			add_filter( 'jetpack_enable_open_graph', '__return_false' ); // Avoid having duplicate meta tags
+
+			add_filter( $this->prefix . 'meta', array( $this, 'process_meta_tag' ), 10, 4 );
 			// Force refresh of Facebook cache.
 			add_action( 'post_updated', array( &$this, 'force_fb_refresh_update' ), 10, 3 );
 			add_action( 'transition_post_status', array( &$this, 'force_fb_refresh_transition' ), 10, 3 );
@@ -201,6 +203,30 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			add_action( 'created_term', array( $this, 'created_term' ), 10, 3 );
 			// Call to init to generate menus
 			$this->init();
+		}
+
+		/**
+		 * Process meta tags for specific idiosyncrasies.
+		 *
+		 * @param string $value The value that is proposed to be shown in the tag.
+		 * @param string $network The social network.
+		 * @param string $meta_tag The meta tag without the network name prefixed.
+		 * @param string $network_meta_tag The meta tag with the network name prefixed. This is not always $network:$meta_tag.
+		 *
+		 * @since 3.0
+		 * @return string The final value that will be shown.
+		 */
+		function process_meta_tag( $value, $network, $meta_tag, $network_meta_tag ) {
+			switch( $network_meta_tag ) {
+				case 'og:description':
+					// max 55, but respect full words.
+					if ( strlen( $value ) > 55 ) {
+						$pos = strpos( $value, ' ', 55 );
+						$value = substr( $value, 0, $pos );
+					}
+					break;
+			}
+			return $value;
 		}
 
 		/**
@@ -1552,7 +1578,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						$$k = '';
 					}
 					$filtered_value = $$k;
-					$filtered_value = apply_filters( $this->prefix . 'meta', $filtered_value, $t, $k );
+					$filtered_value = apply_filters( $this->prefix . 'meta', $filtered_value, $t, $k, $v );
 					if ( ! empty( $filtered_value ) ) {
 						if ( ! is_array( $filtered_value ) ) {
 							$filtered_value = array( $filtered_value );
