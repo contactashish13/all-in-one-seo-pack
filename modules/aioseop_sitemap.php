@@ -483,6 +483,25 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Determines if a post is considered as NOINDEX depending on the default NOINDEX settings and/or the post's NOINDEX checkbox.
+		 *
+		 * @param int $post_id  The post ID.
+		 * @param string $post_type The post type.
+		 *
+		 * @return bool Is the post considered NOINDEXed?
+		 */
+		private function is_post_considered_noindex( $post_id, $post_type ) {
+			global $aioseop_options;
+			$_aioseop_noindex_should_not_be = '';
+			if ( ! empty( $aioseop_options['aiosp_cpostnoindex'] ) && in_array( $post_type, $aioseop_options['aiosp_cpostnoindex'] ) ) {
+				$_aioseop_noindex_should_not_be = 'off';
+			}
+			$_aioseop_noindex_is = get_post_meta( $post_id, '_aioseop_noindex', true );
+			return $_aioseop_noindex_is !== $_aioseop_noindex_should_not_be;
+		}
+
+
+		/**
 		 * Sitemap notices.
 		 *
 		 * @since 2.4.1
@@ -2223,7 +2242,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$posts = $this->get_permalink( $posts );
 				if ( $posts === $home['loc'] ) {
 					$posts = null;
-				} else {
+				} elseif ( ! $this->is_post_considered_noindex( $postspageid, 'page' ) ) {
 					$posts = array(
 						'loc'        => $posts,
 						'changefreq' => $this->get_default_frequency( 'blog' ),
@@ -2859,7 +2878,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @return array
 		 */
 		public function get_addl_pages() {
-			$home = array();
+			$posts = $home = array();
 			$home = array(
 				'loc'         => aioseop_home_url(),
 				'changefreq'  => $this->get_default_frequency( 'homepage' ),
@@ -2867,14 +2886,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'image:image' => $this->get_images_from_post( (int) get_option( 'page_on_front' ) ),
 			);
 
-			$posts = (int) get_option( 'page_for_posts' );
-			if ( $posts ) {
-				$posts = $this->get_permalink( $posts );
-				if ( $posts === $home['loc'] ) {
+			$page_for_posts = (int) get_option( 'page_for_posts' );
+
+			if ( $page_for_posts ) {
+				$url = $this->get_permalink( $page_for_posts );
+				if ( $url === $home['loc'] ) {
 					$posts = array();
-				} else {
+				} elseif ( ! $this->is_post_considered_noindex( $page_for_posts, 'page' ) ) {
 					$posts = array(
-						'loc'        => $posts,
+						'loc'        => $url,
 						'changefreq' => $this->get_default_frequency( 'blog' ),
 						'priority'   => $this->get_default_priority( 'blog' ),
 					);
