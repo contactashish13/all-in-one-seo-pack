@@ -20,6 +20,9 @@ class Test_Sitemap extends Sitemap_Test_Base {
 
 	public function setUp() {
 		parent::init();
+		global $aioseop_options;
+		$aioseop_options = null;
+		aioseop_initialize_options();
 		parent::setUp();
 	}
 
