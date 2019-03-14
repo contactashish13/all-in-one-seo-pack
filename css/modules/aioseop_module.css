@@ -1228,16 +1228,39 @@ div.aioseop_notice a.aioseop_dismiss_link {
 }
 
 .aioseop_tabs.ui-widget-content {
-	color: #5F5F5F !important;
 	background: none !important;
 }
 
-.aioseop_tabs.ui-widget-content a {
-	color: #5F5F5F !important;
+.aioseop_tab.ui-widget-content {
+	border: 1px solid #aaa !important;
+}
+
+.aioseop_tab.ui-widget-content a.aioseop_help_text_link {
+	color: #888 !important;
 }
 
 .aioseop_tabs.ui-widget {
 	font-size: 13px !important;
+	border: none !important;
+}
+
+.aioseop_tabs .ui-widget-header {
+	border: none !important;
+	background: none !important;
+	border-bottom-right-radius: 0px !important;
+	border-bottom-left-radius: 0px !important;
+}
+
+.aioseop_tabs .ui-tabs .ui-tabs-nav {
+	padding: none !important;
+}
+
+.aioseop_header_tabs li a.aioseop_header_tab {
+	border-bottom: none !important;
+}
+
+.aioseop_tabs .ui-tabs .ui-tabs-panel {
+	border-width: inherit !important;
 }
 
 .aiosp_delete {
