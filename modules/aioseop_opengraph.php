@@ -87,7 +87,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				add_action( 'wp', array( $this, 'type_setup' ) );
 			}
 
-			if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+			if ( ! is_admin() || defined( 'DOING_AJAX' ) || defined( 'AIOSEOP_UNIT_TESTING' ) ) {
 				$this->do_opengraph();
 			}
 			// Set variables after WordPress load.
@@ -1068,6 +1068,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			$title             = $description = $image = $video = '';
 			$type              = $this->type;
 			$sitename          = $this->options['aiosp_opengraph_sitename'];
+
+			// for some reason, options is not populated correctly during unit tests.
+			if ( defined( 'AIOSEOP_UNIT_TESTING' ) ) {
+				$this->options = $aioseop_options['modules'][ $this->prefix . 'options' ];
+			}
 
 			$appid = isset( $this->options['aiosp_opengraph_appid'] ) ? $this->options['aiosp_opengraph_appid'] : '';
 

@@ -20,42 +20,97 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 * Checks whether the meta tags are being truncated correctly.
 	 */
 	public function test_meta_tag_truncation() {
-		$this->markTestIncomplete( 'Cannot seem to get any social meta tag when accessing the page... WIP' );
-
 		$tag_limits  = array(
 			'og:description'    => 55,
 			'twitter:description'   => 200,
 			'twitter:title' => 70,
 		);
 
-		wp_set_current_user( 1 );
-		global $aioseop_options;
-
 		$id = $this->factory->post->create( array( 'post_title' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'post_content' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo') );
 
-		$aioseop_options['aiosp_cpostactive'] = array( 'post' );
-		update_option( 'aioseop_options', $aioseop_options );
+		wp_set_current_user( 1 );
+
+		$options = get_option( 'aioseop_options' );
+		$options['aiosp_cpostactive'] = array( 'post' );
+		update_option( 'aioseop_options', $options );
 
 		$custom_options = array();
 		$custom_options['aiosp_opengraph_types'] = array( 'post' );
+		$custom_options['aiosp_opengraph_generate_descriptions'] = 'on';
 		$this->_setup_options( 'opengraph', $custom_options );
 
 		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
-
-		print_r( $meta );
 
 		// should have atleast one meta tag.
 		$this->assertGreaterThan( 1, count( $meta ) );
 
 		foreach ( $meta as $m ) {
-			if ( ! isset( $m['property'] ) ) {
+			$tag = isset( $m['property'] ) ? $m['property'] : $m['name'];
+			if ( empty( $tag ) ) {
 				continue;
 			}
-			if ( array_key_exists( $m['property'], $tag_limits ) ) {
-				error_log( $m['property'] . ' == ' . strlen( $m['content'] ) );
-				$this->assertLessThanOrEqual( $tag_limits[ $m['property'] ], strlen( $m['content'] ) );
+			if ( array_key_exists( $tag, $tag_limits ) ) {
+				$this->assertLessThanOrEqual( $tag_limits[ $tag ], strlen( $m['content'] ) );
 			}
 		}
+	}
+
+
+	/**
+	 * Checks whether the meta tag filter to disable truncation is running correctly.
+	 */
+	public function test_meta_tag_truncation_filter() {
+		$tag_limits  = array(
+			'og:description'    => 55,
+			'twitter:description'   => 200,
+			'twitter:title' => array( 70 ),
+		);
+
+		$id = $this->factory->post->create( array( 'post_title' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'post_content' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo') );
+
+		wp_set_current_user( 1 );
+
+		$options = get_option( 'aioseop_options' );
+		$options['aiosp_cpostactive'] = array( 'post' );
+		update_option( 'aioseop_options', $options );
+
+		$custom_options = array();
+		$custom_options['aiosp_opengraph_types'] = array( 'post' );
+		$custom_options['aiosp_opengraph_generate_descriptions'] = 'on';
+		$this->_setup_options( 'opengraph', $custom_options );
+
+		add_filter( 'aiosp_opengraph_disable_meta_tag_truncation', array( $this, 'filter_disable_meta_tag_truncation' ), 10, 4 );
+
+		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
+
+		// should have atleast one meta tag.
+		$this->assertGreaterThan( 1, count( $meta ) );
+
+		foreach ( $meta as $m ) {
+			$tag = isset( $m['property'] ) ? $m['property'] : $m['name'];
+			if ( empty( $tag ) ) {
+				continue;
+			}
+			if ( array_key_exists( $tag, $tag_limits ) ) {
+				if ( is_array( $tag_limits[ $tag ] ) ) {
+					$this->assertGreaterThan( $tag_limits[ $tag ][0], strlen( $m['content'] ) );
+				} else {
+					$this->assertLessThanOrEqual( $tag_limits[ $tag ], strlen( $m['content'] ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Implements the filter to disable truncation of a particular meta tag.
+	 */
+	function filter_disable_meta_tag_truncation( $disable, $network, $meta_tag, $network_meta_tag ) {
+		switch ( $network_meta_tag ) {
+			case 'twitter:title':
+				$disable = true;
+				break;
+		}
+		return $disable;
 	}
 
 	/**
