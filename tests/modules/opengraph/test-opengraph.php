@@ -18,6 +18,13 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 
 	/**
 	 * Checks whether the meta tags are being truncated correctly.
+	 *
+	 * Function: Adds a post with a long content and title and checks whether the meta tags are being truncated correctly
+	 * Expected: The meta tags are being truncated according to the limits imposed.
+	 * Actual: Currently works as expected.
+	 * Reproduce: Insert a post and check the length of the meta tags content.
+	 *
+	 * @since 3.0
 	 */
 	public function test_meta_tag_truncation() {
 		$tag_limits  = array(
@@ -58,6 +65,13 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 
 	/**
 	 * Checks whether the meta tag filter to disable truncation is running correctly.
+	 *
+	 * Function: Adds a post with a long content and title and checks whether the meta tags are being truncated correctly except for the meta tag that's not being truncated.
+	 * Expected: The meta tags are being truncated according to the limits imposed, except for the meta tag that's not being truncated.
+	 * Actual: Currently works as expected.
+	 * Reproduce: Insert a post and check the length of the meta tags content.
+	 *
+	 * @since 3.0
 	 */
 	public function test_meta_tag_truncation_filter() {
 		$tag_limits  = array(
