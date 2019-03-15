@@ -232,6 +232,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				case 'twitter:description':
 					$value = substr( $value, 0, 200 );
 					break;
+				case 'twitter:title':
+					$value = substr( $value, 0, 70 );
+					break;
 			}
 			return $value;
 		}
