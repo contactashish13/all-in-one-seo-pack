@@ -136,12 +136,13 @@ div.aioseop_tip_icon:before {
 	font-weight: bold;
 	line-height: 19px;
 	display: inline-block;
+	float: left;
 	text-align: left;
-	position: absolute;
 	font-family: 'Open Sans', sans-serif;
-	width: 26%;
+	width: 81%;
 	min-width: 120px;
 	max-width: 230px;
+	cursor: default;
 }
 
 .aioseop_option_div {
@@ -794,9 +795,9 @@ div.aioseop_feature#aioseop_coming_soon2 .aioseop_featured_image {
 
 .aioseop_input {
 	clear: left;
-	width: 100%;
-	padding: 5px;
-	display: inline;
+	width: 98%;
+	padding: 5px 1%;
+	display: inline-block;
 }
 
 .aioseop_option_input {
