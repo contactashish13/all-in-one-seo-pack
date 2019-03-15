@@ -217,6 +217,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		 * @return string The final value that will be shown.
 		 */
 		function process_meta_tag( $value, $network, $meta_tag, $network_meta_tag ) {
+			if ( true === apply_filters( $this->prefix . 'disable_meta_tag_truncation', false, $network, $meta_tag, $network_meta_tag ) ) {
+				return $value;
+			}
+
 			switch( $network_meta_tag ) {
 				case 'og:description':
 					// max 55, but respect full words.
@@ -224,6 +228,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						$pos = strpos( $value, ' ', 55 );
 						$value = substr( $value, 0, $pos );
 					}
+					break;
+				case 'twitter:description':
+					$value = substr( $value, 0, 200 );
 					break;
 			}
 			return $value;
