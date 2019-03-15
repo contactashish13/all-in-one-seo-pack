@@ -12,6 +12,52 @@ require_once AIOSEOP_UNIT_TESTING_DIR . '/base/class-aioseop-test-base.php';
  */
 class Test_Opengraph extends AIOSEOP_Test_Base {
 
+	public function setUp() {
+		$this->init( true );
+	}
+
+	/**
+	 * Checks whether the meta tags are being truncated correctly.
+	 */
+	public function test_meta_tag_truncation() {
+		$this->markTestIncomplete( 'Cannot seem to get any social meta tag when accessing the page... WIP' );
+
+		$tag_limits  = array(
+			'og:description'    => 55,
+			'twitter:description'   => 200,
+			'twitter:title' => 70,
+		);
+
+		wp_set_current_user( 1 );
+		global $aioseop_options;
+
+		$id = $this->factory->post->create( array( 'post_title' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'post_content' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo') );
+
+		$aioseop_options['aiosp_cpostactive'] = array( 'post' );
+		update_option( 'aioseop_options', $aioseop_options );
+
+		$custom_options = array();
+		$custom_options['aiosp_opengraph_types'] = array( 'post' );
+		$this->_setup_options( 'opengraph', $custom_options );
+
+		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
+
+		print_r( $meta );
+
+		// should have atleast one meta tag.
+		$this->assertGreaterThan( 1, count( $meta ) );
+
+		foreach ( $meta as $m ) {
+			if ( ! isset( $m['property'] ) ) {
+				continue;
+			}
+			if ( array_key_exists( $m['property'], $tag_limits ) ) {
+				error_log( $m['property'] . ' == ' . strlen( $m['content'] ) );
+				$this->assertLessThanOrEqual( $tag_limits[ $m['property'] ], strlen( $m['content'] ) );
+			}
+		}
+	}
+
 	/**
 	 * Checks the home page's meta tags.
 	 *
