@@ -133,7 +133,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				return $value;
 			}
 
-			switch( $network_meta_tag ) {
+			switch ( $network_meta_tag ) {
 				case 'og:description':
 					// max 55, but respect full words.
 					if ( strlen( $value ) > 55 ) {
