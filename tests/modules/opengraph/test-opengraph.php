@@ -28,7 +28,7 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 */
 	public function test_meta_tag_truncation() {
 		$tag_limits  = array(
-			'og:description'    => 55,
+			'og:description'    => 200,
 			'twitter:description'   => 200,
 			'twitter:title' => 70,
 		);
@@ -75,7 +75,7 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 */
 	public function test_meta_tag_truncation_filter() {
 		$tag_limits  = array(
-			'og:description'    => 55,
+			'og:description'    => 200,
 			'twitter:description'   => 200,
 			'twitter:title' => array( 70 ),
 		);
