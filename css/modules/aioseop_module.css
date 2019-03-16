@@ -1251,8 +1251,8 @@ div.aioseop_notice a.aioseop_dismiss_link {
 	border-bottom-left-radius: 0px !important;
 }
 
-.aioseop_tabs .ui-tabs .ui-tabs-nav {
-	padding: none !important;
+.aioseop_tabs ul {
+	margin-left: .2em !important;
 }
 
 .aioseop_header_tabs li a.aioseop_header_tab {
@@ -1261,6 +1261,21 @@ div.aioseop_notice a.aioseop_dismiss_link {
 
 .aioseop_tabs .ui-tabs .ui-tabs-panel {
 	border-width: inherit !important;
+}
+
+.aioseop_tabs .ui-state-default,
+.aioseop_tabs .ui-widget-content .ui-state-default,
+.aioseop_tabs .ui-widget-header .ui-state-default {
+	background-image: none !important;
+}
+
+.aioseop_tabs .ui-state-active a {
+	font-weight: bold !important;
+}
+
+.aioseop_tabs.ui-tabs .ui-tabs-nav li {
+	margin-bottom: -1px !important;
+    padding-bottom: 1px !important;
 }
 
 .aiosp_delete {
