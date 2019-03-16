@@ -135,9 +135,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 
 			switch ( $network_meta_tag ) {
 				case 'og:description':
-					// max 55, but respect full words.
-					if ( strlen( $value ) > 55 ) {
-						$pos = strpos( $value, ' ', 55 );
+					// max 200, but respect full words.
+					if ( strlen( $value ) > 200 ) {
+						$pos = strpos( $value, ' ', 200 );
 						$value = substr( $value, 0, $pos );
 					}
 					break;
