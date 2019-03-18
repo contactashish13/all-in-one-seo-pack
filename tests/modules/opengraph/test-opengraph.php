@@ -92,12 +92,6 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 			'twitter:title' => array( 70 ), // no limit
 		);
 
-		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
-
-		$settings = get_post_meta( $id, '_aioseop_opengraph_settings', true );
-		$settings['aioseop_opengraph_settings_title'] = 'test test test test test test test test test test test test test test test test test test test test test test test test';
-		update_post_meta( $id, '_aioseop_opengraph_settings', $settings );
-
 		wp_set_current_user( 1 );
 
 		$options = get_option( 'aioseop_options' );
@@ -108,6 +102,12 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 		$custom_options['aiosp_opengraph_types'] = array( 'post' );
 		$custom_options['aiosp_opengraph_generate_descriptions'] = 'on';
 		$this->_setup_options( 'opengraph', $custom_options );
+
+		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
+
+		$settings = get_post_meta( $id, '_aioseop_opengraph_settings', true );
+		$settings['aioseop_opengraph_settings_title'] = $title;
+		update_post_meta( $id, '_aioseop_opengraph_settings', $settings );
 
 		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
 
