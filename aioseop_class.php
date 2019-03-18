@@ -851,7 +851,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 		// on the taxonomy edit screen.
 		if ( $screen && 'edit' === $screen->parent_base && in_array( $screen->base, array( 'term' ), true ) ) {
-			aioseop_output_notice( '<p>' . sprintf( __( 'Want to control SEO for Categories, Tags and other Taxonomies? %1$sUpgrade to All in One SEO Pack Pro and unlock our premium features.%2$s', 'all-in-one-seo-pack' ), '<a href="https://semperplugins.com/all-in-one-seo-pack-pro-version/" target="_new">', '</a>' ) . '</p>', 'aioseop-upgrade', 'notice notice-info' );
+			aioseop_output_notice( '<p>' . sprintf( __( 'Want to control SEO for Categories, Tags and other Taxonomies? %1$sUpgrade to All in One SEO Pack Pro and unlock our premium features.%2$s', 'all-in-one-seo-pack' ), '<a href="https://semperplugins.com/all-in-one-seo-pack-pro-version/?loc=taxonomies" target="_new">', '</a>' ) . '</p>', 'aioseop-upgrade', 'notice notice-info' );
 		}
 	}
 
