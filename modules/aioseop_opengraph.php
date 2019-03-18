@@ -1200,11 +1200,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				global $aiosp;
 				if ( empty( $title ) ) {
 					$title = $aiosp->wp_title();
-					$extra_params['auto_generate_title' ] = true;
+					$extra_params['auto_generate_title'] = true;
 				}
 				if ( empty( $description ) ) {
 					$description = trim( strip_tags( get_post_meta( $post->ID, '_aioseop_description', true ) ) );
-					$extra_params['auto_generate_desc' ] = true;
+					$extra_params['auto_generate_desc'] = true;
 				}
 
 				/* Add default title */
