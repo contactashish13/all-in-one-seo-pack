@@ -17,6 +17,15 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	}
 
 	/**
+	 * Provides the title and content for the posts to be used for meta tag testing.
+	 */
+	public function metaTagContentProvider() {
+		return array(
+			array( 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo' ),
+		);
+	}
+
+	/**
 	 * Checks whether the meta tags are being truncated correctly.
 	 *
 	 * Function: Adds a post with a long content and title and checks whether the meta tags are being truncated correctly
@@ -24,16 +33,18 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 * Actual: Currently works as expected.
 	 * Reproduce: Insert a post and check the length of the meta tags content.
 	 *
+	 * @dataProvider metaTagContentProvider
+	 *
 	 * @since 3.0
 	 */
-	public function test_meta_tag_truncation() {
+	public function test_meta_tag_truncation_all( $title, $content ) {
 		$tag_limits  = array(
-			'og:description'    => 200,
-			'twitter:description'   => 200,
-			'twitter:title' => 70,
+			'og:description'    => 203,	// limit to 200 but respect full words 
+			'twitter:description'   => 200, // hard limit to 200
+			'twitter:title' => 70, // hard limit to 70
 		);
 
-		$id = $this->factory->post->create( array( 'post_title' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'post_content' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo') );
+		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
 
 		wp_set_current_user( 1 );
 
@@ -62,6 +73,61 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 		}
 	}
 
+	/**
+	 * Checks whether the meta tags are being truncated correctly ONLY IF they are not being explicitly provided.
+	 *
+	 * Function: Adds a post with a long content and title and with seo title and checks whether ONLY the description meta tags are being truncated correctly
+	 * Expected: The meta tags are being truncated according to the limits imposed.
+	 * Actual: Currently works as expected.
+	 * Reproduce: Insert a post and check the length of the meta tags content.
+	 *
+	 * @dataProvider metaTagContentProvider
+	 *
+	 * @since 3.0
+	 */
+	public function test_meta_tag_truncation_mixed( $title, $content ) {
+		$tag_limits  = array(
+			'og:description'    => 203,	// limit to 200 but respect full words 
+			'twitter:description'   => 200, // hard limit to 200
+			'twitter:title' => array( 70 ), // no limit
+		);
+
+		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
+
+		$settings = get_post_meta( $id, '_aioseop_opengraph_settings', true );
+		$settings['aioseop_opengraph_settings_title'] = 'test test test test test test test test test test test test test test test test test test test test test test test test';
+		update_post_meta( $id, '_aioseop_opengraph_settings', $settings );
+
+		wp_set_current_user( 1 );
+
+		$options = get_option( 'aioseop_options' );
+		$options['aiosp_cpostactive'] = array( 'post' );
+		update_option( 'aioseop_options', $options );
+
+		$custom_options = array();
+		$custom_options['aiosp_opengraph_types'] = array( 'post' );
+		$custom_options['aiosp_opengraph_generate_descriptions'] = 'on';
+		$this->_setup_options( 'opengraph', $custom_options );
+
+		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
+
+		// should have atleast one meta tag.
+		$this->assertGreaterThan( 1, count( $meta ) );
+
+		foreach ( $meta as $m ) {
+			$tag = isset( $m['property'] ) ? $m['property'] : $m['name'];
+			if ( empty( $tag ) ) {
+				continue;
+			}
+			if ( array_key_exists( $tag, $tag_limits ) ) {
+				if ( is_array( $tag_limits[ $tag ] ) ) {
+					$this->assertGreaterThan( $tag_limits[ $tag ][0], strlen( $m['content'] ) );
+				} else {
+					$this->assertLessThanOrEqual( $tag_limits[ $tag ], strlen( $m['content'] ) );
+				}
+			}
+		}
+	}
 
 	/**
 	 * Checks whether the meta tag filter to disable truncation is running correctly.
@@ -71,16 +137,18 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 * Actual: Currently works as expected.
 	 * Reproduce: Insert a post and check the length of the meta tags content.
 	 *
+	 * @dataProvider metaTagContentProvider
+	 *
 	 * @since 3.0
 	 */
-	public function test_meta_tag_truncation_filter() {
+	public function test_meta_tag_truncation_filter( $title, $content ) {
 		$tag_limits  = array(
-			'og:description'    => 200,
-			'twitter:description'   => 200,
-			'twitter:title' => array( 70 ),
+			'og:description'    => 203,	// limit to 200 but respect full words 
+			'twitter:description'   => 200, // hard limit to 200
+			'twitter:title' => array( 70 ), // no limit
 		);
 
-		$id = $this->factory->post->create( array( 'post_title' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo', 'post_content' => 'seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo seo') );
+		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
 
 		wp_set_current_user( 1 );
 

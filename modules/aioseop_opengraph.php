@@ -93,7 +93,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			// Set variables after WordPress load.
 			add_action( 'init', array( &$this, 'init' ), 999999 );
 			add_filter( 'jetpack_enable_open_graph', '__return_false' ); // Avoid having duplicate meta tags
-			add_filter( $this->prefix . 'meta', array( $this, 'handle_meta_tag' ), 10, 4 );
+			add_filter( $this->prefix . 'meta', array( $this, 'handle_meta_tag' ), 10, 5 );
 			// Force refresh of Facebook cache.
 			add_action( 'post_updated', array( &$this, 'force_fb_refresh_update' ), 10, 3 );
 			add_action( 'transition_post_status', array( &$this, 'force_fb_refresh_transition' ), 10, 3 );
@@ -113,11 +113,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		 * @param string $network The social network.
 		 * @param string $meta_tag The meta tag without the network name prefixed.
 		 * @param string $network_meta_tag The meta tag with the network name prefixed. This is not always $network:$meta_tag.
+		 * @param array $extra_params Extra parameters that might be required to process the meta tag.
 		 *
 		 * @since 3.0
 		 * @return string The final value that will be shown.
 		 */
-		function handle_meta_tag( $value, $network, $meta_tag, $network_meta_tag ) {
+		function handle_meta_tag( $value, $network, $meta_tag, $network_meta_tag, $extra_params ) {
 			switch ( $meta_tag ) {
 				case 'type':
 					// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/1013
@@ -135,19 +136,25 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 
 			switch ( $network_meta_tag ) {
 				case 'og:description':
-					// max 200, but respect full words.
-					if ( strlen( $value ) > 200 ) {
-						$pos = strpos( $value, ' ', 200 );
-						$value = substr( $value, 0, $pos );
+					if ( isset( $extra_params['auto_generate_desc'] ) && $extra_params['auto_generate_desc'] ) {
+						// max 200, but respect full words.
+						if ( strlen( $value ) > 200 ) {
+							$pos = strpos( $value, ' ', 200 );
+							$value = trim( substr( $value, 0, $pos ) );
+						}
 					}
 					break;
 				case 'twitter:description':
-					// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
-					$value = substr( $value, 0, 200 );
+					if ( isset( $extra_params['auto_generate_desc'] ) && $extra_params['auto_generate_desc'] ) {
+						// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
+						$value = trim( substr( $value, 0, 200 ) );
+					}
 					break;
 				case 'twitter:title':
-					// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
-					$value = substr( $value, 0, 70 );
+					if ( isset( $extra_params['auto_generate_title'] ) && $extra_params['auto_generate_title'] ) {
+						// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
+						$value = trim( substr( $value, 0, 70 ) );
+					}
 					break;
 			}
 			return $value;
@@ -1087,6 +1094,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 			$url = $aiosp->aiosp_mrt_get_url( $wp_query );
 			$url = apply_filters( 'aioseop_canonical_url', $url );
 
+			// this will collect the extra values that are required outside the below IF block.
+			$extra_params = array();
+
 			$setmeta      = $this->options['aiosp_opengraph_setmeta'];
 			$social_links = '';
 			if ( is_front_page() ) {
@@ -1190,9 +1200,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				global $aiosp;
 				if ( empty( $title ) ) {
 					$title = $aiosp->wp_title();
+					$extra_params['auto_generate_title' ] = true;
 				}
 				if ( empty( $description ) ) {
 					$description = trim( strip_tags( get_post_meta( $post->ID, '_aioseop_description', true ) ) );
+					$extra_params['auto_generate_desc' ] = true;
 				}
 
 				/* Add default title */
@@ -1527,7 +1539,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						$$k = '';
 					}
 					$filtered_value = $$k;
-					$filtered_value = apply_filters( $this->prefix . 'meta', $filtered_value, $t, $k, $v );
+					$filtered_value = apply_filters( $this->prefix . 'meta', $filtered_value, $t, $k, $v, $extra_params );
 					if ( ! empty( $filtered_value ) ) {
 						if ( ! is_array( $filtered_value ) ) {
 							$filtered_value = array( $filtered_value );
