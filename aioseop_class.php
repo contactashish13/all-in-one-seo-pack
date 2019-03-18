@@ -834,7 +834,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 			if ( ! AIOSEOPPRO ) {
 				// add_action('all_admin_notices', array( $this, 'woo_upgrade_notice'));
-				add_action('all_admin_notices', array( $this, 'upgrade_notice'));
+				add_action( 'all_admin_notices', array( $this, 'upgrade_notice') );
 			}
 		}
 		if ( AIOSEOPPRO ) {
