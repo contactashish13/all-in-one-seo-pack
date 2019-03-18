@@ -834,10 +834,23 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 
 			if ( ! AIOSEOPPRO ) {
 				// add_action('all_admin_notices', array( $this, 'woo_upgrade_notice'));
+				add_action('all_admin_notices', array( $this, 'upgrade_notice'));
 			}
 		}
 		if ( AIOSEOPPRO ) {
 			add_action( 'split_shared_term', array( $this, 'split_shared_term' ), 10, 4 );
+		}
+	}
+
+	/**
+	 * Show an upgrade notice on different screens.
+	 */
+	function upgrade_notice() {
+		$screen = get_current_screen();
+
+		// on the taxonomy edit screen.
+		if ( $screen && 'edit' === $screen->parent_base && in_array( $screen->base, array( 'term' ), true ) ) {
+			aioseop_output_notice( __( 'SOME UPGRADE NOTICE', 'all-in-one-seo-pack' ), 'aioseop-upgrade', 'notice notice-info' );
 		}
 	}
 
