@@ -1435,6 +1435,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Handle outputting of dynamic sitemaps, logging.
 		 *
+		 * @since ?
+		 * @since 3.0 Show 404 template for empty content. #2190
+		 *
 		 * @param $query
 		 */
 		public function sitemap_output_hook( $query ) {
@@ -1562,8 +1565,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * Output sitemaps dynamically based on rewrite rules.
 		 *
+		 * @since ?
+		 * @since 3.0 Return a (string) value. #2190
+		 *
 		 * @param     $sitemap_type
 		 * @param int $page
+		 * @return string
 		 */
 		public function do_rewrite_sitemap( $sitemap_type, $page = 0 ) {
 			$this->add_post_types();
