@@ -13,7 +13,7 @@ if ( ! function_exists( 'aioseop_taxonomy_columns' ) ) {
 	 *
 	 * @param array $columns The array of columns.
 	 *
-	 * @return array The array of columns. 
+	 * @return array The array of columns.
 	 */
 	function aioseop_taxonomy_columns( $columns ) {
 		global $aioseop_options;
