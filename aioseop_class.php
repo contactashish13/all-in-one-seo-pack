@@ -835,10 +835,15 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			if ( ! AIOSEOPPRO ) {
 				// add_action('all_admin_notices', array( $this, 'woo_upgrade_notice'));
 			}
+
+			if ( AIOSEOPPRO ) {
+				add_action( 'registered_taxonomy', 'aioseop_taxonomy_post_register', 10, 1 );
+			}
 		}
 		if ( AIOSEOPPRO ) {
 			add_action( 'split_shared_term', array( $this, 'split_shared_term' ), 10, 4 );
 		}
+
 	}
 
 	// good candidate for pro dir

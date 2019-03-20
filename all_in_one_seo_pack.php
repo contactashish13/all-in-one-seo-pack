@@ -414,6 +414,10 @@ if ( ! function_exists( 'aioseop_init_class' ) ) {
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/display/menu.php' );
 		require_once( AIOSEOP_PLUGIN_DIR . 'admin/class-aioseop-notices.php' );
 
+		if ( AIOSEOPPRO ) {
+			require_once( AIOSEOP_PLUGIN_DIR . 'inc/aioseop_taxonomy_functions.php' );
+		}
+
 		$aioseop_welcome = new aioseop_welcome(); // TODO move this to updates file.
 
 		if ( AIOSEOPPRO ) {
