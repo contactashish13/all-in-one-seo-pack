@@ -38,6 +38,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if ( ! defined( 'AIOSEOPPRO' ) ) {
 	define( 'AIOSEOPPRO', false );
 }
+// To develop/test PRO features while using the FREE plugin...
+// 1. change the value of this and AIOSEOPPRO above to true
+// 2. copy the pro folder here
+// 3. test
+if ( ! defined( 'AIOSEOPPRO_MIMIC' ) ) {
+	define( 'AIOSEOPPRO_MIMIC', false );
+}
 if ( ! defined( 'AIOSEOP_VERSION' ) ) {
 	define( 'AIOSEOP_VERSION', '2.12' );
 }
@@ -52,10 +59,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-if ( AIOSEOPPRO ) {
-
+if ( AIOSEOPPRO && ! AIOSEOPPRO_MIMIC ) {
 	add_action( 'admin_head', 'disable_all_in_one_free', 1 );
-
 }
 
 if ( ! function_exists( 'aiosp_add_cap' ) ) {
