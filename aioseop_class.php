@@ -831,6 +831,7 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 			add_action( 'aioseop_global_settings_footer', array( $this, 'display_settings_footer' ) );
 			add_action( 'output_option', array( $this, 'custom_output_option' ), 10, 2 );
 			add_action( 'all_admin_notices', array( $this, 'visibility_warning' ) );
+			add_action( 'all_admin_notices', array( $this, 'woo_upgrade_notice' ) );
 
 			if ( ! AIOSEOPPRO ) {
 				// add_action('all_admin_notices', array( $this, 'woo_upgrade_notice'));
@@ -3464,27 +3465,17 @@ class All_in_One_SEO_Pack extends All_in_One_SEO_Pack_Module {
 		}
 	}
 
-	function woo_upgrade_notice() {
-
-		$aioseop_woo_upgrade_notice_dismissed = get_user_meta( get_current_user_id(), 'aioseop_woo_upgrade_notice_dismissed', true );
-
-		if ( class_exists( 'WooCommerce' ) && empty( $aioseop_woo_upgrade_notice_dismissed ) && current_user_can( 'manage_options' ) ) {
-
-			printf(
-				'
-			<div id="message" class="notice-info notice is-dismissible aioseop-notice woo-upgrade-notice">
-				<p>
-					<strong>%1$s</strong>
-					%2$s
-
-				</p>
-			</div>',
-				__( 'We\'ve detected you\'re running WooCommerce.', 'all-in-one-seo-pack' ),
-				sprintf( __( '%1$sUpgrade%2$s to All in One SEO Pack Pro for increased SEO compatibility for your products.', 'all-in-one-seo-pack' ), sprintf( '<a target="_blank" href="%s">', esc_url( 'https://semperplugins.com/plugins/all-in-one-seo-pack-pro-version/?loc=woo' ) ), '</a>' )
-			);
-
-		} elseif ( ! class_exists( 'WooCommerce' ) && ! empty( $aioseop_woo_upgrade_notice_dismissed ) ) {
-			delete_user_meta( get_current_user_id(), 'aioseop_woo_upgrade_notice_dismissed' );
+	/**
+	 * WooCommerce Upgrade Notice
+	 *
+	 * @since ?
+	 * @since 3.0 Changed to AIOSEOP Notices.
+	 */
+	public function woo_upgrade_notice() {
+		if ( class_exists( 'WooCommerce' ) && current_user_can( 'manage_options' ) && ! AIOSEOPPRO ) {
+			aioseop_notice_activate_pro_promo_woocommerce();
+		} else {
+			aioseop_notice_disable_woocommerce_detected_on_nonpro();
 		}
 	}
 
