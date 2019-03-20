@@ -109,13 +109,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		/**
 		 * Process meta tags for specific idiosyncrasies.
 		 *
+		 * @since 3.0
+		 *
 		 * @param string $value The value that is proposed to be shown in the tag.
 		 * @param string $network The social network.
 		 * @param string $meta_tag The meta tag without the network name prefixed.
 		 * @param string $network_meta_tag The meta tag with the network name prefixed. This is not always $network:$meta_tag.
 		 * @param array $extra_params Extra parameters that might be required to process the meta tag.
 		 *
-		 * @since 3.0
 		 * @return string The final value that will be shown.
 		 */
 		function handle_meta_tag( $value, $network, $meta_tag, $network_meta_tag, $extra_params ) {
@@ -128,8 +129,20 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 					break;
 			}
 
-			// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/808
-			// https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2296
+			/**
+			 * Disables truncation of meta tags. Return true to shortcircuit and disable truncation.
+			 *
+			 * @since 3.0
+			 *
+			 * @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/808
+			 * @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2296
+			 *
+			 * @param bool The value that is proposed to be shown in the tag.
+			 * @param string $network The social network.
+			 * @param string $meta_tag The meta tag without the network name prefixed.
+			 * @param string $network_meta_tag The meta tag with the network name prefixed. This is not always $network:$meta_tag.
+			 * @param array $extra_params Extra parameters that might be required to process the meta tag.
+			 */
 			if ( true === apply_filters( $this->prefix . 'disable_meta_tag_truncation', false, $network, $meta_tag, $network_meta_tag ) ) {
 				return $value;
 			}
@@ -138,22 +151,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				case 'og:description':
 					if ( isset( $extra_params['auto_generate_desc'] ) && $extra_params['auto_generate_desc'] ) {
 						// max 200, but respect full words.
-						if ( strlen( $value ) > 200 ) {
-							$pos = strpos( $value, ' ', 200 );
-							$value = trim( substr( $value, 0, $pos ) );
+						if ( $this->strlen( $value ) > 200 ) {
+							$pos = $this->strpos( $value, ' ', 200 );
+							$value = trim( $this->substr( $value, 0, $pos ) );
 						}
 					}
 					break;
 				case 'twitter:description':
 					if ( isset( $extra_params['auto_generate_desc'] ) && $extra_params['auto_generate_desc'] ) {
 						// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
-						$value = trim( substr( $value, 0, 200 ) );
+						$value = trim( $this->substr( $value, 0, 200 ) );
 					}
 					break;
 				case 'twitter:title':
 					if ( isset( $extra_params['auto_generate_title'] ) && $extra_params['auto_generate_title'] ) {
 						// https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
-						$value = trim( substr( $value, 0, 70 ) );
+						$value = trim( $this->substr( $value, 0, 70 ) );
 					}
 					break;
 			}
@@ -1539,6 +1552,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 						$$k = '';
 					}
 					$filtered_value = $$k;
+
+					/**
+					 * Process meta tags for their idiosyncracies.
+					 *
+					 * @since 3.0
+					 *
+					 * @param string $filtered_value The value that is proposed to be shown in the tag.
+					 * @param string $t The social network.
+					 * @param string $k The meta tag without the network name prefixed.
+					 * @param string $v The meta tag with the network name prefixed. This is not always $network:$meta_tag.
+					 * @param array $extra_params Extra parameters that might be required to process the meta tag.
+					 */
 					$filtered_value = apply_filters( $this->prefix . 'meta', $filtered_value, $t, $k, $v, $extra_params );
 					if ( ! empty( $filtered_value ) ) {
 						if ( ! is_array( $filtered_value ) ) {
