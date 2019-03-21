@@ -3,7 +3,7 @@ Contributors: hallsofmontezuma, semperplugins, wpsmort, arnaudbroes
 Tags: SEO, Google Search Console, XML Sitemap, meta description, meta title, noindex
 Requires at least: 4.6
 Tested up to: 5.1
-Stable tag: 2.12
+Stable tag: 3.0-dev
 License: GPLv2 or later
 Requires PHP: 5.2.4
 
