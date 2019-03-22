@@ -74,7 +74,7 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	}
 
 	/**
-	 * Checks whether the meta tags are being truncated correctly ONLY IF they are not being explicitly provided.
+	 * Checks whether the meta tags are being truncated correctly ONLY IF they are not being explicitly provided (in the opengraph metabox title).
 	 *
 	 * Function: Adds a post with a long content and title and with seo title and checks whether ONLY the description meta tags are being truncated correctly
 	 * Expected: The meta tags are being truncated according to the limits imposed.
@@ -85,7 +85,7 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 	 *
 	 * @since 3.0
 	 */
-	public function test_meta_tag_truncation_mixed( $title, $content, $og_desc_limit ) {
+	public function test_meta_tag_truncation_with_manual_og_title( $title, $content, $og_desc_limit ) {
 		$tag_limits  = array(
 			'og:description'    => $og_desc_limit,  // limit to 200 but respect full words
 			'twitter:description'   => 200, // hard limit to 200
@@ -108,6 +108,60 @@ class Test_Opengraph extends AIOSEOP_Test_Base {
 		$settings = get_post_meta( $id, '_aioseop_opengraph_settings', true );
 		$settings['aioseop_opengraph_settings_title'] = $title;
 		update_post_meta( $id, '_aioseop_opengraph_settings', $settings );
+
+		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
+
+		// should have atleast one meta tag.
+		$this->assertGreaterThan( 1, count( $meta ) );
+
+		foreach ( $meta as $m ) {
+			$tag = isset( $m['property'] ) ? $m['property'] : $m['name'];
+			if ( empty( $tag ) ) {
+				continue;
+			}
+			if ( array_key_exists( $tag, $tag_limits ) ) {
+				if ( is_array( $tag_limits[ $tag ] ) ) {
+					$this->assertGreaterThan( $tag_limits[ $tag ][0], strlen( $m['content'] ) );
+				} else {
+					$this->assertLessThanOrEqual( $tag_limits[ $tag ], strlen( $m['content'] ) );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks whether the meta tags are being truncated correctly ONLY IF they are not being explicitly provided (in the main metabox title).
+	 *
+	 * Function: Adds a post with a long content and title and with seo title and checks whether ONLY the description meta tags are being truncated correctly
+	 * Expected: The meta tags are being truncated according to the limits imposed.
+	 * Actual: Currently works as expected.
+	 * Reproduce: Insert a post and check the length of the meta tags content.
+	 *
+	 * @dataProvider metaTagContentProvider
+	 *
+	 * @since 3.0
+	 */
+	public function test_meta_tag_truncation_with_manual_main_title( $title, $content, $og_desc_limit ) {
+		$tag_limits  = array(
+			'og:description'    => $og_desc_limit,  // limit to 200 but respect full words
+			'twitter:description'   => 200, // hard limit to 200
+			'twitter:title' => array( 70 ), // no limit
+		);
+
+		wp_set_current_user( 1 );
+
+		$options = get_option( 'aioseop_options' );
+		$options['aiosp_cpostactive'] = array( 'post' );
+		update_option( 'aioseop_options', $options );
+
+		$custom_options = array();
+		$custom_options['aiosp_opengraph_types'] = array( 'post' );
+		$custom_options['aiosp_opengraph_generate_descriptions'] = 'on';
+		$this->_setup_options( 'opengraph', $custom_options );
+
+		$id = $this->factory->post->create( array( 'post_title' => $title, 'post_content' => $content ) );
+
+		update_post_meta( $id, '_aioseop_title', $title );
 
 		$meta = $this->parse_html( get_permalink( $id ), array( 'meta' ) );
 

@@ -1209,15 +1209,25 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 				$title       = $metabox['aioseop_opengraph_settings_title'];
 				$description = $metabox['aioseop_opengraph_settings_desc'];
 
+				// let's make a note of manually provided descriptions/titles as they might need special handling.
+				// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/808
+				// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2296
+				$title_from_main_settings = trim( strip_tags( get_post_meta( $post->ID, '_aioseop_title', true ) ) );
+				$desc_from_main_settings = trim( strip_tags( get_post_meta( $post->ID, '_aioseop_description', true ) ) );
+				if ( empty( $title ) && empty( $title_from_main_settings ) ) {
+					$extra_params['auto_generate_title'] = true;
+				}
+				if ( empty( $description ) && empty( $desc_from_main_settings ) ) {
+					$extra_params['auto_generate_desc'] = true;
+				}
+
 				/* Add AIOSEO variables if Site Title and Desc from AIOSEOP not selected */
 				global $aiosp;
 				if ( empty( $title ) ) {
 					$title = $aiosp->wp_title();
-					$extra_params['auto_generate_title'] = true;
 				}
 				if ( empty( $description ) ) {
 					$description = trim( strip_tags( get_post_meta( $post->ID, '_aioseop_description', true ) ) );
-					$extra_params['auto_generate_desc'] = true;
 				}
 
 				/* Add default title */
