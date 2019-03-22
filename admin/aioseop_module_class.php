@@ -1741,7 +1741,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 			// Loads only if it is not already loaded in order to not cause a conflict with a generic version.
 			if ( ! wp_style_is( 'jquery-ui', 'registered' ) && ! wp_style_is( 'jquery-ui', 'enqueued' ) ) {
 				$wp_scripts = wp_scripts();
-				wp_enqueue_style( 'aioseop-jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.min.css', false, AIOSEOP_VERSION, false );
+				wp_enqueue_style(
+					'aioseop-jquery-ui',
+					'//ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.min.css',
+					false,
+					AIOSEOP_VERSION,
+					false
+				);
 			}
 		}
 
