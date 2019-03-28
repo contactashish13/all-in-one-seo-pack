@@ -185,7 +185,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'addl_prio'       => __( 'The priority of the page.', 'all-in-one-seo-pack' ),
 				'addl_freq'       => __( 'The frequency of the page.', 'all-in-one-seo-pack' ),
 				'addl_mod'        => __( 'Last modified date of the page.', 'all-in-one-seo-pack' ),
-				'excl_categories' => __( 'Entries from these categories will be excluded from the sitemap.', 'all-in-one-seo-pack' ),
+				'excl_terms' => __( 'Entries from these taxonomy terms will be excluded from the sitemap. These terms will correspond to the taxonomies opted to be shown in the sitemap.', 'all-in-one-seo-pack' ),
 				'excl_pages'      => __( 'Use page slugs or page IDs, seperated by commas, to exclude pages from the sitemap.', 'all-in-one-seo-pack' ),
 			);
 
@@ -206,7 +206,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'addl_prio'       => '#additional-pages',
 				'addl_freq'       => '#additional-pages',
 				'addl_mod'        => '#additional-pages',
-				'excl_categories' => '#excluded-items',
+				'excl_terms' => '#excluded-items',
 				'excl_pages'      => '#excluded-items',
 			);
 
@@ -389,10 +389,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			);
 
 			$excl_options = array(
-				'excl_categories' => array(
-					'name'            => __( 'Excluded Categories', 'all-in-one-seo-pack' ),
-					'type'            => 'multicheckbox',
-					'initial_options' => '',
+				'excl_terms' => array(
+					'name'            => __( 'Excluded Terms', 'all-in-one-seo-pack' ),
+					'type'            => 'multiselect',
+					'initial_options' => array( '' => '' ), // this is important otherwise no input element will show.
+					'class'           => 'aioseop-chosen',
 				),
 				'excl_pages'      => array(
 					'name' => __( 'Excluded Pages', 'all-in-one-seo-pack' ),
@@ -447,7 +448,160 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
 			add_action( 'transition_post_status', array( $this, 'update_sitemap_from_posts' ), 10, 3 );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
+			add_action( 'after_doing_aioseop_updates', array( $this, 'upgrade_excluded_categories_to_excluded_terms' ) );
 			add_action( 'all_admin_notices', array( $this, 'sitemap_notices' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 20 );
+			add_action( "wp_ajax_{$this->prefix}", array( $this, 'ajax' ) );
+		}
+
+		/**
+		 * Migrate the values in "Excluded Categories" to "Excluded Terms".
+		 *
+		 * @since 3.0
+		 */
+		function upgrade_excluded_categories_to_excluded_terms() {
+			$aioseop_options = aioseop_get_options();
+			$options   = $aioseop_options['modules'][ "{$this->prefix}options" ];
+
+			if ( ! empty( $options["{$this->prefix}excl_categories"] ) ) {
+				$options["{$this->prefix}excl_terms"] = $options["{$this->prefix}excl_categories"];
+				unset( $options["{$this->prefix}excl_categories"] );
+				$aioseop_options['modules'][ "{$this->prefix}options" ] = $options;
+				update_option( 'aioseop_options', $aioseop_options );
+			}
+		}
+
+
+		/**
+		 * The single entry function to handle all ajax stuff.
+		 */
+		function ajax() {
+			check_ajax_referer( $this->prefix, 'nonce' );
+ 			$response = array();
+			switch ( $_POST['_action'] ) {
+				case 'fetch_terms':
+					$args = wp_parse_args( $_POST['taxonomy'] );
+					$taxonomies = $args['aiosp_sitemap_taxonomies'];
+					if ( empty( $taxonomies ) ) {
+						wp_send_json_error( array( 'msg' => __( 'No taxonomies selected', 'all-in-one-seo-pack' ) ) );
+					}
+
+					$all_terms = array();
+					
+					foreach ( $taxonomies as $taxonomy ) {
+						$terms = get_terms( array(
+							'taxonomy' => $taxonomy,
+							'fields' => 'id=>name',
+							'hide_empty' => false,
+							'name__like' => $_POST['term'],
+						) );
+
+						if ( is_wp_error( $terms ) ) {
+							continue;
+						}
+
+						if ( $terms ) {
+							foreach ( $terms as $id => $term ) {
+								// show each term as a combination of term name and term taxonomy name.
+								$all_terms[] = array( 'id' => $id, 'name' => sprintf( '%s (%s)', $term, $taxonomy ) );
+							}
+						}
+					}
+					if ( empty( $all_terms ) ) {
+						wp_send_json_error( array( 'msg' => __( 'No terms found', 'all-in-one-seo-pack' ) ) );
+					}
+					$response = $all_terms;
+					break;
+			}
+ 			wp_send_json_success( $response );
+		}
+
+		/**
+		 * Generates the values to be displayed as pre-selected in the exclude terms box.
+		 *
+		 * @param array $terms Array of term_ids.
+		 * 
+		 * @since 3.0
+		 * 
+		 * @return array Array of term_id vs term_name/term_taxonomy combination.
+		 */
+		private function get_terms_as_selected( $terms ) {
+			$all_terms = array();
+			foreach ( $terms as $id ) {
+				$term = get_term( (int) $id );
+				if ( ! $term ) {
+					continue;
+				}
+				$all_terms[$id] = sprintf( '%s (%s)', $term->name, $term->taxonomy );
+			}
+			return $all_terms;
+		}
+
+
+		/**
+		 * Checks if a taxonomy has been excluded. This could only be because all its terms have been selected to be excluded.
+		 *
+		 * @param string	$tax	The taxonomy name.
+		 */
+		private function has_taxonomy_been_excluded( $tax ) {
+			global $wp_version;
+ 			$term_count = intval( wp_count_terms( $tax, array( 'hide_empty' => true ) ) );
+			if ( 0 === $term_count ) {
+				// no terms in this taxonomy, so not excluded.
+				return false;
+			}
+
+ 			// terms excluded in the settings.
+			$terms_excluded = $this->options[ "{$this->prefix}excl_terms" ];
+			if ( empty( $terms_excluded ) ) {
+				// no terms excluded from any category, so not excluded.
+				return false;
+			}
+
+ 			// terms defined for this taxonomy.
+			$terms	= get_terms( array(
+					'taxonomy' => $tax,
+					'hide_empty' => true
+			) );
+ 			if ( is_wp_error( $terms ) ) {
+				return false;
+			}
+ 			$term_ids = array();
+			foreach ( $terms as $term ) {
+				$term_ids[]	= $term->term_id;
+			}
+ 			// are all terms from this taxonomy excluded?
+			$common	= count( array_intersect( $term_ids, $terms_excluded ) );
+ 			// the category is excluded if ALL of its terms have been specified in the exclude terms list.
+			return $common === count( $term_ids );
+ 		}
+
+		/**
+		 * Load resources.
+		 */
+		function admin_enqueue_scripts( $hook_suffix ) {
+			$current_screen = get_current_screen();
+			$deps = array();
+			$options = array(
+				'ajax' => array(
+					'action' => $this->prefix,
+					'nonce' => wp_create_nonce( $this->prefix ),
+				),
+			);
+ 			wp_register_script( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'js/lib/chosen.jquery.min.js', array( 'jquery', 'jquery-ui-autocomplete' ), AIOSEOP_VERSION );
+			wp_register_style( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'css/lib/chosen.min.css', array(), AIOSEOP_VERSION );
+ 			if ( $current_screen && strpos( $current_screen->id, '/modules/aioseop_sitemap' ) !== false ) {
+				wp_enqueue_script( 'aioseop-chosen' );
+				wp_enqueue_style( 'aioseop-chosen' );
+				$deps[] = 'aioseop-chosen';
+				$options['l10n'] = array(
+					'choose_terms' => __( 'Choose specific terms to exclude.', 'all-in-one-seo-pack' ),
+					'term_not_found' => __( 'Term not found', 'all-in-one-seo-pack' ) . ':',
+					'term_searching' => __( 'Searching for', 'all-in-one-seo-pack' ) . ':',
+				);
+				wp_enqueue_script( 'aioseop-sitemap', AIOSEOP_PLUGIN_URL . 'js/modules/sitemap.js', $deps, AIOSEOP_VERSION );
+				wp_localize_script( 'aioseop-sitemap', 'sitemap', $options );
+			}
 		}
 
 		/**
@@ -687,7 +841,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$this->default_options['taxonomies']['initial_options']      = array_merge( array( 'all' => __( 'All Taxonomies', 'all-in-one-seo-pack' ) ), $taxonomy_titles );
 			$this->default_options['posttypes']['default']               = array_keys( $this->default_options['posttypes']['initial_options'] );
 			$this->default_options['taxonomies']['default']              = array_keys( $this->default_options['taxonomies']['initial_options'] );
-			$this->default_options['excl_categories']['initial_options'] = $this->get_category_titles();
 
 			$prio_help = __( 'Manually set the priority for the ', 'all-in-one-seo-pack' );
 			$freq_help = __( 'Manually set the frequency for the ', 'all-in-one-seo-pack' );
@@ -906,6 +1059,11 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				/* translators: Link to settings to disable "Discourage search engines from indexing this site". */
 				$options[ $this->prefix . 'link' ] .= '<p class="aioseop_error_notice">' . sprintf( __( 'Warning: your privacy settings are configured to ask search engines to not index your site; you can change this under %s for your blog.', 'all-in-one-seo-pack' ), $privacy_link );
 			}
+
+			if ( $options["{$this->prefix}excl_terms"] ) {
+				$this->default_options['excl_terms']['initial_options'] = $this->get_terms_as_selected( $options["{$this->prefix}excl_terms"] );
+			}
+
 			return $options;
 		}
 
@@ -1960,31 +2118,35 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ! empty( $options[ "{$this->prefix}taxonomies" ] ) ) {
 				foreach ( $options[ "{$this->prefix}taxonomies" ] as $sm ) {
 					$term_count = wp_count_terms( $sm, array( 'hide_empty' => true ) );
-					if ( ! is_wp_error( $term_count ) && ( $term_count > 0 ) ) {
-						if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
-							if ( $term_count > $this->max_posts ) {
-								$count = 1;
-								for ( $tc = 0; $tc < $term_count; $tc += $this->max_posts ) {
-									$files[] = array(
-										'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
-										'changefreq' => $this->get_default_frequency( 'taxonomies' ),
-										'priority'   => $this->get_default_priority( 'taxonomies' ),
-									);
-								}
-							} else {
+					// no terms in the taxonomy.
+					if ( is_wp_error( $term_count ) || 0 === $term_count ) {
+						continue;
+					}
+					if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
+						if ( $term_count > $this->max_posts ) {
+							$count = 1;
+							for ( $tc = 0; $tc < $term_count; $tc += $this->max_posts ) {
+								$files[] = array(
+									'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . '_' . ( $count ++ ) . $suffix ),
+									'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+									'priority'   => $this->get_default_priority( 'taxonomies' ),
+								);
+							}
+						} else {
+							if ( ! $this->has_taxonomy_been_excluded( $sm ) ) {
 								$files[] = array(
 									'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
 									'changefreq' => $this->get_default_frequency( 'taxonomies' ),
 									'priority'   => $this->get_default_priority( 'taxonomies' ),
 								);
 							}
-						} else {
-							$files[] = array(
-								'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
-								'changefreq' => $this->get_default_frequency( 'taxonomies' ),
-								'priority'   => $this->get_default_priority( 'taxonomies' ),
-							);
 						}
+					} else {
+						$files[] = array(
+							'loc'        => aioseop_home_url( '/' . $prefix . '_' . $sm . $suffix ),
+							'changefreq' => $this->get_default_frequency( 'taxonomies' ),
+							'priority'   => $this->get_default_priority( 'taxonomies' ),
+						);
 					}
 				}
 			}
@@ -3844,8 +4006,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		public function get_tax_args( $page = 0 ) {
 			$args = array();
-			if ( $this->option_isset( 'excl_categories' ) ) {
-				$args['exclude'] = $this->options[ $this->prefix . 'excl_categories' ];
+			if ( $this->option_isset( 'excl_terms' ) ) {
+				$args['exclude'] = $this->options[ "{$this->prefix}excl_terms" ];
 			}
 			if ( ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
 				$args['number'] = $this->max_posts;
@@ -3864,10 +4026,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return mixed
 		 */
-		public function set_post_args( $args ) {
-			if ( $this->option_isset( 'excl_categories' ) ) {
+		public function set_post_args( $args, $only_tax = false ) {
+			if ( $this->option_isset( 'excl_terms' ) ) {
 				$cats = array();
-				foreach ( $this->options[ $this->prefix . 'excl_categories' ] as $c ) {
+				foreach ( $this->options[ "{$this->prefix}excl_terms" ] as $c ) {
 					$cats[] = - $c;
 				}
 				$args['category'] = implode( ',', $cats );
@@ -4132,6 +4294,54 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Generates and adds the tax_query to the query to be supplied to WP_Query.
+		 *
+		 * @param array $args The arguments in the format needed by WP_Query.
+		 *
+		 * @since 3.0
+		 *
+		 * @return array The modified args.
+		 */
+		private function add_tax_query( $args ) {
+			$tax_query = array();
+			if ( array_key_exists( 'tax_query', $args ) ) {
+				$tax_query = $args['tax_query'];
+			}
+
+			if ( $this->option_isset( 'excl_terms' ) ) {
+				// tax_query does not work with only term_id; it needs the taxonomy but we only have the term_id
+				// so now we determine the taxonomy for each term, collect the taxonomies and create that many tax_queries
+				$taxonomy_vs_terms = array();
+				foreach ( $this->options[ "{$this->prefix}excl_terms" ] as $term_id ) {
+					$term = get_term( $term_id );
+					$terms = array();
+					if ( array_key_exists( $term->taxonomy, $taxonomy_vs_terms ) ) {
+						$terms = $taxonomy_vs_terms[ $term->taxonomy ];
+					}
+					$terms[] = $term_id;
+					$taxonomy_vs_terms[ $term->taxonomy ] = $terms;
+				}
+
+				$excl_terms = array();
+				foreach ( $taxonomy_vs_terms as $taxonomy => $terms ) {
+					$excl_terms += array(
+						'taxonomy' => $taxonomy,
+						'field' => 'term_id',
+						'terms'	=> $terms,
+						'operator' => 'NOT IN',
+					);
+				}
+				$tax_query = array( $excl_terms );
+			}
+
+			if ( ! empty( $tax_query ) ) {
+				$args['tax_query'] = $tax_query;
+			}
+			return $args;
+		}
+
+
+		/**
 		 * Return post counts for the specified arguments.
 		 *
 		 * @param $args
@@ -4147,6 +4357,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$args['fields']                 = 'ids';
 			$args['update_post_meta_cache'] = false;
 			$args['update_post_term_cache'] = false;
+			
+			$args = $this->add_tax_query( $args );
+
 			$query                          = new WP_Query( $args );
 			if ( $query->have_posts() ) {
 				return $query->post_count;
@@ -4235,6 +4448,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$ex_args['meta_compare']   = '=';
 			$ex_args['fields']         = 'ids';
 			$ex_args['posts_per_page'] = - 1;
+
+			$ex_args = $this->add_tax_query( $ex_args );
+
 			$q                         = new WP_Query( $ex_args );
 			if ( ! is_array( $args['exclude'] ) ) {
 				$args['exclude'] = explode( ',', $args['exclude'] );

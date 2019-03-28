@@ -132,3 +132,8 @@ li#wp-admin-bar-aioseop-pro-upgrade a.ab-item {
 	color: #d54e21;
 	font-size: 105%;
 }
+
+/* ensure the chosen auto-complete is visible */
+#aiosp_sitemap_excl_terms_wrapper .aioseop_option_div {
+	overflow-y: visible;
+} 

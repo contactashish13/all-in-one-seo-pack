@@ -822,11 +822,14 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_term_labels( $post_objs ) {
+		function get_term_labels( $post_objs, $prefixed_with_taxonomy = false ) {
 			$post_types = array();
 			foreach ( $post_objs as $p ) {
 				if ( ! empty( $p->name ) ) {
 					$post_types[ $p->term_id ] = $p->name;
+					if ( $prefixed_with_taxonomy ) {
+						$post_types[ $p->term_id ] = sprintf( '%s (%s)', $p->name, $p->taxonomy_name );
+					}
 				}
 			}
 
@@ -856,8 +859,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_category_titles( $args = array() ) {
-			return $this->get_term_labels( get_categories( $args ) );
+		function get_category_titles( $args = array(), $prefixed_with_taxonomy = false  ) {
+			return $this->get_term_labels( get_categories( $args ), $prefixed_with_taxonomy );
 		}
 
 		/**
