@@ -325,8 +325,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 					$arr[ $k . '_' . $opt ] = array(
 						'name'            => $this->ucwords( $val ),
-						/* translators: Help Text string to display information about multiple different settings. */
-						'help_text'       => sprintf( __( 'Manually set the %1$s of your %2$s.', 'all-in-one-seo-pack' ), $v, $val ),
 						'type'            => 'select',
 						'initial_options' => $iopts,
 						'default'         => 'no',
@@ -429,8 +427,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 
 			$this->default_options = array_merge( $status_options, $this->default_options, $addl_options, $excl_options, $prio_options, $freq_options );
 
-			$this->add_help_text_links();
-
 			add_action(
 				'after_doing_aioseop_updates',
 				array(
@@ -446,6 +442,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_filter( $this->prefix . 'output_option', array( $this, 'display_custom_options' ), 10, 2 );
 			add_action( $this->prefix . 'daily_update_cron', array( $this, 'daily_update' ) );
 			add_action( 'init', array( $this, 'make_dynamic_xsl' ) );
+
+			// TODO is this required for dynamic sitemap?
 			add_action( 'transition_post_status', array( $this, 'update_sitemap_from_posts' ), 10, 3 );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'upgrade_excluded_categories_to_excluded_terms' ) );
@@ -658,7 +656,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					sprintf(
 						// TODO Add esc_* or wp_kses function.
 						/* translators: Links to the current AIOSEOP Sitemap settings. */
-						__( '%1$s Click here%2$s to make these recommended changes.', 'all-in-one-seo-pack' ),
+						__( '%1$sClick here%2$s to make these recommended changes.', 'all-in-one-seo-pack' ),
 						sprintf(
 							'<a href="%s">',
 							esc_url( get_admin_url( null, "admin.php?page=$aioseop_plugin_dirname/modules/aioseop_sitemap.php" ) )
@@ -677,6 +675,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param $post
 		 */
 		public function update_sitemap_from_posts( $new_status, $old_status, $post ) {
+			// ignore WP API requests.
+			if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+				return;
+			}
 
 			if ( $this->option_isset( 'rewrite' ) ) {
 				// TODO if dynamic, delete transient (we currently don't do transients).
@@ -842,8 +844,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$this->default_options['posttypes']['default']               = array_keys( $this->default_options['posttypes']['initial_options'] );
 			$this->default_options['taxonomies']['default']              = array_keys( $this->default_options['taxonomies']['initial_options'] );
 
-			$prio_help = __( 'Manually set the priority for the ', 'all-in-one-seo-pack' );
-			$freq_help = __( 'Manually set the frequency for the ', 'all-in-one-seo-pack' );
 			$post_name = __( ' Post Type', 'all-in-one-seo-pack' );
 			$tax_name  = __( ' Taxonomy', 'all-in-one-seo-pack' );
 
@@ -855,7 +855,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					array(
 						$key => array(
 							'name'            => $v . $post_name,
-							'help_text'       => $prio_help . $v . $post_name,
 							'type'            => 'select',
 							'initial_options' => $this->prio,
 							'default'         => 'no',
@@ -871,7 +870,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					array(
 						$key => array(
 							'name'            => $v . $post_name,
-							'help_text'       => $freq_help . $v . $post_name,
 							'type'            => 'select',
 							'initial_options' => $this->freq,
 							'default'         => 'no',
@@ -889,7 +887,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					array(
 						$key => array(
 							'name'            => $v . $tax_name,
-							'help_text'       => $prio_help . $v . $tax_name,
 							'type'            => 'select',
 							'initial_options' => $this->prio,
 							'default'         => 'no',
@@ -905,7 +902,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					array(
 						$key => array(
 							'name'            => $v . $tax_name,
-							'help_text'       => $freq_help . $v . $tax_name,
 							'type'            => 'select',
 							'initial_options' => $this->freq,
 							'default'         => 'no',
@@ -1639,6 +1635,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Handle outputting of dynamic sitemaps, logging.
 		 *
+		 * @since ?
+		 * @since 3.0 Show 404 template for empty content. #2190
+		 *
 		 * @param $query
 		 */
 		public function sitemap_output_hook( $query ) {
@@ -1651,6 +1650,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				}
 				$this->start_memory_usage = memory_get_peak_usage();
 				$sitemap_type             = $query->query_vars[ "{$this->prefix}path" ];
+
 				$gzipped                  = false;
 				if ( $this->substr( $sitemap_type, - 3 ) === '.gz' ) {
 					$gzipped      = true;
@@ -1672,7 +1672,22 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				if ( $gzipped ) {
 					ob_start();
 				}
-				$this->do_rewrite_sitemap( $sitemap_type, $page );
+
+				$content = $this->do_rewrite_sitemap( $sitemap_type, $page );
+
+				// if the sitemap has no content, it's probabaly invalid and is being called directly.
+				// @issue https://github.com/semperfiwebdesign/all-in-one-seo-pack/issues/2190
+				if ( empty( $content ) ) {
+					$query->set_404();
+					status_header( 404 );
+					header( "Content-Type: text/html; charset=$blog_charset", true );
+					nocache_headers();
+					include( get_404_template() );
+					exit();
+				}
+
+				echo $content;
+
 				if ( $gzipped ) {
 					// TODO Add esc_* function.
 					echo gzencode( ob_get_clean() );
@@ -1750,14 +1765,18 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * Output sitemaps dynamically based on rewrite rules.
 		 *
+		 * @since ?
+		 * @since 3.0 Return a (string) value. #2190
+		 *
 		 * @param     $sitemap_type
 		 * @param int $page
+		 * @return string
 		 */
 		public function do_rewrite_sitemap( $sitemap_type, $page = 0 ) {
 			$this->add_post_types();
 			$comment = 'dynamically';
 			// TODO Add esc_* or wp_kses function.
-			echo $this->do_build_sitemap( $sitemap_type, $page, '', $comment );
+			return $this->do_build_sitemap( $sitemap_type, $page, '', $comment );
 		}
 
 		/**
@@ -2195,6 +2214,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( ( 'root' === $sitemap_type ) && ! empty( $this->options[ "{$this->prefix}indexes" ] ) ) {
 				return $this->build_sitemap_index( $sitemap_data, sprintf( $comment, $filename ) );
 			} else {
+				if ( empty( $sitemap_data ) ) {
+					return '';
+				}
 				return $this->build_sitemap( $sitemap_data, $sitemap_type, sprintf( $comment, $filename ) );
 			}
 		}
@@ -4399,7 +4421,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				'offset'        => 0,
 				'category'      => 0,
 				'orderby'       => 'post_date',
-				'order'         => 'DESC',
+				'order'         => 'ASC',
 				'include'       => array(),
 				'exclude'       => array(),
 				'post_type'     => 'any',
