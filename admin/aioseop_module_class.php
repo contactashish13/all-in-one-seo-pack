@@ -858,7 +858,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		 *
 		 * @return array
 		 */
-		function get_category_titles( $args = array(), $prefixed_with_taxonomy = false  ) {
+		function get_category_titles( $args = array(), $prefixed_with_taxonomy = false ) {
 			return $this->get_term_labels( get_categories( $args ), $prefixed_with_taxonomy );
 		}
 
