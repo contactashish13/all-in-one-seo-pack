@@ -592,7 +592,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @param string $hook_suffix The current admin page.
 		 */
 		function admin_enqueue_scripts( $hook_suffix ) {
-			$current_screen = get_current_screen();
 			$deps = array();
 			$options = array(
 				'ajax' => array(
@@ -600,9 +599,9 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					'nonce' => wp_create_nonce( $this->prefix ),
 				),
 			);
-			wp_register_script( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'js/lib/chosen.jquery.min.js', array( 'jquery', 'jquery-ui-autocomplete' ), AIOSEOP_VERSION );
-			wp_register_style( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'css/lib/chosen.min.css', array(), AIOSEOP_VERSION );
-			if ( $current_screen && strpos( $current_screen->id, '/modules/aioseop_sitemap' ) !== false ) {
+			if ( strpos( $hook_suffix, '/modules/aioseop_sitemap' ) !== false ) {
+				wp_register_script( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'js/lib/chosen.jquery.min.js', array( 'jquery', 'jquery-ui-autocomplete' ), AIOSEOP_VERSION );
+				wp_register_style( 'aioseop-chosen', AIOSEOP_PLUGIN_URL . 'css/lib/chosen.min.css', array(), AIOSEOP_VERSION );
 				wp_enqueue_script( 'aioseop-chosen' );
 				wp_enqueue_style( 'aioseop-chosen' );
 				$deps[] = 'aioseop-chosen';
@@ -4485,8 +4484,6 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			$ex_args['fields']         = 'ids';
 			$ex_args['posts_per_page'] = - 1;
 
-			$ex_args = $this->add_tax_query( $ex_args );
-
 			$q                         = new WP_Query( $ex_args );
 			if ( ! is_array( $args['exclude'] ) ) {
 				$args['exclude'] = explode( ',', $args['exclude'] );
@@ -4495,6 +4492,8 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['exclude'] = array_merge( $args['exclude'], $q->posts );
 			}
 			$this->excludes = array_merge( $args['exclude'], $exclude_slugs ); // Add excluded slugs and IDs to class var.
+
+			$args = $this->add_tax_query( $args );
 
 			// TODO: consider using WP_Query instead of get_posts to improve efficiency.
 			$posts = get_posts( apply_filters( $this->prefix . 'post_query', $args ) );
