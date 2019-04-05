@@ -754,7 +754,7 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			$this->markTestSkipped( 'Only for single site' );
 		}
 
-		$prefix	= 'custom_category';
+		$prefix = 'custom_category';
 
 		$term_vs_tax = array(
 			// term => taxonomy
@@ -766,13 +766,13 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			'cat31' => "{$prefix}3",
 		);
 
-		for( $x = 0; $x < 4; $x++ ) {
+		for ( $x = 0; $x < 4; $x++ ) {
 			register_taxonomy( "{$prefix}{$x}", 'post' );
 		}
 
 		$posts = $this->factory->post->create_many( count( $term_vs_tax ) );
 
-		$urls	= array();
+		$urls   = array();
 		$exclude_terms = array();
 		$terms = array();
 		$index = 0;

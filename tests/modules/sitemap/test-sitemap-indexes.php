@@ -114,7 +114,7 @@ class Test_Sitemap_Indexes extends Test_Sitemap {
 			$this->markTestSkipped( 'Only for single site' );
 		}
 
-		$prefix	= 'custom_category';
+		$prefix = 'custom_category';
 
 		$term_vs_tax = array(
 			// term => taxonomy
@@ -127,7 +127,7 @@ class Test_Sitemap_Indexes extends Test_Sitemap {
 		);
 
 		$types = array();
-		for( $x = 0; $x < 4; $x++ ) {
+		for ( $x = 0; $x < 4; $x++ ) {
 			register_taxonomy( "{$prefix}{$x}", 'post' );
 			// exclude all terms from custom_category0
 			$types[ "{$prefix}{$x}" ] = $x !== 0;
@@ -184,7 +184,7 @@ class Test_Sitemap_Indexes extends Test_Sitemap {
 			$this->markTestSkipped( 'Only for single site' );
 		}
 
-		$prefix	= 'custom_category';
+		$prefix = 'custom_category';
 
 		$term_vs_tax = array(
 			// term => taxonomy
@@ -197,7 +197,7 @@ class Test_Sitemap_Indexes extends Test_Sitemap {
 		);
 
 		$types = array();
-		for( $x = 0; $x < 4; $x++ ) {
+		for ( $x = 0; $x < 4; $x++ ) {
 			register_taxonomy( "{$prefix}{$x}", 'post' );
 			$types[ "{$prefix}{$x}" ] = true;
 		}

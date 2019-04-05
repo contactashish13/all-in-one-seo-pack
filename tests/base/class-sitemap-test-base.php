@@ -144,7 +144,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 	 *
 	 * @param array $types All the types of sitemaps that should exist besides the regular one.
 	 * This is provided as a type => bool where bool dictates whether the sitemap exists or not. By default, it is assumed to be true.
-	*/
+	 */
 	protected final function validate_sitemap_index( $types = array(), $debug = false ) {
 		add_filter( 'aioseo_sitemap_ping', '__return_false' );
 		update_option( 'blog_public', 0 );
@@ -157,7 +157,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		$ns = $xml->getNamespaces( true );
 
 		if ( $debug ) {
-			echo file_get_contents($file);
+			echo file_get_contents( $file );
 		}
 
 		$urls = array();
@@ -184,7 +184,7 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 				$this->assertContains( $url, $urls );
 				$file = ABSPATH . "/sitemap_{$type}.xml";
 				if ( $debug ) {
-					echo file_get_contents($file);
+					echo file_get_contents( $file );
 				}
 				$this->assertFileExists( $file );
 				$this->validate_sitemap_schema( $file, 'combined' );
