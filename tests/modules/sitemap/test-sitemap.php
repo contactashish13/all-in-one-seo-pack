@@ -736,5 +736,77 @@ class Test_Sitemap extends Sitemap_Test_Base {
 			),
 		);
 	}
+
+	/**
+	 * Test excluding all terms of a taxonomy.
+	 *
+	 * The sitemap corresponding to the excluded taxonomy should not appear in the sitemap.
+	 * The posts corresponding to the excluded terms should not appear in the sitemap.
+	 *
+	 * NOTE: The test for excluding only some terms of a taxonomy is not required as the behavior is identical.
+	 *
+	 * @since 3.0
+	 *
+	 * @requires PHPUnit 5.7
+	 */
+	public function test_exclude_taxonomy_all_terms() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only for single site' );
+		}
+
+		$prefix	= 'custom_category';
+
+		$term_vs_tax = array(
+			// term => taxonomy
+			'cat01' => "{$prefix}0",
+			'cat02' => "{$prefix}0",
+			'cat11' => "{$prefix}1",
+			'cat12' => "{$prefix}1",
+			'cat21' => "{$prefix}2",
+			'cat31' => "{$prefix}3",
+		);
+
+		for( $x = 0; $x < 4; $x++ ) {
+			register_taxonomy( "{$prefix}{$x}", 'post' );
+		}
+
+		$posts = $this->factory->post->create_many( count( $term_vs_tax ) );
+
+		$urls	= array();
+		$exclude_terms = array();
+		$terms = array();
+		$index = 0;
+		foreach ( $term_vs_tax as $term => $taxonomy ) {
+			$id = $this->factory->term->create( array( 'taxonomy' => $taxonomy, 'name' => $term ) );
+			$terms[ $term ] = $id;
+			$this->factory->term->add_post_terms( $posts[ $index ], $term, $taxonomy, false );
+			// exclude all terms from custom_category0
+			$exclude = false;
+			if ( "{$prefix}0" === $taxonomy ) {
+				$exclude_terms[] = $id;
+				$exclude = true;
+			}
+
+			// the term link
+			$urls[ get_term_link( $id ) ] = ! $exclude;
+			// the post link
+			$urls[ get_permalink( $posts[ $index ] ) ] = ! $exclude;
+			$index++;
+		}
+
+		$custom_options = array();
+		$custom_options['aiosp_sitemap_taxonomies'] = array( "{$prefix}0", "{$prefix}1", "{$prefix}2", "{$prefix}3" );
+		$custom_options['aiosp_sitemap_images'] = '';
+		$custom_options['aiosp_sitemap_gzipped'] = '';
+		$custom_options['aiosp_sitemap_posttypes'] = array( 'post' );
+
+		// exclude all terms of custom_category0
+		$custom_options['aiosp_sitemap_excl_terms'] = $exclude_terms;
+
+		$this->_setup_options( 'sitemap', $custom_options );
+
+		$this->validate_sitemap( $urls );
+	}
+
 }
 

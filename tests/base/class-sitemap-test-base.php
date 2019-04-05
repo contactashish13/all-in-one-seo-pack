@@ -143,7 +143,8 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 	 * Check whether the sitemap index is valid.
 	 *
 	 * @param array $types All the types of sitemaps that should exist besides the regular one.
-	 */
+	 * This is provided as a type => bool where bool dictates whether the sitemap exists or not. By default, it is assumed to be true.
+	*/
 	protected final function validate_sitemap_index( $types = array(), $debug = false ) {
 		add_filter( 'aioseo_sitemap_ping', '__return_false' );
 		update_option( 'blog_public', 0 );
@@ -151,20 +152,45 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 		// sitemap will be created in the root of the folder.
 		do_action( 'aiosp_sitemap_settings_update' );
 
-		$types[] = '';
-		foreach ( $types as $type ) {
-			$schema = 'index';
-			if ( ! empty( $type ) ) {
-				$type = "_{$type}";
-				$schema = 'combined';
-			}
-			$file = ABSPATH . "/sitemap{$type}.xml";
+		$file = ABSPATH . '/sitemap.xml';
+		$xml = simplexml_load_file( $file );
+		$ns = $xml->getNamespaces( true );
 
-			$this->assertFileExists( $file );
-			if ( $debug ) {
-				echo file_get_contents( $file );
+		if ( $debug ) {
+			echo file_get_contents($file);
+		}
+
+		$urls = array();
+		foreach ( $xml->sitemap as $url ) {
+			$urls[] = (string) $url->loc;
+		}
+
+		$this->validate_sitemap_schema( $file, 'index' );
+
+		foreach ( $types as $k => $v ) {
+			$exists = false;
+			// backward compatibility where a string array is provided.
+			if ( is_int( $k ) ) {
+				$type = $v;
+				$exists = true;
+			} else {
+				$type = $k;
+				$exists = (bool) $v;
 			}
-			$this->validate_sitemap_schema( $file, $schema );
+
+			$url = site_url( "sitemap_{$type}.xml" );
+
+			if ( $exists ) {
+				$this->assertContains( $url, $urls );
+				$file = ABSPATH . "/sitemap_{$type}.xml";
+				if ( $debug ) {
+					echo file_get_contents($file);
+				}
+				$this->assertFileExists( $file );
+				$this->validate_sitemap_schema( $file, 'combined' );
+			} else {
+				$this->assertNotContains( $url, $urls );
+			}
 		}
 	}
 
@@ -186,11 +212,20 @@ class Sitemap_Test_Base extends AIOSEOP_Test_Base {
 	/**
 	 * Counts how many times the given string(s) occur in the sitemap.
 	 *
+	 * @since 3.0 Added the $sitemap_file parameter
+	 *
 	 * @param array $elements The elements/attribute/string to search for.
+	 * @param string $sitemap_file If this is null, the sitemap will be created, otherwise the given sitemap file will be used.
+	 *
 	 * @return array
 	 */
-	protected final function count_sitemap_elements( $elements ) {
-		$file = $this->create_sitemap();
+	protected final function count_sitemap_elements( $elements, $sitemap_file = null ) {
+		if ( is_null( $sitemap_file ) ) {
+			$file = $this->create_sitemap();
+		} else {
+			$file = $sitemap_file;
+		}
+
 		$contents = file_get_contents( $file );
 
 		$map = array();
