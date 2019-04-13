@@ -1875,7 +1875,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$options[ "{$this->prefix}taxonomies" ] = array();
 			}
 			$options[ "{$this->prefix}posttypes" ]  = array_diff( $options[ "{$this->prefix}posttypes" ], array( 'all' ) );
-			$options[ "{$this->prefix}taxonomies" ] = array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) );
+			$options[ "{$this->prefix}taxonomies" ] = apply_filters( "{$this->prefix}show_taxonomy", array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) ) );
 
 			$files[] = array( 'loc' => aioseop_home_url( '/' . $prefix . '_addl' . $suffix ) );
 
