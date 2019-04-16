@@ -458,6 +458,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 * @since 3.0
 		 */
 		function upgrade_excluded_categories_to_excluded_terms() {
+			global $aioseop_options;
 			$aioseop_options = aioseop_get_options();
 			$options   = $aioseop_options['modules'][ "{$this->prefix}options" ];
 
