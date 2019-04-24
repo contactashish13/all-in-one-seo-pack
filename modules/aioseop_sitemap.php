@@ -1875,7 +1875,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$options[ "{$this->prefix}taxonomies" ] = array();
 			}
 			$options[ "{$this->prefix}posttypes" ]  = array_diff( $options[ "{$this->prefix}posttypes" ], array( 'all' ) );
-			$options[ "{$this->prefix}taxonomies" ] = apply_filters( "{$this->prefix}show_taxonomy", array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) ) );
+			$options[ "{$this->prefix}taxonomies" ] = $this->show_or_hide_taxonomy( array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) ) );
 
 			$files[] = array( 'loc' => aioseop_home_url( '/' . $prefix . '_addl' . $suffix ) );
 
@@ -3818,7 +3818,10 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Return excluded categories for taxonomy queries.
 		 *
-		 * @param int $page
+		 * @since 3.0.0 Added $taxonomy parameter.
+		 *
+		 * @param array $taxonomy The array of taxonomy slugs.
+		 * @param int $page The page number.
 		 *
 		 * @return array
 		 */
@@ -3831,7 +3834,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['number'] = $this->max_posts;
 				$args['offset'] = $page * $this->max_posts;
 			}
-			$args['taxonomy'] = apply_filters( "{$this->prefix}show_taxonomy", $taxonomy );
+			$args['taxonomy'] = $this->show_or_hide_taxonomy( $taxonomy );
 
 			$args = apply_filters( $this->prefix . 'tax_args', $args, $page, $this->options );
 
@@ -4035,6 +4038,26 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Show or hide the taxonomy/taxonomies.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $taxonomy The array of taxonomy slugs.
+		 *
+		 * @return array The array of taxonomy slugs that need to be shown.
+		 */
+		private function show_or_hide_taxonomy( $taxonomy ) {
+			/**
+			 * Determines whether to show or hide the taxonomy/taxonomies.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param @param array $taxonomy The array of taxonomy slugs.
+			 */
+			return apply_filters( "{$this->prefix}show_taxonomy", $taxonomy );
+		}
+
+		/**
 		 * Return term counts using wp_count_terms().
 		 *
 		 * @param $args
@@ -4049,13 +4072,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					if ( is_array( $args['taxonomy'] ) ) {
 						$args['taxonomy'] = array_shift( $args['taxonomy'] );
 					}
-					$term_counts = wp_count_terms( apply_filters( "{$this->prefix}show_taxonomy", $args['taxonomy'] ), array( 'hide_empty' => true ) );
+					$term_counts = wp_count_terms( $this->show_or_hide_taxonomy( $args['taxonomy'] ), array( 'hide_empty' => true ) );
 				} else {
 					foreach ( $args['taxonomy'] as $taxonomy ) {
 						if ( 'all' === $taxonomy ) {
 							continue;
 						}
-						$term_counts[ $taxonomy ] = wp_count_terms( apply_filters( "{$this->prefix}show_taxonomy", $taxonomy ), array( 'hide_empty' => true ) );
+						$term_counts[ $taxonomy ] = wp_count_terms( $this->show_or_hide_taxonomy( $taxonomy ), array( 'hide_empty' => true ) );
 					}
 				}
 			}
