@@ -3818,6 +3818,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Return excluded categories for taxonomy queries.
 		 *
+		 * @since ?
 		 * @since 3.0.0 Added $taxonomy parameter.
 		 *
 		 * @param array $taxonomy The array of taxonomy slugs.
@@ -4052,7 +4053,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			 *
 			 * @since 3.0.0
 			 *
-			 * @param @param array $taxonomy The array of taxonomy slugs.
+			 * @param array $taxonomy The array of taxonomy slugs.
 			 */
 			return apply_filters( "{$this->prefix}show_taxonomy", $taxonomy );
 		}
