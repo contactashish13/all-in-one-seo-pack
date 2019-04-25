@@ -1760,7 +1760,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					$sitemap_data = $this->get_all_post_priority_data( $sitemap_type, 'publish', $page );
 				} elseif ( in_array( $sitemap_type, $taxonomies ) ) {
 					// TODO Add `true` in 3rd argument with in_array(); which changes it to a strict comparison.
-					$sitemap_data = $this->get_term_priority_data( get_terms( $sitemap_type, $this->get_tax_args( $page ) ) );
+					$sitemap_data = $this->get_term_priority_data( get_terms( $this->get_tax_args( $sitemap_type, $page ) ) );
 				} else {
 					// TODO Add `true` in 3rd argument with in_array(); which changes it to a strict comparison.
 					if ( is_array( $this->extra_sitemaps ) && in_array( $sitemap_type, $this->extra_sitemaps ) ) {
@@ -2089,7 +2089,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$options[ "{$this->prefix}taxonomies" ] = array();
 			}
 			$options[ "{$this->prefix}posttypes" ]  = array_diff( $options[ "{$this->prefix}posttypes" ], array( 'all' ) );
-			$options[ "{$this->prefix}taxonomies" ] = array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) );
+			$options[ "{$this->prefix}taxonomies" ] = $this->show_or_hide_taxonomy( array_diff( $options[ "{$this->prefix}taxonomies" ], array( 'all' ) ) );
 
 			$files[] = array( 'loc' => aioseop_home_url( '/' . $prefix . '_addl' . $suffix ) );
 
@@ -2430,7 +2430,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			if ( is_array( $home ) ) {
 				array_unshift( $prio, $home );
 			}
-			$terms = get_terms( $options[ "{$this->prefix}taxonomies" ], $this->get_tax_args() );
+			$terms = get_terms( $this->get_tax_args( $options[ "{$this->prefix}taxonomies" ] ) );
 			$prio2 = $this->get_term_priority_data( $terms );
 			$prio3 = $this->get_addl_pages_only();
 			$prio  = array_merge( $child, $prio, $prio2, $prio3 );
@@ -2773,7 +2773,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 */
 		public function get_term_priority_data( $terms ) {
 			$prio = array();
-			if ( is_array( $terms ) ) {
+			if ( is_array( $terms ) && ! empty( $terms ) ) {
 				$def_prio = $this->get_default_priority( 'taxonomies' );
 				$def_freq = $this->get_default_frequency( 'taxonomies' );
 				foreach ( $terms as $term ) {
@@ -4036,11 +4036,15 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		/**
 		 * Return excluded categories for taxonomy queries.
 		 *
+		 * @since ?
+		 * @since 3.0.0 Added $taxonomy parameter.
+		 *
+		 * @param array $taxonomy The array of taxonomy slugs.
 		 * @param int $page The page number.
 		 *
 		 * @return array The arguments for the `get_terms` query.
 		 */
-		public function get_tax_args( $page = 0 ) {
+		public function get_tax_args( $taxonomy, $page = 0 ) {
 			$args = array();
 			if ( $this->option_isset( 'excl_terms' ) ) {
 				$args['exclude'] = $this->options[ "{$this->prefix}excl_terms" ];
@@ -4049,6 +4053,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 				$args['number'] = $this->max_posts;
 				$args['offset'] = $page * $this->max_posts;
 			}
+			$args['taxonomy'] = $this->show_or_hide_taxonomy( $taxonomy );
 
 			$args = apply_filters( $this->prefix . 'tax_args', $args, $page, $this->options );
 
@@ -4252,6 +4257,26 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		}
 
 		/**
+		 * Show or hide the taxonomy/taxonomies.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $taxonomy The array of taxonomy slugs.
+		 *
+		 * @return array The array of taxonomy slugs that need to be shown.
+		 */
+		private function show_or_hide_taxonomy( $taxonomy ) {
+			/**
+			 * Determines whether to show or hide the taxonomy/taxonomies.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param array $taxonomy The array of taxonomy slugs.
+			 */
+			return apply_filters( "{$this->prefix}show_taxonomy", $taxonomy );
+		}
+
+		/**
 		 * Return term counts using wp_count_terms().
 		 *
 		 * @param $args
@@ -4266,13 +4291,13 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 					if ( is_array( $args['taxonomy'] ) ) {
 						$args['taxonomy'] = array_shift( $args['taxonomy'] );
 					}
-					$term_counts = wp_count_terms( $args['taxonomy'], array( 'hide_empty' => true ) );
+					$term_counts = wp_count_terms( $this->show_or_hide_taxonomy( $args['taxonomy'] ), array( 'hide_empty' => true ) );
 				} else {
 					foreach ( $args['taxonomy'] as $taxonomy ) {
 						if ( 'all' === $taxonomy ) {
 							continue;
 						}
-						$term_counts[ $taxonomy ] = wp_count_terms( $taxonomy, array( 'hide_empty' => true ) );
+						$term_counts[ $taxonomy ] = wp_count_terms( $this->show_or_hide_taxonomy( $taxonomy ), array( 'hide_empty' => true ) );
 					}
 				}
 			}
