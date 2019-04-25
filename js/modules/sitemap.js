@@ -21,7 +21,8 @@
 
         // search for a taxonomy term by providing a string (executes a LIKE %string% match with the taxonomy terms)
         $('.chosen-container input').autocomplete({
-            // minLength: 3, // TODO: consider populating this later
+            delay: 500, // http://api.jqueryui.com/autocomplete/#option-delay
+            minLength: 3, // http://api.jqueryui.com/autocomplete/#option-minLength
             source: function( request, response ) {
                 $.ajax({
                     url: ajaxurl,
