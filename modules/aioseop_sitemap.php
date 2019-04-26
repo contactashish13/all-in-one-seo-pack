@@ -496,6 +496,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 								'fields' => 'id=>name',
 								'hide_empty' => false,
 								'name__like' => $_POST['term'],
+								'order' => 'DESC',
 							)
 						);
 
