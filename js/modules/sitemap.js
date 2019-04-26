@@ -17,13 +17,13 @@
             rtl                 : true,
             placeholder_text_multiple : sitemap.l10n.choose_terms,
             no_results_text : sitemap.l10n.term_searching,
-            display_selected_options: false,
+            display_selected_options: false
         });
 
         // when the text box becomes unresponsive (nothing can be typed in), lets's do the below
         $.fn.enableTextBox = function(){
             $(this).parent().find("input[type='text']").addClass('default').css('width', '200px');
-        }
+        };
 
         $('.aioseop-chosen').on('change, chosen:hiding_dropdown', function(evt, params) {
             $(".aioseop-chosen").enableTextBox();
