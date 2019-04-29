@@ -448,7 +448,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 			add_action( 'after_doing_aioseop_updates', array( $this, 'scan_sitemaps' ) );
 			add_action( 'after_doing_aioseop_updates', array( $this, 'upgrade_excluded_categories_to_excluded_terms' ) );
 			add_action( 'all_admin_notices', array( $this, 'sitemap_notices' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 20 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ), 20 );
 			add_action( "wp_ajax_{$this->prefix}", array( $this, 'ajax' ) );
 		}
 
@@ -593,7 +593,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @param string $hook_suffix The current admin page.
 		 */
-		function admin_enqueue_scripts( $hook_suffix ) {
+		function enqueue_assets( $hook_suffix ) {
 			$deps = array();
 			$options = array(
 				'ajax' => array(
@@ -4068,7 +4068,7 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Sitemap' ) ) {
 		 *
 		 * @return mixed
 		 */
-		public function set_post_args( $args, $only_tax = false ) {
+		public function set_post_args( $args ) {
 			if ( $this->option_isset( 'excl_terms' ) ) {
 				$cats = array();
 				foreach ( $this->options[ "{$this->prefix}excl_terms" ] as $c ) {

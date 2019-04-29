@@ -817,11 +817,17 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
-		 * @param $post_objs
+		 * Gets the term labels for the specified taxonomy terms.
+		 *
+		 * @since 3.0 Added $prefixed_with_taxonomy
+		 * @since 3.0 Made function private
+		 *
+		 * @param array $post_objs Array of taxonomy terms.
+		 * @param bool $prefixed_with_taxonomy Whether to prefix the taxonomy name or not.
 		 *
 		 * @return array
 		 */
-		function get_term_labels( $post_objs, $prefixed_with_taxonomy = false ) {
+		private function get_term_labels( $post_objs, $prefixed_with_taxonomy = false ) {
 			$post_types = array();
 			foreach ( $post_objs as $p ) {
 				if ( ! empty( $p->name ) ) {
@@ -854,7 +860,12 @@ if ( ! class_exists( 'All_in_One_SEO_Pack_Module' ) ) {
 		}
 
 		/**
-		 * @param array $args
+		 * Gets the category titles.
+		 *
+		 * @since 3.0 Added $prefixed_with_taxonomy
+		 *
+		 * @param array $args Argument array to get categories.
+		 * @param bool $prefixed_with_taxonomy Whether to prefix the taxonomy name or not.
 		 *
 		 * @return array
 		 */

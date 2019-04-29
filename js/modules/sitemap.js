@@ -1,3 +1,9 @@
+/**
+ * Contains the functions useful for the sitemap module
+ *
+ * @since  3.0
+ */
+
 /* global sitemap */
 
 (function($, sitemap){
@@ -6,10 +12,23 @@
         initAll();
     });
 
+    /**
+     * Initializes everything required when DOM is ready.
+     *
+     * @since      3.0
+     */
     function initAll(){
         initAutocompleteChosen();
     }
 
+    /**
+     * Initializes the autocomplete+chosen textbox required for excluding taxonomy terms.
+     *
+     * @requires http://api.jqueryui.com/autocomplete/
+     * @requires https://harvesthq.github.io/chosen/
+     *
+     * @since      3.0
+     */
     function initAutocompleteChosen(){
         $('.aioseop-chosen').chosen({
             width               : '95%',
