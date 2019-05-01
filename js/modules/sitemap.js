@@ -4,7 +4,7 @@
  * @since  3.0
  */
 
-/* global sitemap */
+/* global aioseop_sitemap */
 
 (function($, sitemap){
     
@@ -92,4 +92,4 @@
         });
     }
 
-})(jQuery, sitemap);
+})(jQuery, aioseop_sitemap);
